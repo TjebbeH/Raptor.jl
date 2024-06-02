@@ -2,7 +2,7 @@ using Dates
 
 struct Label
     arrival_time::DateTime
-    fare::Rational
+    fare::Float64
     number_of_trips::Int
 end
 

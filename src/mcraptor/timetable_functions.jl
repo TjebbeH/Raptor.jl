@@ -20,9 +20,6 @@ get_timeperiod(trips::Dict{String,Trip}) = (first_arrival=first_arrival_time(tri
 
 get_routes(trips::Dict{String,Trip}) = Dict(trip.route.id => trip.route for trip in values(trips))
 
-
-
-
 function get_station(name::String, timetable::TimeTable)
     return filter(station -> station.name == name, collect(values(timetable.stations))) |> only
 end

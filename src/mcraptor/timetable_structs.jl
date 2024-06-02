@@ -16,7 +16,7 @@ struct StopTime
     stop::Stop
     arrival_time::DateTime
     departure_time::DateTime
-    fare::Rational
+    fare::Float64
 end
 
 struct Station
@@ -43,7 +43,7 @@ end
 struct FootPath
     from_stop::Stop
     to_stop::Stop
-    duration::Rational
+    duration::Float64
 end
 
 struct TimeTable
@@ -52,7 +52,8 @@ struct TimeTable
     stops::Dict{String,Stop} 
     trips::Dict{String,Trip} 
     routes::Dict{String,Route} 
-    footpaths::Dict{Tuple{String,String},FootPath} 
+    footpaths::Dict{Tuple{String,String},FootPath}
+    stop_routes_lookup::Dict{Stop, Dict{Route, Int64}}
 end
 
 
