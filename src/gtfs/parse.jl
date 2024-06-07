@@ -126,4 +126,4 @@ function parse_gtfs(directory::String, date::Date, agencies_in_scope::Vector = [
     return GtfsTimeTable(trips, stop_times, stops)
 end
 
-end # module ParseGTFS
+end # module

@@ -30,4 +30,6 @@ end
 
 display_name(stop::Stop) = stop.station_name * "-" * string(stop.platform_code)
 
+get_station(stop::Stop, timetable::TimeTable) = get_station(stop.station_name, timetable)
 
+get_other_stops_at_station(station::Station,stop::Stop) = filter(s -> s != stop, station.stops) 
