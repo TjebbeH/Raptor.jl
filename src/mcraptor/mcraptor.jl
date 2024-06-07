@@ -1,4 +1,4 @@
-include("./raptor_timetable.jl")
+include("../raptor_timetable/raptor_timetable.jl")
 using .RaptorTimeTable
 using Dates
 
@@ -8,20 +8,13 @@ using Dates
 # timetable = create_raptor_timetable(gtfs_dir,date);
 # save_timetable(timetable)
 
-# timetable = create_raptor_timetable("tmp_gtfs");
-# save_timetable(timetable)
-
 date = Date(2024,5,20)
 timetable = load_timetable();
 
 
 include("./journey_structs.jl")
 include("./raptor_structs.jl")
-
-include("./timetable_functions.jl") # tmp
-include("./raptor_functions.jl") # tmp
-# include("./logger.jl"); #tmp
-
+include("./raptor_functions.jl")
 
 origin = get_station(StationAbbreviation("ASN"), timetable);
 destination = get_station(StationAbbreviation("GN"), timetable);
@@ -34,5 +27,7 @@ maximum_rounds = 3
 bag_round_stop, round_counter = run_mc_raptor(timetable, query, maximum_rounds);
 
 
-
-
+resulting_bags = [bag_round_stop[end][s] for s in destination.stops]
+resulting_labels_first_bag = [o.label for o in resulting_bags[1].options]
+resulting_trips_first_bag = [o.trip.name for o in resulting_bags[1].options]
+resulting_from_stop_first_bag = ["$(o.from_stop.station_name)-$(o.from_stop.platform_code)" for o in resulting_bags[1].options]

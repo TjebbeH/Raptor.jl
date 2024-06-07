@@ -1,9 +1,5 @@
-struct McRaptorQuery
-    origin::Station
-    destination::Station
-    departure_time::DateTime
-end
 
+labels(bag::Bag) = [option.label for option in bag.options]
 
 create_stop_to_empty_bags(from_stops) = Dict(stop => Bag() for stop in from_stops)
 function initialize_bag_round_stop(maximum_rounds::Int, stops::Base.ValueIterator{Dict{String, Stop}})
@@ -11,7 +7,6 @@ function initialize_bag_round_stop(maximum_rounds::Int, stops::Base.ValueIterato
     bag_round_stop = [create_stop_to_empty_bags(stops) for _ in 1:maximum_rounds]
     return bag_round_stop
 end
-
 
 function initialize_round1!(bag_round_stop::Vector{Dict{Stop,Bag}}, query::McRaptorQuery)
     """Initialize empty bags for every stop at every round.
@@ -62,7 +57,8 @@ end
 
 function pareto_set_idx(labels::Vector{Label})
     """Calculate pareto set of labels of options.
-    That is, remove all labels that are dominated by an other."""
+    That is, remove all labels that are dominated by an other.
+    Note that duplicates are not removed."""
     to_keep = trues(size(labels))
     for (i, label) in enumerate(labels)
         to_keep[i] = !isdominated(label, labels[to_keep])
@@ -73,9 +69,8 @@ end
 function pareto_set(options::Vector{Option})
     labels = [o.label for o in options]
     to_keep = pareto_set_idx(labels)
-    return options[to_keep]
+    return options[to_keep] |> unique
 end
-
 
 function merge(bag1::Bag, bag2::Bag)
     """Merge bag1 and bag2.
@@ -87,7 +82,10 @@ end
 
 different_options(b1::Bag, b2::Bag) = b1.options != b2.options
 
-function traverse_routes!(bag_round_stop::Vector{Dict{Stop, Bag}}, k::Int, timetable::TimeTable, routes_to_travers::Dict{Route,Stop})
+function traverse_routes!(bag_round_stop::Vector{Dict{Stop, Bag}}, k::Int, timetable::TimeTable, marked_stops::Set{Stop})
+    routes_to_travers = get_routes_to_travers(marked_stops)
+    @debug "$(length(routes_to_travers)) routes to travers"
+
     new_marked_stops = Set{Stop}()
     for (marked_route, marked_stop) in routes_to_travers
         marked_stops_in_route = traverse_route!(bag_round_stop, k, timetable, marked_route, marked_stop)
@@ -121,6 +119,7 @@ function traverse_route!(bag_round_stop::Vector{Dict{Stop, Bag}}, k::Int, timeta
             from_fare = get_fare(option.trip, previous_stop)
 
             new_arrival_time = trip_stop_time.arrival_time
+            @show trip_stop_time
             option = update_option(option, new_arrival_time, from_fare)
             push!(updated_options, option)
         end
@@ -251,12 +250,8 @@ function run_mc_raptor(timetable::TimeTable, query::McRaptorQuery, maximum_round
         end
         round_counter = k
 
-        # Accumulate routes serving marked stops from previous round
-        routes_to_travers = get_routes_to_travers(marked_stops)
-        @debug "$(length(routes_to_travers)) routes to travers"
-
-        # Traverse each route
-        marked_stops_by_train = traverse_routes!(bag_round_stop, k, timetable, routes_to_travers)
+        # Traverse routes serving marked stops from previous round
+        marked_stops_by_train = traverse_routes!(bag_round_stop, k, timetable, marked_stops)
 
         # Walk to other stops at stations of marked_stops
         marked_stops_by_walking = add_walking!(bag_round_stop, k, timetable, marked_stops_by_train)

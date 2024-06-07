@@ -1,4 +1,5 @@
 using Dates
+include("../utils.jl")
 
 struct Label
     arrival_time::DateTime
@@ -13,11 +14,14 @@ struct Option
 end
 Option(label::Label) = Option(label, nothing, nothing)
 
-struct Bag
+struct Bag<:Comparable
     options::Vector{Option}
 end
 Bag() = Bag([])
 Bag(labels::Vector{Label}) = Bag([Option(label) for label in labels])
 
-
-labels(bag::Bag) = [option.label for option in bag.options]
+struct McRaptorQuery
+    origin::Station
+    destination::Station
+    departure_time::DateTime
+end

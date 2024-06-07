@@ -1,0 +1,37 @@
+include("../../src/raptor_timetable/raptor_timetable.jl")
+using .RaptorTimeTable
+include("../../src/mcraptor/journey_structs.jl")
+include("../../src/mcraptor/raptor_structs.jl")
+include("../../src/mcraptor/raptor_functions.jl")
+
+using Dates
+using Test
+
+l1 = Label(DateTime(2024,1,1,12), 0,2)
+l2 = Label(DateTime(2024,1,1,13), 0,2)
+l3 = Label(DateTime(2024,1,1,13), 0,1)
+
+ls = [l1,l2,l3,l3]
+ls_pareto_expected = [l1,l3]
+
+stop = Stop("id", "UT", "3")
+options_input = [Option(l, nothing, stop) for l in ls]
+
+b_all1 = Bag(options_input)
+b_all2 = Bag(options_input)
+b12 = Bag([Option(l1), Option(l2)])
+b3 = Bag([Option(l3)])
+b13 = Bag([Option(l1), Option(l3)])
+
+@test !is_geq_at_everything(l1,l2)
+@test is_geq_at_everything(l2,l1)
+@test !is_geq_at_everything(l3,l1)
+@test is_geq_at_everything(l3,l3)
+
+@test !isdominated(l1,ls)
+@test isdominated(l2,ls)
+@test !isdominated(l3,ls)
+
+@test pareto_set_idx(ls) == [true, false, true, true] # duplicates not yet removed
+@test pareto_set(options_input) == [Option(l, nothing, stop) for l in ls_pareto_expected]
+

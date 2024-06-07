@@ -1,4 +1,5 @@
-
+using Dates
+include("../utils.jl")
 
 struct JourneyLeg
     origin::Stop
@@ -7,7 +8,7 @@ struct JourneyLeg
     arrival_time::DateTime
 end
 
-struct Journey
+struct Journey<:Comparable
     legs::Vector{JourneyLeg}
 end
 
