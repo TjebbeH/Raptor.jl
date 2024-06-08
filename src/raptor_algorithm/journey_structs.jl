@@ -7,9 +7,6 @@ struct JourneyLeg
     arrival_time::DateTime
 end
 
-struct Journey<:Comparable
+struct Journey <: Comparable
     legs::Vector{JourneyLeg}
 end
-
-
-
