@@ -1,3 +1,8 @@
+name = "Raptor"
+uuid = "b090d68a-8df8-4aea-b865-41f2ccd73d3a"
+authors = ["Tjebbe Hepkema"]
+version = "0.1.0"
+
 [deps]
 Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
 
