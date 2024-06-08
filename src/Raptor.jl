@@ -1,4 +1,4 @@
-module McRaptor
+module Raptor
 
 export McRaptorQuery
 export run_mc_raptor

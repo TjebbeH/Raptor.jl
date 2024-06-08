@@ -1,6 +1,5 @@
-include("../../src/mcraptor.jl")
-import .McRaptor: Label, Stop, Option, Bag
-import .McRaptor: is_geq_at_everything, isdominated, pareto_set_idx, pareto_set, merge_bags
+import Raptor: Label, Stop, Option, Bag
+import Raptor: is_geq_at_everything, isdominated, pareto_set_idx, pareto_set, merge_bags
 
 using Dates
 using Test
