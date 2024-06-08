@@ -21,7 +21,7 @@ function initialize_round1!(bag_round_stop::Vector{Dict{Stop,Bag}}, query::McRap
     end
 end
 
-function get_routes_to_travers(marked_stops::Set{Stop})
+function get_routes_to_travers(timetable::TimeTable, marked_stops::Set{Stop})
     """Collect routes to travers that serve one of the marked_stops.
     Returns dict with routes as keys and the corresponding marked stop as value.
     """
@@ -72,7 +72,7 @@ function pareto_set(options::Vector{Option})
     return options[to_keep] |> unique
 end
 
-function merge(bag1::Bag, bag2::Bag)
+function merge_bags(bag1::Bag, bag2::Bag)
     """Merge bag1 and bag2.
     That is, return bag with pareto set of combined labels."""
     combined_options = [bag1.options; bag2.options] 
@@ -83,7 +83,7 @@ end
 different_options(b1::Bag, b2::Bag) = b1.options != b2.options
 
 function traverse_routes!(bag_round_stop::Vector{Dict{Stop, Bag}}, k::Int, timetable::TimeTable, marked_stops::Set{Stop})
-    routes_to_travers = get_routes_to_travers(marked_stops)
+    routes_to_travers = get_routes_to_travers(timetable, marked_stops)
     @debug "$(length(routes_to_travers)) routes to travers"
 
     new_marked_stops = Set{Stop}()
@@ -129,7 +129,7 @@ function traverse_route!(bag_round_stop::Vector{Dict{Stop, Bag}}, k::Int, timeta
         # Step 2: merge bag_route into bag_round_stop and remove dominated labels
         # The label contains the trip with which one arrives at current stop with k legs
         # and we boarded the trip at from_stop.
-        new_bag = merge(bag_round_stop[k][current_stop], route_bag)
+        new_bag = merge_bags(bag_round_stop[k][current_stop], route_bag)
         bag_updated = different_options(bag_round_stop[k][current_stop], new_bag)
         bag_round_stop[k][current_stop] = new_bag
 
@@ -139,7 +139,7 @@ function traverse_route!(bag_round_stop::Vector{Dict{Stop, Bag}}, k::Int, timeta
         end
 
         # Step 3: merge B_{k-1}(p) into B_r
-        route_bag = merge(route_bag, bag_round_stop[k - 1][current_stop])
+        route_bag = merge_bags(route_bag, bag_round_stop[k - 1][current_stop])
 
         # Assign trips to all newly added labels in route_bag
         # This is the trip on which we board
@@ -214,7 +214,7 @@ function add_walking!(bag_round_stop::Vector{Dict{Stop, Bag}}, k::Int, timetable
 
                 #TODO: make function (repeated fron traverse_route)
                 # Merge temp bag into B_k(p_j)
-                new_bag = merge(bag_round_stop[k][other_stop], temp_bag)
+                new_bag = merge_bags(bag_round_stop[k][other_stop], temp_bag)
                 bag_updated = different_options(bag_round_stop[k][other_stop], new_bag)
                 bag_round_stop[k][other_stop] = new_bag
 

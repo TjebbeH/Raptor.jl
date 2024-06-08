@@ -1,6 +1,9 @@
 include("../gtfs/parse.jl")
 using .ParseGTFS
 
+using Serialization
+using DataFrames
+
 function create_stops(gtfs_stops::DataFrame)
     """Create dict of stops from gtfs stops dataframe"""
     stops = Stop.(

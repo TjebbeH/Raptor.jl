@@ -1,8 +1,6 @@
-include("../../src/raptor_timetable/raptor_timetable.jl")
-using .RaptorTimeTable
-include("../../src/mcraptor/journey_structs.jl")
-include("../../src/mcraptor/raptor_structs.jl")
-include("../../src/mcraptor/raptor_functions.jl")
+include("../../src/mcraptor.jl")
+import .McRaptor: Label, Stop, Option, Bag
+import .McRaptor: is_geq_at_everything, isdominated, pareto_set_idx, pareto_set, merge_bags
 
 using Dates
 using Test
@@ -16,9 +14,11 @@ ls_pareto_expected = [l1,l3]
 
 stop = Stop("id", "UT", "3")
 options_input = [Option(l, nothing, stop) for l in ls]
+options_expected = [Option(l, nothing, stop) for l in ls_pareto_expected]
 
 b_all1 = Bag(options_input)
 b_all2 = Bag(options_input)
+bag_expected = Bag(options_expected)
 b12 = Bag([Option(l1), Option(l2)])
 b3 = Bag([Option(l3)])
 b13 = Bag([Option(l1), Option(l3)])
@@ -33,5 +33,7 @@ b13 = Bag([Option(l1), Option(l3)])
 @test !isdominated(l3,ls)
 
 @test pareto_set_idx(ls) == [true, false, true, true] # duplicates not yet removed
-@test pareto_set(options_input) == [Option(l, nothing, stop) for l in ls_pareto_expected]
+@test pareto_set(options_input) == options_expected
 
+@test merge_bags(b_all1, b_all2) == bag_expected
+@test merge_bags(b12,b3) == b13

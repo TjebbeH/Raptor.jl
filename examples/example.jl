@@ -1,20 +1,21 @@
-include("../raptor_timetable/raptor_timetable.jl")
-using .RaptorTimeTable
+include("../src/mcraptor.jl")
+using .McRaptor
+
+import .McRaptor: get_station, StationAbbreviation
+
 using Dates
 
-
+# import .McRaptor: create_raptor_timetable
+# import .McRaptor: save_timetable
 # gtfs_dir = "gtfs_nl_2024_05_20"
 # date = Date(2024,5,20)
 # timetable = create_raptor_timetable(gtfs_dir,date);
 # save_timetable(timetable)
 
+import .McRaptor: load_timetable 
 date = Date(2024,5,20)
 timetable = load_timetable();
 
-
-include("./journey_structs.jl")
-include("./raptor_structs.jl")
-include("./raptor_functions.jl")
 
 origin = get_station(StationAbbreviation("ASN"), timetable);
 destination = get_station(StationAbbreviation("GN"), timetable);
