@@ -1,18 +1,17 @@
-include("../src/mcraptor.jl")
-using .McRaptor
+using Raptor
 
-import .McRaptor: get_station, StationAbbreviation
+import Raptor: get_station, StationAbbreviation
 
 using Dates
 
-# import .McRaptor: create_raptor_timetable
-# import .McRaptor: save_timetable
+# import Raptor: create_raptor_timetable
+# import Raptor: save_timetable
 # gtfs_dir = "gtfs_nl_2024_05_20"
 # date = Date(2024,5,20)
 # timetable = create_raptor_timetable(gtfs_dir,date);
 # save_timetable(timetable)
 
-import .McRaptor: load_timetable
+import Raptor: load_timetable
 date = Date(2024, 5, 20)
 timetable = load_timetable();
 
