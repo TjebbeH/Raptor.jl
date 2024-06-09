@@ -57,7 +57,6 @@ function create_trip(
     route_id = triprow.route_id
 
     stops_in_trip_df = stop_times_with_trip_id(trip_id, gtfs_stop_times)
-    sort!(stops_in_trip_df, :stop_sequence)
     stops_in_trip = [stops[id] for id in stops_in_trip_df.stop_id]
 
     stop_times =
@@ -67,6 +66,7 @@ function create_trip(
             stops_in_trip_df.departure_time,
             0,
         )
+    sort!(stop_times, by=st->st.arrival_time)
 
     route = Route(route_id, stops_in_trip)
 

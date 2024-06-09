@@ -115,6 +115,8 @@ function traverse_route!(
 )
     """Traverse in round k, through a route from a (marked) stop.
     It updates (inplace) bag_round_stop and returns newly marked stops"""
+    @debug "traverse route= $(route)"
+    @debug "from stop: $stop"
 
     # Get all stops after stop within the current route
     stop_index = get_stop_idx_in_route(timetable, stop, route)
@@ -135,7 +137,6 @@ function traverse_route!(
             from_fare = get_fare(option.trip, previous_stop)
 
             new_arrival_time = trip_stop_time.arrival_time
-            @show trip_stop_time
             option = update_option(option, new_arrival_time, from_fare)
             push!(updated_options, option)
         end
@@ -162,13 +163,17 @@ function traverse_route!(
         updated_options = Option[]
         for option in route_bag.options
             label = option.label
+            @debug "get earliest trip from $(current_stop) after $(label.arrival_time)"
             earliest_trip =
                 get_earliest_trip(timetable, route, current_stop, label.arrival_time)
             if !isnothing(earliest_trip)
+                @debug "earliest trip is $(earliest_trip.name) with stop_times = $(earliest_trip.stop_times)"
                 # Update label with earliest trip in route leaving from this station
                 # If trip is different we board the trip at current_stop
                 option = update_option(option, current_stop, earliest_trip)
                 push!(updated_options, option)
+            else
+                @debug "no earliest trip found"
             end
         end
 
