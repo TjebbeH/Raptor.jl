@@ -8,7 +8,7 @@ using DataFrames, CSV
 export parse_gtfs, GtfsTimeTable
 
 struct GtfsData
-    directory::String
+    path::String
     date::Date
 end
 
@@ -27,8 +27,7 @@ struct GtfsTimeTable
 end
 
 function read_gtfs_csv(gtfs_data::GtfsData, filename::String)
-    dir = gtfs_data.directory
-    path_to_file = joinpath([@__DIR__, "data", dir, filename])
+    path_to_file = joinpath([gtfs_data.path, filename])
     return CSV.read(path_to_file, DataFrame, types = String)
 end
 
@@ -60,7 +59,7 @@ end
 
 function parse_stop_times(gtfs_data::GtfsData, trips::DataFrame)
     stop_times = read_gtfs_csv(gtfs_data, "stop_times.txt")
-    select!(stop_times, :trip_id, :stop_sequence, :stop_id, :arrival_time, :departure_time)
+    select!(stop_times, :trip_id, :stop_id, :arrival_time, :departure_time)
 
     # add date to stop_times and convert times to datetimes
     stop_times = innerjoin(stop_times, select(trips, :trip_id, :date), on = :trip_id)
@@ -72,7 +71,7 @@ function parse_stop_times(gtfs_data::GtfsData, trips::DataFrame)
     stop_times.arrival_time = combine.(stop_times.date, stop_times.arrival_time)
     stop_times.departure_time = combine.(stop_times.date, stop_times.departure_time)
 
-    select!(stop_times, :trip_id, :stop_sequence, :stop_id, :arrival_time, :departure_time)
+    select!(stop_times, :trip_id, :stop_id, :arrival_time, :departure_time)
     return stop_times
 end
 
@@ -81,6 +80,7 @@ function parse_stops(gtfs_data::GtfsData, stop_ids_in_scope::Vector)
     stops = filter(:stop_id => in(stop_ids_in_scope), stops_full)
 
     # add station codes
+    #TODO:check?
     parent_stations = unique(stops.parent_station)
     stations = filter(:stop_id => in(parent_stations), stops_full)
     stations.stop_code = uppercase.(stations.stop_code)
@@ -127,3 +127,4 @@ function parse_gtfs(directory::String, date::Date, agencies_in_scope::Vector = [
 end
 
 end # module
+
