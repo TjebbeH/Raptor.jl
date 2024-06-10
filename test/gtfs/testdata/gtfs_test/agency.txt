@@ -1,0 +1,3 @@
+agency_id,agency_name,agency_url,agency_timezone,agency_phone
+IFF:NS,NS,http://www.ns.nl,Europe/Amsterdam,003130-7515155
+ARR,Arriva,https://arriva.nl/,Europe/Amsterdam,0031800-0232545

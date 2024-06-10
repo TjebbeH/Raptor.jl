@@ -1,0 +1,5 @@
+trip_id,stop_sequence,stop_id,stop_headsign,arrival_time,departure_time,pickup_type,drop_off_type,timepoint,shape_dist_traveled,fare_units_traveled
+191659463,,2473089,,11:58:00,12:00:00,,,,,
+191659463,,2473090,,14:00:00,14:00:00,,,,,
+191659464,,2473089,,23:50:00,23:51:00,,,,,
+191659464,,2473090,,24:30:00,24:32:00,,,,,

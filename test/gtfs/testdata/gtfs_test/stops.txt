@@ -1,0 +1,5 @@
+stop_id,stop_code,stop_name,stop_lat,stop_lon,location_type,parent_station,stop_timezone,wheelchair_boarding,platform_code,zone_id
+2473089,,Station A,,,,stoparea:17853,,,2,
+2473090,,Station B,,,,stoparea:17854,,,,
+stoparea:17853,sta,Station A,,,,,,,,
+stoparea:17854,stb,Station B,,,,,,,,
