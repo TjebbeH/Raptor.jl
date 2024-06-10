@@ -1,6 +1,3 @@
-
-module ParseGTFS
-
 using Logging
 using Dates
 using DataFrames, CSV
@@ -14,15 +11,12 @@ end
 
 struct GtfsTimeTable
     # route_id, trip_id, trip_short_name, trip_long_name, date
-    #(trainserie, trainnumber, date)
     trips::DataFrame
 
-    # trip_id, stop_sequence, stop_id, arrival_time, departure_time
-    # (station, platform, arrival time, departure time)
+    # trip_id, stop_id, arrival_time, departure_time
     stop_times::DataFrame
 
     # stop_id, stop_name, stop_code, platform_code
-    # (station platform)
     stops::DataFrame
 end
 
@@ -31,19 +25,19 @@ function read_gtfs_csv(gtfs_data::GtfsData, filename::String)
     return CSV.read(path_to_file, DataFrame, types = String)
 end
 
-function parse_agencies(gtfs_data::GtfsData, agencies_in_scope::Vector)
+function parse_gtfs_agencies(gtfs_data::GtfsData, agencies_in_scope::Vector)
     agencies = read_gtfs_csv(gtfs_data, "agency.txt")
     filter!(:agency_name => in(agencies_in_scope), agencies)
     return agencies
 end
 
-function parse_routes(gtfs_data::GtfsData, agency_ids_in_scope::Vector)
+function parse_gtfs_routes(gtfs_data::GtfsData, agency_ids_in_scope::Vector)
     routes = read_gtfs_csv(gtfs_data, "routes.txt")
     filter!(:agency_id => in(agency_ids_in_scope), routes)
     return routes
 end
 
-function parse_trips(gtfs_data::GtfsData, route_ids_in_scope::Vector)
+function parse_gtfs_trips(gtfs_data::GtfsData, route_ids_in_scope::Vector)
     trips = read_gtfs_csv(gtfs_data, "trips.txt")
     filter!(:route_id => in(route_ids_in_scope), trips)
 
@@ -57,7 +51,7 @@ function parse_trips(gtfs_data::GtfsData, route_ids_in_scope::Vector)
     return trips
 end
 
-function parse_stop_times(gtfs_data::GtfsData, trips::DataFrame)
+function parse_gtfs_stop_times(gtfs_data::GtfsData, trips::DataFrame)
     stop_times = read_gtfs_csv(gtfs_data, "stop_times.txt")
     select!(stop_times, :trip_id, :stop_id, :arrival_time, :departure_time)
 
@@ -75,12 +69,11 @@ function parse_stop_times(gtfs_data::GtfsData, trips::DataFrame)
     return stop_times
 end
 
-function parse_stops(gtfs_data::GtfsData, stop_ids_in_scope::Vector)
+function parse_gtfs_stops(gtfs_data::GtfsData, stop_ids_in_scope::Vector)
     stops_full = read_gtfs_csv(gtfs_data, "stops.txt")
     stops = filter(:stop_id => in(stop_ids_in_scope), stops_full)
 
     # add station codes
-    #TODO:check?
     parent_stations = unique(stops.parent_station)
     stations = filter(:stop_id => in(parent_stations), stops_full)
     stations.stop_code = uppercase.(stations.stop_code)
@@ -96,28 +89,28 @@ function parse_stops(gtfs_data::GtfsData, stop_ids_in_scope::Vector)
 end
 
 
-function parse_gtfs(directory::String, date::Date, agencies_in_scope::Vector = ["NS"])
+function parse_gtfs(path::String, date::Date, agencies_in_scope::Vector = ["NS"])
     @info "create gtfs timetable"
 
-    gtfs_data = GtfsData(directory, date)
+    gtfs_data = GtfsData(path, date)
 
     @info " parse agencies"
-    agencies = parse_agencies(gtfs_data, agencies_in_scope)
+    agencies = parse_gtfs_agencies(gtfs_data, agencies_in_scope)
     agency_ids_in_scope = unique(agencies.agency_id)
 
     @info " parse routes"
-    routes = parse_routes(gtfs_data, agency_ids_in_scope)
+    routes = parse_gtfs_routes(gtfs_data, agency_ids_in_scope)
     route_ids_in_scope = unique(routes.route_id)
 
     @info " parse trips"
-    trips = parse_trips(gtfs_data, route_ids_in_scope)
+    trips = parse_gtfs_trips(gtfs_data, route_ids_in_scope)
 
     @info " parse stop_times"
-    stop_times = parse_stop_times(gtfs_data, trips)
+    stop_times = parse_gtfs_stop_times(gtfs_data, trips)
     stop_ids_in_scope = string.(unique(stop_times.stop_id))
 
     @info " parse stops"
-    stops = parse_stops(gtfs_data, stop_ids_in_scope)
+    stops = parse_gtfs_stops(gtfs_data, stop_ids_in_scope)
 
     disallowmissing!(trips)
     disallowmissing!(stop_times)
@@ -125,6 +118,3 @@ function parse_gtfs(directory::String, date::Date, agencies_in_scope::Vector = [
 
     return GtfsTimeTable(trips, stop_times, stops)
 end
-
-end # module
-

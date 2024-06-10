@@ -1,6 +1,3 @@
-include("../gtfs/parse.jl")
-using .ParseGTFS
-
 using Serialization
 using DataFrames
 
