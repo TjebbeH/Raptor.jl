@@ -8,7 +8,6 @@ import .ParseGTFS: parse_stop_times, parse_stops
 using Test
 using Dates
 
-# Create gtfs test data
 date = Date(2021,10,21)
 path = joinpath([@__DIR__,"testdata","gtfs_test"])
 gtfs_data = GtfsData(path, date)
@@ -52,11 +51,10 @@ expected_departure_times = [
 @test stop_times.stop_id == repeat(["2473089","2473090"], outer=2)
 @test stop_times.arrival_time == expected_arrival_times
 @test stop_times.departure_time == expected_departure_times
-
-# Test if stops are correctly parsed
 stop_ids_in_scope = string.(unique(stop_times.stop_id))
 @test stop_ids_in_scope == ["2473089","2473090"]
 
+# Test if stops are correctly parsed
 stops = parse_stops(gtfs_data, stop_ids_in_scope)
 @test stops.stop_id == ["2473089", "2473090"]
 @test stops.stop_name == ["Station A", "Station B"]

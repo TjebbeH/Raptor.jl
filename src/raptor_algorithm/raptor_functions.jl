@@ -84,6 +84,9 @@ function merge_bags(bag1::Bag, bag2::Bag)
     return Bag(pareto_options)
 end
 
+merge_bags(bags::Vector{Bag}) = reduce(merge_bags, bags)
+
+
 different_options(b1::Bag, b2::Bag) = b1.options != b2.options
 
 function traverse_routes!(
@@ -260,7 +263,7 @@ function run_mc_raptor(timetable::TimeTable, query::McRaptorQuery, maximum_round
 
     marked_stops = Set{Stop}(query.origin.stops)
 
-    round_counter = 1
+    last_round = 1
     for k = 2:maximum_rounds
         @info "round $k: analyzing possibilities from $(length(marked_stops)) stops"
 
@@ -270,7 +273,7 @@ function run_mc_raptor(timetable::TimeTable, query::McRaptorQuery, maximum_round
             @debug "no marked stops"
             break
         end
-        round_counter = k
+        last_round = k
 
         # Traverse routes serving marked stops from previous round
         marked_stops_by_train = traverse_routes!(bag_round_stop, k, timetable, marked_stops)
@@ -284,5 +287,5 @@ function run_mc_raptor(timetable::TimeTable, query::McRaptorQuery, maximum_round
 
     end
     @info "finished raptor algorithm to create bag with best options"
-    return bag_round_stop, round_counter
+    return bag_round_stop, last_round
 end

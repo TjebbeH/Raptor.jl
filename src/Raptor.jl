@@ -11,8 +11,8 @@ include("raptor_timetable/timetable_creation.jl")
 include("raptor_timetable/timetable_functions.jl")
 
 # Algorithm
-include("raptor_algorithm/journey_structs.jl")
 include("raptor_algorithm/raptor_structs.jl")
 include("raptor_algorithm/raptor_functions.jl")
+include("raptor_algorithm/journey_structs.jl")
 
 end
