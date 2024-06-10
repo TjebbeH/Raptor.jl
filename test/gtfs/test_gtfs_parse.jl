@@ -10,7 +10,7 @@ using Dates
 
 # Create gtfs test data
 date = Date(2021,10,21)
-path = joinpath([@__DIR__,"data","gtfs_test"])
+path = joinpath([@__DIR__,"testdata","gtfs_test"])
 gtfs_data = GtfsData(path, date)
 
 # Test if read_gtfs_csv returns something
