@@ -39,8 +39,6 @@ get_station(stop::Stop, timetable::TimeTable) = get_station(stop.station_name, t
 get_other_stops_at_station(station::Station, stop::Stop) =
     filter(s -> s != stop, station.stops)
 
-
-
 function get_stop_idx_in_route(timetable::TimeTable, stop::Stop, route::Route)
     """Look up stop index of stop in route"""
     return timetable.stop_routes_lookup[stop][route]
@@ -54,7 +52,6 @@ function first_in_route(timetable::TimeTable, route::Route, stop1::Stop, stop2::
 end
 first_in_route(timetable::TimeTable, route::Route, stop1::Stop, stop2::Missing) = stop1
 first_in_route(timetable::TimeTable, route::Route, stop1::Missing, stop2::Stop) = stop2
-
 
 function get_stop_time(trip::Trip, stop::Stop)
     """Get stop time from a stop in a trip.

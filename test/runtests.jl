@@ -8,6 +8,9 @@ with_logger(ConsoleLogger(stderr, Warn)) do
     @safetestset "Timetable creation" begin
         include("./raptor_timetable/test_timetable_creation.jl")
     end
+    @safetestset "Timetable creation" begin
+        include("./raptor_timetable/test_timetable_functions.jl")
+    end
     @safetestset "Gtfs Timetable" begin
         include("./gtfs/test_gtfs_parse.jl")
     end
