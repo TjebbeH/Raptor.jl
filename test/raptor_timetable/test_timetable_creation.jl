@@ -2,6 +2,7 @@ import Raptor: parse_gtfs
 import Raptor: create_stops, Stop
 import Raptor: create_stations, stops_with_stopname, Station
 import Raptor: create_trips, Trip, StopTime, Route
+import Raptor: create_footpaths, FootPath
 
 using Dates
 using DataFrames
@@ -75,3 +76,21 @@ expected_trips = Dict(
     "191659464" => Trip("191659464", "527", "Intercity", expected_route, expected_stop_times_2)
 )
 @test trips == expected_trips
+
+# Test if foothpaths are correctly created
+# input stations (added one platform at station A wrt gtfs stations)
+stop_STA_platform2 = Stop("2473089", "Station A", "2")
+stop_STA_platform3 = Stop("2473088", "Station A", "3")
+walktime = 5.0*60
+input_stations = Dict(
+    "STA" => Station("STA", "Station A", [stop_STA_platform2,stop_STA_platform3]),
+    "STB" => Station("STB", "Station B", [Stop("2473090", "Station B", "?")]),
+)
+foothpaths = create_footpaths(input_stations, walktime)
+expected_footpaths = Dict(
+    (stop_STA_platform2.id, stop_STA_platform3.id) =>
+    FootPath(stop_STA_platform2, stop_STA_platform3, Second(walktime)),
+    (stop_STA_platform3.id, stop_STA_platform2.id) =>
+    FootPath(stop_STA_platform3, stop_STA_platform2, Second(walktime))
+)
+@test foothpaths == expected_footpaths
