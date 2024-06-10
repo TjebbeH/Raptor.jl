@@ -1,8 +1,10 @@
 import Raptor: parse_gtfs
 import Raptor: create_stops, Stop
 import Raptor: create_stations, stops_with_stopname, Station
-import Raptor: create_trips, Trip, StopTime, Route
+import Raptor: create_trips, get_routes, Trip, StopTime, Route
 import Raptor: create_footpaths, FootPath
+import Raptor: create_stop_routes_lookup, create_route_trip_lookup
+
 
 using Dates
 using DataFrames
@@ -77,6 +79,17 @@ expected_trips = Dict(
 )
 @test trips == expected_trips
 
+# Test get_routes
+routes = get_routes(trips)
+route = Route(
+    "67394",
+    [
+        Stop("2473089", "Station A", "2"), 
+        Stop("2473090", "Station B", "?")
+    ]
+)
+@test routes == Dict(route.id => route) 
+
 # Test if foothpaths are correctly created
 # input stations (added one platform at station A wrt gtfs stations)
 stop_STA_platform2 = Stop("2473089", "Station A", "2")
@@ -94,3 +107,27 @@ expected_footpaths = Dict(
     FootPath(stop_STA_platform3, stop_STA_platform2, Second(walktime))
 )
 @test foothpaths == expected_footpaths
+
+# Test create_stop_routes_lookup
+# make different one from gtfs to have more stops
+stop1 = Stop("1","s1","1")
+stop2 = Stop("2","s2","1")
+stop3 = Stop("3","s2","1")
+stops = [stop1, stop2, stop3]
+route1 = Route("route1", stops)
+route2 = Route("route2", reverse(stops))
+routes  = [route1, route2]
+stop_routes_lookup = create_stop_routes_lookup([stop2, stop1, stop3],routes)
+expected_stop_routes_lookup = Dict(
+    stop1 => Dict(route1=>1, route2=>3),
+    stop2 => Dict(route1=>2, route2=>2),
+    stop3 => Dict(route1=>3, route2=>1),
+)
+@test stop_routes_lookup == expected_stop_routes_lookup
+
+# Test create_route_trip_lookup
+routes = get_routes(trips)
+input_trips = collect(values(trips))
+input_routes = collect(values(routes))
+route_trip_lookup = create_route_trip_lookup(input_trips, input_routes)
+@test route_trip_lookup == Dict(input_routes[1] => input_trips)
