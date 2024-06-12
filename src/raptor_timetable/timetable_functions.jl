@@ -20,9 +20,26 @@ get_timeperiod(trips::Dict{String,Trip}) =
 get_routes(trips::Dict{String,Trip}) =
     Dict(trip.route.id => trip.route for trip in values(trips))
 
+"""Try to get a station from timetable by name or abbreviation"""
+function try_to_get_station(name::String, timetable::TimeTable)
+    local station
+    try
+        station = get_station(name, timetable)
+    catch ArgumentError
+        try
+            abbreviation = StationAbbreviation(name)
+            station = get_station(abbreviation, timetable)
+        catch ArgumentError
+            @warn "Station '$name' not found in timetable"
+            return missing
+        end
+    end
+    return station
+end
+
+
 function get_station(name::String, timetable::TimeTable)
-    return filter(station -> station.name == name, collect(values(timetable.stations))) |>
-           only
+    station = filter(station -> station.name == name, collect(values(timetable.stations))) |> only
 end
 
 function get_station(abbreviation::StationAbbreviation, timetable::TimeTable)
@@ -39,13 +56,13 @@ get_station(stop::Stop, timetable::TimeTable) = get_station(stop.station_name, t
 get_other_stops_at_station(station::Station, stop::Stop) =
     filter(s -> s != stop, station.stops)
 
+"""Look up stop index of stop in route"""
 function get_stop_idx_in_route(timetable::TimeTable, stop::Stop, route::Route)
-    """Look up stop index of stop in route"""
     return timetable.stop_routes_lookup[stop][route]
 end
 
+"""Return stop that is first in route (stop1 or stop2)"""
 function first_in_route(timetable::TimeTable, route::Route, stop1::Stop, stop2::Stop)
-    """Return stop that is first in route (stop1 or stop2)"""
     idx_stop1 = get_stop_idx_in_route(timetable, stop1, route)
     idx_stop2 = get_stop_idx_in_route(timetable, stop2, route)
     return idx_stop1 < idx_stop2 ? stop1 : stop2
@@ -53,9 +70,9 @@ end
 first_in_route(timetable::TimeTable, route::Route, stop1::Stop, stop2::Missing) = stop1
 first_in_route(timetable::TimeTable, route::Route, stop1::Missing, stop2::Stop) = stop2
 
+"""Get stop time from a stop in a trip.
+Returns nothing when stop is not in trip"""
 function get_stop_time(trip::Trip, stop::Stop)
-    """Get stop time from a stop in a trip.
-    Returns nothing when stop is not in trip"""
     stop_time = filter(stop_time -> stop_time.stop == stop, trip.stop_times)
     if isempty(stop_time)
         return nothing
@@ -63,10 +80,10 @@ function get_stop_time(trip::Trip, stop::Stop)
     return stop_time |> only
 end
 
+"""Get fare from departing stop in trip.
+Returns zero when stop is not in trip.
+"""
 function get_fare(trip::Trip, departing_stop::Stop)
-    """Get fare from departing stop in trip.
-    Returns zero when stop is not in trip.
-    """
     stop_time = get_stop_time(trip, departing_stop)
     if !isnothing(stop_time)
         return stop_time.fare
@@ -75,13 +92,13 @@ function get_fare(trip::Trip, departing_stop::Stop)
 end
 
 
+"""Get earliest trip traveling route departing at stop after departure_time"""
 function get_earliest_trip(
     timetable::TimeTable,
     route::Route,
     stop::Stop,
     departure_time::DateTime,
 )
-    """Get earliest trip traveling route departing at stop after departure_time"""
     trips = timetable.route_trip_lookup[route]
     departures_from_stop =
         Dict(get_stop_time(trip, stop).departure_time => trip for trip in trips)
