@@ -27,7 +27,7 @@ function create_test_timetable()
         Station("S1", "Station 1", [Stop("s11",  "Station 1", "1" )]),
         Station("S2", "Station 2", [Stop("s2$i", "Station 2", "$i") for i in 1:3]),
         Station("S3", "Station 3", [Stop("s31",  "Station 3", "1" )]),
-        Station("S4", "Station 4", [Stop("s41",  "Station 4", "$i") for i in 1:3]),
+        Station("S4", "Station 4", [Stop("s4$i",  "Station 4", "$i") for i in 1:3]),
         Station("S5", "Station 5", [Stop("s51",  "Station 5", "1")]),
         Station("S6", "Station 6", [Stop("s61",  "Station 6", "1")]),
         Station("S7", "Station 7", [Stop("s7$i", "Station 7", "$i") for i in 1:2]),
