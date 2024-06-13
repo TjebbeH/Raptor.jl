@@ -63,8 +63,7 @@ function create_trip(
             stops_in_trip_df.departure_time,
             0,
         )
-
-    route = Route(hash(stops_in_trip), stops_in_trip)
+    route = Route(stops_in_trip)
 
     return Trip(string(trip_id), trip_name, trip_formula, route, stop_times)
 end

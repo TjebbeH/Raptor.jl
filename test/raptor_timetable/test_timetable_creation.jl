@@ -42,7 +42,6 @@ expected_stations = Dict(
 # Test if correct trips are created
 trips = create_trips(gtfs_timetable.trips, gtfs_timetable.stop_times, stops)
 expected_route = Route(
-    "67394",
     [Stop("2473089", "Station A", "2"), Stop("2473090", "Station B", "?")]
 )
 expected_stop_times_1 = [
@@ -82,7 +81,6 @@ expected_trips = Dict(
 # Test get_routes
 routes = get_routes(trips)
 route = Route(
-    "67394",
     [
         Stop("2473089", "Station A", "2"), 
         Stop("2473090", "Station B", "?")
@@ -114,8 +112,8 @@ stop1 = Stop("1","s1","1")
 stop2 = Stop("2","s2","1")
 stop3 = Stop("3","s2","1")
 stops = [stop1, stop2, stop3]
-route1 = Route("route1", stops)
-route2 = Route("route2", reverse(stops))
+route1 = Route(stops)
+route2 = Route(reverse(stops))
 routes  = [route1, route2]
 stop_routes_lookup = create_stop_routes_lookup([stop2, stop1, stop3],routes)
 expected_stop_routes_lookup = Dict(

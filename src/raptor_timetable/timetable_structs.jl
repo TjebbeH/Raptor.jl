@@ -27,10 +27,15 @@ Station(abbreviation::String, name::String, stops::Vector{Stop}) =
     Station(StationAbbreviation(abbreviation), name, stops)
 
 struct Route <: Comparable
-    id::UInt # hash of stops since route_id is not unique 
+    id::String
     # name::String # treinserie
     stops::Vector{Stop}
 end
+function Route(stops::Vector{Stop})
+    route_id = join([s.id for s in stops], "-")
+    return Route(route_id, stops)
+end
+
 
 struct Trip <: Comparable
     id::String
@@ -51,7 +56,7 @@ struct TimeTable
     stations::Dict{String,Station}
     stops::Dict{String,Stop}
     trips::Dict{String,Trip}
-    routes::Dict{UInt,Route}
+    routes::Dict{String,Route}
     footpaths::Dict{Tuple{String,String},FootPath}
     stop_routes_lookup::Dict{Stop,Dict{Route,Int64}}
     route_trip_lookup::Dict{Route,Vector{Trip}}
