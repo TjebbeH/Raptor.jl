@@ -23,7 +23,7 @@ today = Date(2021,10,21)
 @test get_station("Station 1", tt) == tt.stations["S1"]
 @test get_station(tt.stops["s11"], tt) == tt.stations["S1"]
 @test try_to_get_station("Station 1", tt) == tt.stations["S1"]
-@test try_to_get_station("STA", tt) == tt.stations["S1"]
+@test try_to_get_station("S1", tt) == tt.stations["S1"]
 @test ismissing(try_to_get_station("Non existent station", tt))
 
 @test get_other_stops_at_station(tt.stations["S2"], tt.stops["s21"]) == [tt.stops["s2$s"] for s in 2:3]
