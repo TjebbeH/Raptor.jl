@@ -39,14 +39,11 @@ end
 
 
 function get_station(name::String, timetable::TimeTable)
-    station = filter(station -> station.name == name, collect(values(timetable.stations))) |> only
-end
+    return first(Iterators.filter(station -> station.name == name, values(timetable.stations)))
+end 
 
 function get_station(abbreviation::StationAbbreviation, timetable::TimeTable)
-    return filter(
-        station -> station.abbreviation == abbreviation,
-        collect(values(timetable.stations)),
-    ) |> only
+    return first(Iterators.filter(station -> station.abbreviation == abbreviation, values(timetable.stations)))
 end
 
 display_name(stop::Stop) = stop.station_name * "-" * string(stop.platform_code)
