@@ -51,11 +51,11 @@ function create_trip(
     trip_id = triprow.trip_id
     trip_name = triprow.trip_short_name
     trip_formula = triprow.trip_long_name
-    route_id = triprow.route_id
 
     stops_in_trip_df = stop_times_with_trip_id(trip_id, gtfs_stop_times)
-    stops_in_trip = [stops[id] for id in stops_in_trip_df.stop_id]
+    sort!(stops_in_trip_df, [:arrival_time])
 
+    stops_in_trip = [stops[id] for id in stops_in_trip_df.stop_id]
     stop_times =
         StopTime.(
             stops_in_trip,
@@ -63,9 +63,8 @@ function create_trip(
             stops_in_trip_df.departure_time,
             0,
         )
-    sort!(stop_times, by=st->st.arrival_time)
 
-    route = Route(route_id, stops_in_trip)
+    route = Route(hash(stops_in_trip), stops_in_trip)
 
     return Trip(string(trip_id), trip_name, trip_formula, route, stop_times)
 end
