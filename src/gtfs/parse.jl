@@ -2,8 +2,6 @@ using Logging
 using Dates
 using DataFrames, CSV
 
-export parse_gtfs, GtfsTimeTable
-
 struct GtfsData
     path::String
     date::Date
