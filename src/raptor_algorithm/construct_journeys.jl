@@ -69,7 +69,7 @@ end
 
 function display_journeys(journeys::Vector{Journey})
     for (i, journey) in enumerate(journeys)
-        printstyled("Option $i:\n", bold=true, color=:blue)
+        printstyled("Option $i:\n", bold=true, color=:yellow)
         display_journey(journey)
     end
 end
