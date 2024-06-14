@@ -21,12 +21,20 @@ end
 function reconstruct_journeys(query, bag_round_stop, last_round)
     """Reconstruct journeys"""
     bag_last_round = bag_round_stop[last_round]
-    
+
     to_stops = query.destination.stops
     station_bag = merge_bags([bag_last_round[s] for s in to_stops])
-    to_stop = keys(filter(x -> x[2] == station_bag, bag_last_round)) |> only 
+    #TODO: make nicer
+    journeys = Journey[]
+    for option in station_bag.options
+        for s in to_stops
+            if option in bag_last_round[s].options
+                leg = JourneyLeg(option,s)
+                push!(journeys, Journey([leg]))
+            end
+        end
+    end
 
-    journeys = Journeys(station_bag.options, to_stop)
     if isempty(journeys)
         @warn "destination $(query.destination.name) unreachable"
     end

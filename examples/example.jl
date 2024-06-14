@@ -16,11 +16,11 @@ date = Date(2024, 5, 20)
 timetable = load_timetable();
 
 origin = "UT"
-destination = "DV"
+destination = "GN"
 departure_time = DateTime(2024, 5, 20, 12, 0, 0);
 
 query = McRaptorQuery(origin, destination, departure_time, timetable);
-maximum_rounds = 3;
+maximum_rounds = 10;
 
 bag_round_stop, last_round = run_mc_raptor(timetable, query, maximum_rounds);
 journeys = reconstruct_journeys(query, bag_round_stop, last_round);
