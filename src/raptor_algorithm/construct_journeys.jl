@@ -25,6 +25,7 @@ function reconstruct_journeys(query, bag_round_stop, last_round)
     to_stops = query.destination.stops
     station_bag = merge_bags([bag_last_round[s] for s in to_stops])
     #TODO: make nicer
+    #TODO: make test which tests this
     journeys = Journey[]
     for option in station_bag.options
         for s in to_stops
