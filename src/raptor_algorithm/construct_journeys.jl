@@ -55,10 +55,21 @@ function display_journey(journey::Journey)
 end
 
 function display_leg(leg::JourneyLeg)
-    from_station = "$(leg.from_stop.station_name) sp.$(leg.from_stop.platform_code)"
-    to_station = "$(leg.to_stop.station_name) sp.$(leg.to_stop.platform_code)"
+    station_string_length = 30
+    from = "$(leg.from_stop.station_name) sp.$(leg.from_stop.platform_code)"
+    to = "$(leg.to_stop.station_name) sp.$(leg.to_stop.platform_code)"
+    from = rpad(from, station_string_length, " ")
+    to = rpad(to, station_string_length, " ")
+
     mode = is_transfer(leg) ? "by foot" : "with $(leg.trip.name)" 
     arrival_time = "$(Dates.format(leg.arrival_time, dateformat"HH:MM"))"
     # departure_time = "$(Dates.format(leg.departure_time, dateformat"HH:MM"))"
-    return "$from_station ()  to  $to_station ($arrival_time)  $mode"
+    return "$from ()  to  $to ($arrival_time)  $mode"
+end
+
+function display_journeys(journeys::Vector{Journey})
+    for (i, journey) in enumerate(journeys)
+        printstyled("Option $i:\n", bold=true, color=:blue)
+        display_journey(journey)
+    end
 end
