@@ -2,9 +2,9 @@ using Test, SafeTestsets
 import Logging: Warn, ConsoleLogger, with_logger
 
 with_logger(ConsoleLogger(stderr, Warn)) do
-    # @safetestset "Aqua quality assurance test" begin
-    #     include("./aqua.jl")
-    # end
+    @safetestset "Aqua quality assurance test" begin
+        include("./aqua.jl")
+    end
     @safetestset "Timetable creation" begin
         include("./raptor_timetable/test_timetable_creation.jl")
     end
