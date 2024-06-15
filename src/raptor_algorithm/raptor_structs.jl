@@ -8,9 +8,9 @@ end
 
 struct Option
     label::Label
-    means::Union{FootPath, Trip, Nothing} # trip or footpath to take to obtain criteria in label
-    from_stop::Union{Stop, Nothing} # stop to hop-on the trip
-    from_departure_time::Union{DateTime, Nothing} # moment to hop-on the trip
+    means::Union{FootPath,Trip,Nothing} # trip or footpath to take to obtain criteria in label
+    from_stop::Union{Stop,Nothing} # stop to hop-on the trip
+    from_departure_time::Union{DateTime,Nothing} # moment to hop-on the trip
 end
 Option(label::Label) = Option(label, nothing, nothing, nothing)
 
@@ -29,11 +29,11 @@ end
 
 """Constructor where it trys to interpret the origin and destination string as a station"""
 function McRaptorQuery(
-        origin::String,
-        destination::String,
-        departure_time::DateTime,
-        timetable::TimeTable,
-        maximum_number_of_rounds::Integer
+    origin::String,
+    destination::String,
+    departure_time::DateTime,
+    timetable::TimeTable,
+    maximum_number_of_rounds::Integer,
 )
     origin_station = try_to_get_station(origin, timetable)
     destination_station = try_to_get_station(destination, timetable)
@@ -41,15 +41,15 @@ function McRaptorQuery(
         origin_station,
         destination_station,
         departure_time,
-        maximum_number_of_rounds
+        maximum_number_of_rounds,
     )
 end
 """Constructor where it trys to interpret the origin and destination string as a station and default 10 round"""
 function McRaptorQuery(
-        origin::String,
-        destination::String,
-        departure_time::DateTime,
-        timetable::TimeTable
+    origin::String,
+    destination::String,
+    departure_time::DateTime,
+    timetable::TimeTable,
 )
     maximum_number_of_rounds = 10
     return McRaptorQuery(
@@ -57,6 +57,6 @@ function McRaptorQuery(
         destination,
         departure_time,
         timetable,
-        maximum_number_of_rounds
+        maximum_number_of_rounds,
     )
 end

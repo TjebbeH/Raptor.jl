@@ -16,7 +16,7 @@ gtfs_timetable = parse_gtfs(path, date);
 stops = create_stops(gtfs_timetable.stops)
 expected_stops = Dict(
     "2473089" => Stop("2473089", "Station A", "2"),
-    "2473090" => Stop("2473090", "Station B", "?")
+    "2473090" => Stop("2473090", "Station B", "?"),
 )
 @test stops == expected_stops
 
@@ -26,7 +26,7 @@ expected_stops_at_station_A = DataFrame(
     stop_id = ["2473089"],
     stop_name = ["Station A"],
     stop_code = ["STA"],
-    platform_code = ["2"]
+    platform_code = ["2"],
 )
 @test stops_at_station_A == expected_stops_at_station_A
 
@@ -34,47 +34,47 @@ expected_stops_at_station_A = DataFrame(
 stations = create_stations(gtfs_timetable.stops)
 expected_stations = Dict(
     "STA" => Station("STA", "Station A", [Stop("2473089", "Station A", "2")]),
-    "STB" => Station("STB", "Station B", [Stop("2473090", "Station B", "?")])
+    "STB" => Station("STB", "Station B", [Stop("2473090", "Station B", "?")]),
 )
 @test stations == expected_stations
 
 # Test if correct trips are created
 trips = create_trips(gtfs_timetable.trips, gtfs_timetable.stop_times, stops)
-expected_route = Route([
-    Stop("2473089", "Station A", "2"), Stop("2473090", "Station B", "?")])
+expected_route =
+    Route([Stop("2473089", "Station A", "2"), Stop("2473090", "Station B", "?")])
 expected_stop_times_1 = [
     StopTime(
         Stop("2473089", "Station A", "2"),
         DateTime(2021, 10, 21, 11, 58, 0),
         DateTime(2021, 10, 21, 12, 0, 0),
-        0
+        0,
     ),
     StopTime(
         Stop("2473090", "Station B", "?"),
         DateTime(2021, 10, 21, 14, 0, 0),
         DateTime(2021, 10, 21, 14, 0, 0),
-        0
-    )
+        0,
+    ),
 ]
 expected_stop_times_2 = [
     StopTime(
         Stop("2473089", "Station A", "2"),
         DateTime(2021, 10, 21, 23, 50, 0),
         DateTime(2021, 10, 21, 23, 51, 0),
-        0
+        0,
     ),
     StopTime(
         Stop("2473090", "Station B", "?"),
         DateTime(2021, 10, 22, 0, 30, 0),
         DateTime(2021, 10, 22, 0, 32, 0),
-        0
-    )
+        0,
+    ),
 ]
 expected_trips = Dict(
-    "191659463" => Trip(
-        "191659463", "525", "Intercity", expected_route, expected_stop_times_1),
-    "191659464" => Trip(
-        "191659464", "527", "Intercity", expected_route, expected_stop_times_2)
+    "191659463" =>
+        Trip("191659463", "525", "Intercity", expected_route, expected_stop_times_1),
+    "191659464" =>
+        Trip("191659464", "527", "Intercity", expected_route, expected_stop_times_2),
 )
 @test trips == expected_trips
 
@@ -90,14 +90,14 @@ stop_STA_platform3 = Stop("2473088", "Station A", "3")
 walktime = 5.0 * 60
 input_stations = Dict(
     "STA" => Station("STA", "Station A", [stop_STA_platform2, stop_STA_platform3]),
-    "STB" => Station("STB", "Station B", [Stop("2473090", "Station B", "?")])
+    "STB" => Station("STB", "Station B", [Stop("2473090", "Station B", "?")]),
 )
 foothpaths = create_footpaths(input_stations, walktime)
 expected_footpaths = Dict(
-    (stop_STA_platform2.id, stop_STA_platform3.id) => FootPath(
-        stop_STA_platform2, stop_STA_platform3, Second(walktime)),
-    (stop_STA_platform3.id, stop_STA_platform2.id) => FootPath(
-        stop_STA_platform3, stop_STA_platform2, Second(walktime))
+    (stop_STA_platform2.id, stop_STA_platform3.id) =>
+        FootPath(stop_STA_platform2, stop_STA_platform3, Second(walktime)),
+    (stop_STA_platform3.id, stop_STA_platform2.id) =>
+        FootPath(stop_STA_platform3, stop_STA_platform2, Second(walktime)),
 )
 @test foothpaths == expected_footpaths
 
@@ -114,7 +114,7 @@ stop_routes_lookup = create_stop_routes_lookup([stop2, stop1, stop3], routes)
 expected_stop_routes_lookup = Dict(
     stop1 => Dict(route1 => 1, route2 => 3),
     stop2 => Dict(route1 => 2, route2 => 2),
-    stop3 => Dict(route1 => 3, route2 => 1)
+    stop3 => Dict(route1 => 3, route2 => 1),
 )
 @test stop_routes_lookup == expected_stop_routes_lookup
 

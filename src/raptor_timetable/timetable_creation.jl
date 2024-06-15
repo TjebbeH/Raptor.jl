@@ -3,11 +3,12 @@ using DataFrames
 
 function create_stops(gtfs_stops::DataFrame)
     """Create dict of stops from gtfs stops dataframe"""
-    stops = Stop.(
-        String.(gtfs_stops.stop_id),
-        gtfs_stops.stop_name,
-        String.(gtfs_stops.platform_code)
-    )
+    stops =
+        Stop.(
+            String.(gtfs_stops.stop_id),
+            gtfs_stops.stop_name,
+            String.(gtfs_stops.platform_code),
+        )
     return Dict(stop.id => stop for stop in stops)
 end
 
@@ -31,9 +32,8 @@ function create_stations(gtfs_stops::DataFrame)
     """Create dict of stations from gtfs stops"""
     gtfs_stations = select(gtfs_stops, [:stop_name, :stop_code]) |> unique
     return Dict(
-        stationrow.stop_code => create_station(stationrow, gtfs_stops)
-    for
-    stationrow in eachrow(gtfs_stations)
+        stationrow.stop_code => create_station(stationrow, gtfs_stops) for
+        stationrow in eachrow(gtfs_stations)
     )
 end
 
@@ -43,9 +43,9 @@ function stop_times_with_trip_id(trip_id::String, gtfs_stop_times::DataFrame)
 end
 
 function create_trip(
-        triprow::DataFrameRow,
-        gtfs_stop_times::DataFrame,
-        stops::Dict{String, Stop}
+    triprow::DataFrameRow,
+    gtfs_stop_times::DataFrame,
+    stops::Dict{String,Stop},
 )
     """Create a trip from a gtfs dataframes and a dict of stops"""
     trip_id = triprow.trip_id
@@ -56,31 +56,31 @@ function create_trip(
     sort!(stops_in_trip_df, [:arrival_time])
 
     stops_in_trip = [stops[id] for id in stops_in_trip_df.stop_id]
-    stop_times = StopTime.(
-        stops_in_trip,
-        stops_in_trip_df.arrival_time,
-        stops_in_trip_df.departure_time,
-        0
-    )
+    stop_times =
+        StopTime.(
+            stops_in_trip,
+            stops_in_trip_df.arrival_time,
+            stops_in_trip_df.departure_time,
+            0,
+        )
     route = Route(stops_in_trip)
 
     return Trip(string(trip_id), trip_name, trip_formula, route, stop_times)
 end
 
 function create_trips(
-        gtfs_trips::DataFrame,
-        gtfs_stop_times::DataFrame,
-        stops::Dict{String, Stop}
+    gtfs_trips::DataFrame,
+    gtfs_stop_times::DataFrame,
+    stops::Dict{String,Stop},
 )
     """Create trips from gtfs trips, stoptimes and a dict of already parsed stops"""
     return Dict(
-        triprow.trip_id => create_trip(triprow, gtfs_stop_times, stops)
-    for
-    triprow in eachrow(gtfs_trips)
+        triprow.trip_id => create_trip(triprow, gtfs_stop_times, stops) for
+        triprow in eachrow(gtfs_trips)
     )
 end
 
-function create_footpaths(stations::Dict{String, Station}, duration_sec::Number)
+function create_footpaths(stations::Dict{String,Station}, duration_sec::Number)
     """Create a dict with footpaths for every combination of stops in a station"""
     footpaths = Dict()
     for station in values(stations)
@@ -88,16 +88,15 @@ function create_footpaths(stations::Dict{String, Station}, duration_sec::Number)
         merge!(
             footpaths,
             Dict(
-                (stop1.id, stop2.id) => FootPath(stop1, stop2, Second(duration_sec))
-            for
-            (stop1, stop2) in Iterators.product(stops, stops) if stop1 != stop2
-            )
+                (stop1.id, stop2.id) => FootPath(stop1, stop2, Second(duration_sec)) for
+                (stop1, stop2) in Iterators.product(stops, stops) if stop1 != stop2
+            ),
         )
     end
     return footpaths
 end
 
-function period(trips::Dict{String, Trip})
+function period(trips::Dict{String,Trip})
     (first_arrival = first_arrival_time(trips), last_departure = last_departure_time(trips))
 end
 
@@ -157,14 +156,14 @@ function create_raptor_timetable(gtfs_timetable::GtfsTimeTable)
         routes,
         footpaths,
         stop_routes_lookup,
-        route_trip_lookup
+        route_trip_lookup,
     )
 end
 
 function create_raptor_timetable(
-        directory::String,
-        date::Date,
-        agencies_in_scope::Vector = ["NS"]
+    directory::String,
+    date::Date,
+    agencies_in_scope::Vector = ["NS"],
 )
     gtfs_timetable = parse_gtfs(directory, date, agencies_in_scope)
     return create_raptor_timetable(gtfs_timetable)

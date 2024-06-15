@@ -53,11 +53,11 @@ end
 
 struct TimeTable
     period::@NamedTuple{first_arrival::DateTime, last_departure::DateTime}
-    stations::Dict{String, Station}
-    stops::Dict{String, Stop}
-    trips::Dict{String, Trip}
-    routes::Dict{String, Route}
-    footpaths::Dict{Tuple{String, String}, FootPath}
-    stop_routes_lookup::Dict{Stop, Dict{Route, Int64}}
-    route_trip_lookup::Dict{Route, Vector{Trip}}
+    stations::Dict{String,Station}
+    stops::Dict{String,Stop}
+    trips::Dict{String,Trip}
+    routes::Dict{String,Route}
+    footpaths::Dict{Tuple{String,String},FootPath}
+    stop_routes_lookup::Dict{Stop,Dict{Route,Int64}}
+    route_trip_lookup::Dict{Route,Vector{Trip}}
 end

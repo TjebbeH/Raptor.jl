@@ -1,7 +1,7 @@
 function one_step_journey_reconstruction(
-        journeys::Vector{Journey},
-        origin_stops::Vector{Stop},
-        bag_last_round
+    journeys::Vector{Journey},
+    origin_stops::Vector{Stop},
+    bag_last_round,
 )
     """One step in the journey reconstruction"""
     new_journeys = Journey[]
@@ -18,7 +18,7 @@ function one_step_journey_reconstruction(
             new_legs = JourneyLegs(options_to_new_to_stop, new_to_stop)
             append!(
                 new_journeys,
-                [Journey([new_leg; journey.legs]) for new_leg in new_legs]
+                [Journey([new_leg; journey.legs]) for new_leg in new_legs],
             )
         end
     end
@@ -49,7 +49,7 @@ function reconstruct_journeys(query, bag_round_stop, last_round)
     function one_step(journeys::Vector{Journey})
         one_step_journey_reconstruction(journeys, query.origin.stops, bag_last_round)
     end
-    for _ in 1:last_round
+    for _ = 1:last_round
         journeys = one_step(journeys)
     end
     return journeys
