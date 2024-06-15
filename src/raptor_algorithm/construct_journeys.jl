@@ -64,8 +64,8 @@ function display_leg(leg::JourneyLeg)
 
     mode = is_transfer(leg) ? "by foot" : "with $(leg.means.name)" 
     arrival_time = "$(Dates.format(leg.arrival_time, dateformat"HH:MM"))"
-    # departure_time = "$(Dates.format(leg.departure_time, dateformat"HH:MM"))"
-    return "$from ()  to  $to ($arrival_time)  $mode"
+    departure_time = "$(Dates.format(leg.departure_time, dateformat"HH:MM"))"
+    return "$from ($departure_time)  to  $to ($arrival_time)  $mode"
 end
 
 function display_journeys(journeys::Vector{Journey}, ignore_walking::Bool = true)
@@ -75,6 +75,5 @@ function display_journeys(journeys::Vector{Journey}, ignore_walking::Bool = true
         end
         printstyled("Option $i:\n", bold=true, color=:yellow)
         display_journey(journey)
-        # printstyled("---\n", bold=true, color=:yellow)
     end
 end

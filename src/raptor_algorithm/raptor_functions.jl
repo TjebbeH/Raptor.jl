@@ -167,13 +167,13 @@ function traverse_route!(
         for option in route_bag.options
             label = option.label
             @debug "get earliest trip from $(current_stop) after $(label.arrival_time)"
-            earliest_trip =
+            earliest_trip, departure_time =
                 get_earliest_trip(timetable, route, current_stop, label.arrival_time)
             if !isnothing(earliest_trip)
                 @debug "earliest trip is $(earliest_trip.name) with stop_times = $(earliest_trip.stop_times)"
                 # Update label with earliest trip in route leaving from this station
                 # If trip is different we board the trip at current_stop
-                option = update_option(option, current_stop, earliest_trip)
+                option = update_option(option, current_stop, earliest_trip, departure_time)
                 push!(updated_options, option)
             else
                 @debug "no earliest trip found"
@@ -191,15 +191,15 @@ add_to_arrival_time(label, time::Second) =
     Label(label.arrival_time + time, label.fare, label.number_of_trips)
 
 update_option_label(option::Option, label::Label) =
-    Option(label, option.means, option.from_stop)
+    Option(label, option.means, option.from_stop, option.from_departure_time)
 
-function update_option(option::Option, from_stop::Stop, trip::Trip)
+function update_option(option::Option, from_stop::Stop, trip::Trip, departure_time::DateTime)
     """Update option if trip is different from the trip in option"""
     if option.means != trip
         old_label = option.label
         new_label =
             Label(old_label.arrival_time, old_label.fare, old_label.number_of_trips + 1)
-        return Option(new_label, trip, from_stop)
+        return Option(new_label, trip, from_stop, departure_time)
     end
     return option
 end
@@ -235,7 +235,8 @@ function add_walking!(
             walking_time = footh_path.duration
             for option in options
                 new_label = add_to_arrival_time(option.label, walking_time)
-                new_option = Option(new_label, footh_path, stop)
+                departure_time = option.label.arrival_time
+                new_option = Option(new_label, footh_path, stop, departure_time)
                 push!(temp_bag.options, new_option)
 
                 #TODO: make function (repeated fron traverse_route)

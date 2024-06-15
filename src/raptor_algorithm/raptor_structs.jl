@@ -8,10 +8,11 @@ end
 
 struct Option
     label::Label
-    means::Union{FootPath,Trip,Nothing} # trip to take to obtain travel_time and fare
+    means::Union{FootPath,Trip,Nothing} # trip or footpath to take to obtain criteria in label
     from_stop::Union{Stop,Nothing} # stop to hop-on the trip
+    from_departure_time::Union{DateTime,Nothing} # moment to hop-on the trip
 end
-Option(label::Label) = Option(label, nothing, nothing)
+Option(label::Label) = Option(label, nothing, nothing, nothing)
 
 struct Bag <: Comparable
     options::Vector{Option}

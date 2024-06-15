@@ -12,8 +12,8 @@ ls = [l1, l2, l3, l3]
 ls_pareto_expected = [l1, l3]
 
 stop = Stop("id", "UT", "3")
-options_input = [Option(l, nothing, stop) for l in ls]
-options_expected = [Option(l, nothing, stop) for l in ls_pareto_expected]
+options_input = [Option(l, nothing, stop, nothing) for l in ls]
+options_expected = [Option(l, nothing, stop, nothing) for l in ls_pareto_expected]
 
 b_all1 = Bag(options_input)
 b_all2 = Bag(options_input)

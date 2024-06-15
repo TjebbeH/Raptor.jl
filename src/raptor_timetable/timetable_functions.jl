@@ -102,9 +102,9 @@ function get_earliest_trip(
     departures_in_scope =
         filter(departure -> departure >= departure_time, keys(departures_from_stop))
     if isempty(departures_in_scope)
-        return nothing
+        return nothing, nothing
     end
     earliest_departure_time = minimum(departures_in_scope)
     earliest_trip = departures_from_stop[earliest_departure_time]
-    return earliest_trip
+    return earliest_trip, earliest_departure_time
 end

@@ -41,9 +41,14 @@ expected_stop_time = StopTime(tt.stops["s31"], today + Time(15), today + Time(15
 @test get_fare(tt.trips["t101"], tt.stops["s42"]) == 0
 @test get_fare(tt.trips["t401"], tt.stops["s81"]) == 7
 
-actual_earliest_trip1 = get_earliest_trip(tt, tt.routes["r3"], tt.stops["s23"], today + Time(0))
+actual_earliest_trip1, actual_departure_time1 = get_earliest_trip(tt, tt.routes["r3"], tt.stops["s23"], today + Time(0))
 expected_trip1 = tt.trips["t301"]
+expected_departure_time1 = today + Time(14,1)
 @test actual_earliest_trip1 == expected_trip1
-actual_earliest_trip2 = get_earliest_trip(tt, tt.routes["r3"], tt.stops["s23"], today + Time(15))
+@test actual_departure_time1 == expected_departure_time1
+
+actual_earliest_trip2, actual_departure_time2 = get_earliest_trip(tt, tt.routes["r3"], tt.stops["s23"], today + Time(15))
 expected_trip2 = tt.trips["t303"]
+expected_departure_time2 = today + Time(16,1)
 @test actual_earliest_trip2 == expected_trip2
+@test actual_departure_time2 == expected_departure_time2
