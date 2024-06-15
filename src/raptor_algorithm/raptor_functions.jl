@@ -193,7 +193,12 @@ add_to_arrival_time(label, time::Second) =
 update_option_label(option::Option, label::Label) =
     Option(label, option.means, option.from_stop, option.from_departure_time)
 
-function update_option(option::Option, from_stop::Stop, trip::Trip, departure_time::DateTime)
+function update_option(
+    option::Option,
+    from_stop::Stop,
+    trip::Trip,
+    departure_time::DateTime,
+)
     """Update option if trip is different from the trip in option"""
     if option.means != trip
         old_label = option.label

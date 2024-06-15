@@ -26,6 +26,9 @@ b13 = Bag([Option(l1), Option(l3)])
 @test is_geq_at_everything(l2, l1)
 @test !is_geq_at_everything(l3, l1)
 @test is_geq_at_everything(l3, l3)
+# using JET
+# JET.@test_opt is_geq_at_everything(l1, l2)
+# Test.@inferred is_geq_at_everything(l1, l2)
 
 @test !isdominated(l1, ls)
 @test isdominated(l2, ls)
@@ -36,4 +39,4 @@ b13 = Bag([Option(l1), Option(l3)])
 
 @test merge_bags(b_all1, b_all2) == bag_expected
 @test merge_bags(b12, b3) == b13
-@test merge_bags([b12,b3, b13]) == b13
+@test merge_bags([b12, b3, b13]) == b13

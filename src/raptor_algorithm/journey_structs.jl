@@ -20,9 +20,11 @@ function JourneyLeg(option::Option, to_stop::Stop)
         option.means,
     )
 end
-JourneyLegs(options::Vector{Option}, to_stop::Stop) = [JourneyLeg(option, to_stop) for option in options]
+JourneyLegs(options::Vector{Option}, to_stop::Stop) =
+    [JourneyLeg(option, to_stop) for option in options]
 
 struct Journey <: Comparable
     legs::Vector{JourneyLeg}
 end
-Journeys(options::Vector{Option}, to_stop::Stop) = [Journey([leg]) for leg in JourneyLegs(options, to_stop)]
+Journeys(options::Vector{Option}, to_stop::Stop) =
+    [Journey([leg]) for leg in JourneyLegs(options, to_stop)]

@@ -3,8 +3,8 @@ using Dates
 using BenchmarkTools
 
 include("./create_test_timetable.jl")
-timetable= create_test_timetable();
-today = Date(2021,10,21)
+timetable = create_test_timetable();
+today = Date(2021, 10, 21)
 
 
 origin = "S2"

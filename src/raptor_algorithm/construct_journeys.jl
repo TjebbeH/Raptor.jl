@@ -1,4 +1,8 @@
-function one_step_journey_reconstruction(journeys::Vector{Journey}, origin_stops::Vector{Stop}, bag_last_round)
+function one_step_journey_reconstruction(
+    journeys::Vector{Journey},
+    origin_stops::Vector{Stop},
+    bag_last_round,
+)
     """One step in the journey reconstruction"""
     new_journeys = Journey[]
     for journey in journeys
@@ -12,8 +16,11 @@ function one_step_journey_reconstruction(journeys::Vector{Journey}, origin_stops
             # collect options to get to new_to_stop
             options_to_new_to_stop = bag_last_round[new_to_stop].options
             new_legs = JourneyLegs(options_to_new_to_stop, new_to_stop)
-            append!(new_journeys, [Journey([new_leg; journey.legs]) for new_leg in new_legs])           
-        end 
+            append!(
+                new_journeys,
+                [Journey([new_leg; journey.legs]) for new_leg in new_legs],
+            )
+        end
     end
     return new_journeys
 end
@@ -30,7 +37,7 @@ function reconstruct_journeys(query, bag_round_stop, last_round)
     for option in station_bag.options
         for s in to_stops
             if option in bag_last_round[s].options
-                leg = JourneyLeg(option,s)
+                leg = JourneyLeg(option, s)
                 push!(journeys, Journey([leg]))
             end
         end
@@ -39,8 +46,9 @@ function reconstruct_journeys(query, bag_round_stop, last_round)
     if isempty(journeys)
         @warn "destination $(query.destination.name) unreachable"
     end
-    one_step(journeys::Vector{Journey}) = one_step_journey_reconstruction(journeys, query.origin.stops, bag_last_round)
-    for _ in 1:last_round
+    one_step(journeys::Vector{Journey}) =
+        one_step_journey_reconstruction(journeys, query.origin.stops, bag_last_round)
+    for _ = 1:last_round
         journeys = one_step(journeys)
     end
     return journeys
@@ -50,7 +58,7 @@ is_transfer(leg::JourneyLeg) = typeof(leg.means) == FootPath
 
 function display_journey(journey::Journey)
     for leg in journey.legs
-        printstyled("| ", bold=true, color=:yellow)
+        printstyled("| ", bold = true, color = :yellow)
         println(display_leg(leg))
     end
 end
@@ -62,7 +70,7 @@ function display_leg(leg::JourneyLeg)
     from = rpad(from, station_string_length, " ")
     to = rpad(to, station_string_length, " ")
 
-    mode = is_transfer(leg) ? "by foot" : "with $(leg.means.name)" 
+    mode = is_transfer(leg) ? "by foot" : "with $(leg.means.name)"
     arrival_time = "$(Dates.format(leg.arrival_time, dateformat"HH:MM"))"
     departure_time = "$(Dates.format(leg.departure_time, dateformat"HH:MM"))"
     fare = leg.fare > 0 ? "(additional fare: €$(leg.fare))" : ""
@@ -74,7 +82,7 @@ function display_journeys(journeys::Vector{Journey}, ignore_walking::Bool = true
         if ignore_walking
             journey = Journey(filter(!is_transfer, journey.legs))
         end
-        printstyled("Option $i:\n", bold=true, color=:yellow)
+        printstyled("Option $i:\n", bold = true, color = :yellow)
         display_journey(journey)
     end
 end

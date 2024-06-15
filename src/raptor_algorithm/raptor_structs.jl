@@ -33,19 +33,30 @@ function McRaptorQuery(
     destination::String,
     departure_time::DateTime,
     timetable::TimeTable,
-    maximum_number_of_rounds::Integer
+    maximum_number_of_rounds::Integer,
+)
+    origin_station = try_to_get_station(origin, timetable)
+    destination_station = try_to_get_station(destination, timetable)
+    return McRaptorQuery(
+        origin_station,
+        destination_station,
+        departure_time,
+        maximum_number_of_rounds,
     )
-    origin_station = try_to_get_station(origin,timetable)
-    destination_station = try_to_get_station(destination,timetable)
-    return McRaptorQuery(origin_station, destination_station, departure_time, maximum_number_of_rounds)
-    end
+end
 """Constructor where it trys to interpret the origin and destination string as a station and default 10 round"""
 function McRaptorQuery(
     origin::String,
     destination::String,
     departure_time::DateTime,
     timetable::TimeTable,
-    )
+)
     maximum_number_of_rounds = 10
-    return McRaptorQuery(origin, destination, departure_time, timetable, maximum_number_of_rounds)
+    return McRaptorQuery(
+        origin,
+        destination,
+        departure_time,
+        timetable,
+        maximum_number_of_rounds,
+    )
 end

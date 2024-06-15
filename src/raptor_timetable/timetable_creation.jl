@@ -90,8 +90,7 @@ function create_footpaths(stations::Dict{String,Station}, duration_sec::Number)
             footpaths,
             Dict(
                 (stop1.id, stop2.id) => FootPath(stop1, stop2, Second(duration_sec)) for
-                (stop1, stop2) in Iterators.product(stops, stops)
-                if stop1 != stop2
+                (stop1, stop2) in Iterators.product(stops, stops) if stop1 != stop2
             ),
         )
     end
