@@ -6,9 +6,9 @@ using Raptor
 Aqua.test_all(
     Raptor,
     ambiguities = false,
-    # ambiguities = (recursive = false, broken = true),
     stale_deps = (ignore = [:Revise],),
     deps_compat = (
         check_extras = false, ignore = [:Revise, :Dates, :Logging, :Serialization])
 )
+# Base and Core have some ambiguities, so dont check them
 Aqua.test_ambiguities([Raptor], recursive = false)
