@@ -5,7 +5,7 @@ struct JourneyLeg
     to_stop::Stop
     # departure_time::DateTime
     arrival_time::DateTime
-    trip::Trip
+    means::Union{Trip,FootPath}
     # fare::Number
 end
 
@@ -15,7 +15,7 @@ function JourneyLeg(option::Option, to_stop::Stop)
     if from_stop.station_name == to_stop.station_name
         
     end
-    trip = option.trip
+    means = option.means
     # to_stop_time = get_stop_time(trip,to_stop)
     # from_stop_time = get_stop_time(trip,from_stop)
     # if isnothing(to_stop_time)
@@ -31,7 +31,7 @@ function JourneyLeg(option::Option, to_stop::Stop)
         to_stop,
         # departure_time,
         option.label.arrival_time,
-        trip,
+        means,
     )
 end
 JourneyLegs(options::Vector{Option}, to_stop::Stop) = [JourneyLeg(option, to_stop) for option in options]

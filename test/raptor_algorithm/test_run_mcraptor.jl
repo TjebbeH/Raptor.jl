@@ -14,9 +14,7 @@ departure_time = today + Time(13, 15);
 
 query = McRaptorQuery(origin, destination, departure_time, timetable);
 
-maximum_rounds = 3
-
-bag_round_stop, last_round = run_mc_raptor(timetable, query, maximum_rounds)
+bag_round_stop, last_round = run_mc_raptor(timetable, query)
 options42 = bag_round_stop[last_round][timetable.stops["s42"]].options
 @test length(options42) == 3
 @test minimum(o.label.arrival_time for o in options42) == today + Time(15,2) # note we walk to platform 2.

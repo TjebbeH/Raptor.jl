@@ -46,10 +46,11 @@ function reconstruct_journeys(query, bag_round_stop, last_round)
     return journeys
 end
 
-is_transfer(leg::JourneyLeg) = leg.from_stop.station_name == leg.to_stop.station_name
+is_transfer(leg::JourneyLeg) = typeof(leg.means) == FootPath
 
 function display_journey(journey::Journey)
     for leg in journey.legs
+        printstyled("| ", bold=true, color=:yellow)
         println(display_leg(leg))
     end
 end
@@ -61,15 +62,19 @@ function display_leg(leg::JourneyLeg)
     from = rpad(from, station_string_length, " ")
     to = rpad(to, station_string_length, " ")
 
-    mode = is_transfer(leg) ? "by foot" : "with $(leg.trip.name)" 
+    mode = is_transfer(leg) ? "by foot" : "with $(leg.means.name)" 
     arrival_time = "$(Dates.format(leg.arrival_time, dateformat"HH:MM"))"
     # departure_time = "$(Dates.format(leg.departure_time, dateformat"HH:MM"))"
     return "$from ()  to  $to ($arrival_time)  $mode"
 end
 
-function display_journeys(journeys::Vector{Journey})
+function display_journeys(journeys::Vector{Journey}, ignore_walking::Bool = true)
     for (i, journey) in enumerate(journeys)
+        if ignore_walking
+            journey = Journey(filter(!is_transfer, journey.legs))
+        end
         printstyled("Option $i:\n", bold=true, color=:yellow)
         display_journey(journey)
+        # printstyled("---\n", bold=true, color=:yellow)
     end
 end

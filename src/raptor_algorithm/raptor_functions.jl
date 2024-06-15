@@ -133,11 +133,11 @@ function traverse_route!(
         # Step 1: update earliest arrival times and criteria for each label L in route-bag
         updated_options = Option[]
         for option in route_bag.options
-            trip_stop_time = get_stop_time(option.trip, current_stop)
+            trip_stop_time = get_stop_time(option.means, current_stop)
 
             # Take fare of previous stop in trip as fare is defined on start
             previous_stop = remaining_stops_in_route[stop_idx-1]
-            from_fare = get_fare(option.trip, previous_stop)
+            from_fare = get_fare(option.means, previous_stop)
 
             new_arrival_time = trip_stop_time.arrival_time
             option = update_option(option, new_arrival_time, from_fare)
@@ -191,11 +191,11 @@ add_to_arrival_time(label, time::Second) =
     Label(label.arrival_time + time, label.fare, label.number_of_trips)
 
 update_option_label(option::Option, label::Label) =
-    Option(label, option.trip, option.from_stop)
+    Option(label, option.means, option.from_stop)
 
 function update_option(option::Option, from_stop::Stop, trip::Trip)
     """Update option if trip is different from the trip in option"""
-    if option.trip != trip
+    if option.means != trip
         old_label = option.label
         new_label =
             Label(old_label.arrival_time, old_label.fare, old_label.number_of_trips + 1)
@@ -231,10 +231,11 @@ function add_walking!(
         options = bag_round_stop[k][stop].options
         for other_stop in other_stops
             temp_bag = Bag()
-            walking_time = get_walking_time(timetable, stop, other_stop)
+            footh_path = timetable.footpaths[(stop.id, other_stop.id)]
+            walking_time = footh_path.duration
             for option in options
                 new_label = add_to_arrival_time(option.label, walking_time)
-                new_option = Option(new_label, option.trip, stop)
+                new_option = Option(new_label, footh_path, stop)
                 push!(temp_bag.options, new_option)
 
                 #TODO: make function (repeated fron traverse_route)
@@ -256,7 +257,8 @@ function add_walking!(
 end
 
 
-function run_mc_raptor(timetable::TimeTable, query::McRaptorQuery, maximum_rounds::Int = 5)
+function run_mc_raptor(timetable::TimeTable, query::McRaptorQuery)
+    maximum_rounds = query.maximum_number_of_rounds
     @info "round 1: initialization"
     bag_round_stop = initialize_bag_round_stop(maximum_rounds, values(timetable.stops))
     initialize_round1!(bag_round_stop, query)
