@@ -8,8 +8,7 @@ Aqua.test_all(
     ambiguities = false,
     # ambiguities = (recursive = false, broken = true),
     stale_deps = (ignore = [:Revise],),
-    deps_compat = (check_extras = false, ignore = [:Revise, :Dates, :Logging, :Serialization]) 
+    deps_compat = (
+        check_extras = false, ignore = [:Revise, :Dates, :Logging, :Serialization])
 )
-Aqua.test_ambiguities([Raptor], recursive=false)
-
-
+Aqua.test_ambiguities([Raptor], recursive = false)
