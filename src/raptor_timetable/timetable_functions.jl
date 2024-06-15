@@ -2,7 +2,7 @@ function first_arrival_time(trip::Trip)
     return minimum([stoptime.arrival_time for stoptime in trip.stop_times])
 end
 
-function first_arrival_time(trips::Dict{String,Trip})
+function first_arrival_time(trips::Dict{String, Trip})
     return minimum([first_arrival_time(trip) for trip in values(trips)])
 end
 
@@ -10,15 +10,17 @@ function last_departure_time(trip::Trip)
     return maximum([stoptime.departure_time for stoptime in trip.stop_times])
 end
 
-function last_departure_time(trips::Dict{String,Trip})
+function last_departure_time(trips::Dict{String, Trip})
     return maximum([last_departure_time(trip) for trip in values(trips)])
 end
 
-get_timeperiod(trips::Dict{String,Trip}) =
+function get_timeperiod(trips::Dict{String, Trip})
     (first_arrival = first_arrival_time(trips), last_departure = last_departure_time(trips))
+end
 
-get_routes(trips::Dict{String,Trip}) =
+function get_routes(trips::Dict{String, Trip})
     Dict(trip.route.id => trip.route for trip in values(trips))
+end
 
 """Try to get a station from timetable by name or abbreviation"""
 function try_to_get_station(name::String, timetable::TimeTable)
@@ -37,7 +39,6 @@ function try_to_get_station(name::String, timetable::TimeTable)
     return station
 end
 
-
 function get_station(name::String, timetable::TimeTable)
     return first(
         Iterators.filter(station -> station.name == name, values(timetable.stations)),
@@ -47,9 +48,9 @@ end
 function get_station(abbreviation::StationAbbreviation, timetable::TimeTable)
     return first(
         Iterators.filter(
-            station -> station.abbreviation == abbreviation,
-            values(timetable.stations),
-        ),
+        station -> station.abbreviation == abbreviation,
+        values(timetable.stations)
+    ),
     )
 end
 
@@ -57,8 +58,9 @@ display_name(stop::Stop) = stop.station_name * "-" * string(stop.platform_code)
 
 get_station(stop::Stop, timetable::TimeTable) = get_station(stop.station_name, timetable)
 
-get_other_stops_at_station(station::Station, stop::Stop) =
+function get_other_stops_at_station(station::Station, stop::Stop)
     filter(s -> s != stop, station.stops)
+end
 
 """Look up stop index of stop in route"""
 function get_stop_idx_in_route(timetable::TimeTable, stop::Stop, route::Route)
@@ -95,19 +97,18 @@ function get_fare(trip::Trip, departing_stop::Stop)
     return 0
 end
 
-
 """Get earliest trip traveling route departing at stop after departure_time"""
 function get_earliest_trip(
-    timetable::TimeTable,
-    route::Route,
-    stop::Stop,
-    departure_time::DateTime,
+        timetable::TimeTable,
+        route::Route,
+        stop::Stop,
+        departure_time::DateTime
 )
     trips = timetable.route_trip_lookup[route]
-    departures_from_stop =
-        Dict(get_stop_time(trip, stop).departure_time => trip for trip in trips)
-    departures_in_scope =
-        filter(departure -> departure >= departure_time, keys(departures_from_stop))
+    departures_from_stop = Dict(get_stop_time(trip, stop).departure_time => trip
+    for trip in trips)
+    departures_in_scope = filter(
+        departure -> departure >= departure_time, keys(departures_from_stop))
     if isempty(departures_in_scope)
         return nothing, nothing
     end

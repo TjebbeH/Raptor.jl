@@ -23,8 +23,9 @@ struct Station <: Comparable
     name::String
     stops::Vector{Stop}
 end
-Station(abbreviation::String, name::String, stops::Vector{Stop}) =
+function Station(abbreviation::String, name::String, stops::Vector{Stop})
     Station(StationAbbreviation(abbreviation), name, stops)
+end
 
 struct Route <: Comparable
     id::String
@@ -35,7 +36,6 @@ function Route(stops::Vector{Stop})
     route_id = join([s.id for s in stops], "-")
     return Route(route_id, stops)
 end
-
 
 struct Trip <: Comparable
     id::String
@@ -53,11 +53,11 @@ end
 
 struct TimeTable
     period::@NamedTuple{first_arrival::DateTime, last_departure::DateTime}
-    stations::Dict{String,Station}
-    stops::Dict{String,Stop}
-    trips::Dict{String,Trip}
-    routes::Dict{String,Route}
-    footpaths::Dict{Tuple{String,String},FootPath}
-    stop_routes_lookup::Dict{Stop,Dict{Route,Int64}}
-    route_trip_lookup::Dict{Route,Vector{Trip}}
+    stations::Dict{String, Station}
+    stops::Dict{String, Stop}
+    trips::Dict{String, Trip}
+    routes::Dict{String, Route}
+    footpaths::Dict{Tuple{String, String}, FootPath}
+    stop_routes_lookup::Dict{Stop, Dict{Route, Int64}}
+    route_trip_lookup::Dict{Route, Vector{Trip}}
 end

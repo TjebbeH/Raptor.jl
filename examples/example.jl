@@ -3,7 +3,6 @@ using Revise
 using Raptor
 using Dates
 
-
 # import Raptor: create_raptor_timetable
 # import Raptor: save_timetable
 # gtfs_dir = joinpath([@__DIR__, "..", "src","gtfs","data","gtfs_nl_2024_05_20"])

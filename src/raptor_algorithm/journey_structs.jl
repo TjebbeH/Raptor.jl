@@ -6,7 +6,7 @@ struct JourneyLeg
     departure_time::DateTime
     arrival_time::DateTime
     fare::Number
-    means::Union{Trip,FootPath}
+    means::Union{Trip, FootPath}
 end
 
 function JourneyLeg(option::Option, to_stop::Stop)
@@ -17,14 +17,16 @@ function JourneyLeg(option::Option, to_stop::Stop)
         option.from_departure_time,
         option.label.arrival_time,
         option.label.fare,
-        option.means,
+        option.means
     )
 end
-JourneyLegs(options::Vector{Option}, to_stop::Stop) =
+function JourneyLegs(options::Vector{Option}, to_stop::Stop)
     [JourneyLeg(option, to_stop) for option in options]
+end
 
 struct Journey <: Comparable
     legs::Vector{JourneyLeg}
 end
-Journeys(options::Vector{Option}, to_stop::Stop) =
+function Journeys(options::Vector{Option}, to_stop::Stop)
     [Journey([leg]) for leg in JourneyLegs(options, to_stop)]
+end
