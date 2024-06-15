@@ -5,8 +5,8 @@ struct JourneyLeg
     to_stop::Stop
     departure_time::DateTime
     arrival_time::DateTime
+    fare::Number
     means::Union{Trip,FootPath}
-    # fare::Number
 end
 
 function JourneyLeg(option::Option, to_stop::Stop)
@@ -16,6 +16,7 @@ function JourneyLeg(option::Option, to_stop::Stop)
         to_stop,
         option.from_departure_time,
         option.label.arrival_time,
+        option.label.fare,
         option.means,
     )
 end
