@@ -1,3 +1,22 @@
+"""
+Check if it is ok that leg1 is before leg 2:
+- It is possible to go from current leg to other leg concerning arrival and departure time
+- Number of trips of current leg differs by > 1, i.e. a differen trip,
+    or >= 0 when the other_leg is a transfer_leg
+- The accumulated value of a criteria of current leg is larger or equal to the accumulated value of
+    the other leg (current leg is instance of this class)
+""" 
+function is_compatible_before(leg1::JourneyLeg, leg2::JourneyLeg)
+    time_compatible = (
+            leg1.arrival_time <= leg2.departure_time
+        )
+    # different_trip = leg1.trip.name != leg2.trip.name
+    only_one_is_transfer = !(is_transfer(leg1) & is_transfer(leg2))
+    return time_compatible  & only_one_is_transfer
+    # return time_compatible & different_trip & only_one_is_transfer
+end
+
+
 function one_step_journey_reconstruction(
         journeys::Vector{Journey},
         origin_stops::Vector{Stop},
@@ -16,10 +35,11 @@ function one_step_journey_reconstruction(
             # collect options to get to new_to_stop
             options_to_new_to_stop = bag_last_round[new_to_stop].options
             new_legs = JourneyLegs(options_to_new_to_stop, new_to_stop)
-            append!(
-                new_journeys,
-                [Journey([new_leg; journey.legs]) for new_leg in new_legs]
-            )
+            for new_leg in new_legs
+                if is_compatible_before(new_leg, first_leg)
+                    push!(new_journeys, Journey([new_leg; journey.legs]))
+                end
+            end
         end
     end
     return new_journeys
@@ -49,13 +69,13 @@ function reconstruct_journeys(query, bag_round_stop, last_round)
     function one_step(journeys::Vector{Journey})
         one_step_journey_reconstruction(journeys, query.origin.stops, bag_last_round)
     end
-    for _ in 1:last_round
+    for _ in 1:last_round*2 #times two because for every round we have train and footpaths
         journeys = one_step(journeys)
     end
     return journeys
 end
 
-is_transfer(leg::JourneyLeg) = typeof(leg.means) == FootPath
+is_transfer(leg::JourneyLeg) = leg.to_stop.station_name == leg.from_stop.station_name
 
 function display_journey(journey::Journey)
     for leg in journey.legs
@@ -71,7 +91,7 @@ function display_leg(leg::JourneyLeg)
     from = rpad(from, station_string_length, " ")
     to = rpad(to, station_string_length, " ")
 
-    mode = is_transfer(leg) ? "by foot" : "with $(leg.means.name)"
+    mode = is_transfer(leg) ? "by foot" : "with $(leg.trip.name)"
     arrival_time = "$(Dates.format(leg.arrival_time, dateformat"HH:MM"))"
     departure_time = "$(Dates.format(leg.departure_time, dateformat"HH:MM"))"
     fare = leg.fare > 0 ? "(additional fare: €$(leg.fare))" : ""

@@ -14,12 +14,12 @@ import Raptor: load_timetable
 date = Date(2024, 5, 20)
 timetable = load_timetable();
 
-origin = "UT"
-destination = "GN"
-departure_time = DateTime(2024, 5, 20, 12, 0, 0);
+origin = "VS"
+destination = "AKM"
+departure_time = DateTime(2024, 5, 20, 8, 17, 0);
 
 query = McRaptorQuery(origin, destination, departure_time, timetable);
 bag_round_stop, last_round = run_mc_raptor(timetable, query);
 
 journeys = reconstruct_journeys(query, bag_round_stop, last_round);
-display_journeys(journeys)
+display_journeys(journeys,false)

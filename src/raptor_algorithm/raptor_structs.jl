@@ -6,9 +6,10 @@ struct Label
     number_of_trips::Int
 end
 
+#TODO: make option a journey, and add legs
 struct Option
     label::Label
-    means::Union{FootPath, Trip, Nothing} # trip or footpath to take to obtain criteria in label
+    trip_to_station::Union{Trip,Nothing} # trip to take to obtain criteria
     from_stop::Union{Stop, Nothing} # stop to hop-on the trip
     from_departure_time::Union{DateTime, Nothing} # moment to hop-on the trip
 end
