@@ -6,7 +6,7 @@ Based on [pyraptor](https://github.com/lmeulen/pyraptor).
 
 
 # TODO:
-- [] Make config with threshold, fare, footpaths
+- [ ] Make config with threshold, fare, footpaths
 - [] More functional unittests
 - [] Type stability tests
 - [] Range query; query options from station 1 to station 2 between two moments
