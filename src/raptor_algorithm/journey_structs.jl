@@ -7,6 +7,7 @@ struct JourneyLeg
     arrival_time::DateTime
     fare::Number
     trip::Trip
+    to_label::Label # criteria for arriving at to_stop
 end
 
 function JourneyLeg(option::Option, to_stop::Stop)
@@ -17,7 +18,8 @@ function JourneyLeg(option::Option, to_stop::Stop)
         option.from_departure_time,
         option.label.arrival_time,
         option.label.fare,
-        option.trip_to_station
+        option.trip_to_station,
+        option.label
     )
 end
 function JourneyLegs(options::Vector{Option}, to_stop::Stop)

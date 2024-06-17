@@ -6,7 +6,6 @@ struct Label
     number_of_trips::Int
 end
 
-#TODO: make option a journey, and add legs
 struct Option
     label::Label
     trip_to_station::Union{Trip,Nothing} # trip to take to obtain criteria

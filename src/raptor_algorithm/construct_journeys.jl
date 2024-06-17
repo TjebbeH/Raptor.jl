@@ -1,19 +1,19 @@
 """
 Check if it is ok that leg1 is before leg 2:
 - It is possible to go from current leg to other leg concerning arrival and departure time
-- Number of trips of current leg differs by > 1, i.e. a differen trip,
-    or >= 0 when the other_leg is a transfer_leg
-- The accumulated value of a criteria of current leg is larger or equal to the accumulated value of
-    the other leg (current leg is instance of this class)
+- Number of trips of leg1 < number of trips of leg2, or <= when leg2 is transfer leg
 """ 
 function is_compatible_before(leg1::JourneyLeg, leg2::JourneyLeg)
     time_compatible = (
             leg1.arrival_time <= leg2.departure_time
         )
-    # different_trip = leg1.trip.name != leg2.trip.name
+    if is_transfer(leg2)
+        number_of_trips_compatible = leg1.to_label.number_of_trips <= leg2.to_label.number_of_trips
+    else
+        number_of_trips_compatible = leg1.to_label.number_of_trips < leg2.to_label.number_of_trips
+    end
     only_one_is_transfer = !(is_transfer(leg1) & is_transfer(leg2))
-    return time_compatible  & only_one_is_transfer
-    # return time_compatible & different_trip & only_one_is_transfer
+    return time_compatible & number_of_trips_compatible & only_one_is_transfer
 end
 
 

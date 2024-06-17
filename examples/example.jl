@@ -16,7 +16,7 @@ timetable = load_timetable();
 
 origin = "VS"
 destination = "AKM"
-departure_time = DateTime(2024, 5, 20, 8, 17, 0);
+departure_time = DateTime(2024, 5, 20, 8, 0, 0);
 
 query = McRaptorQuery(origin, destination, departure_time, timetable);
 bag_round_stop, last_round = run_mc_raptor(timetable, query);
