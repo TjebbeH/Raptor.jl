@@ -22,4 +22,4 @@ query = McRaptorQuery(origin, destination, departure_time, timetable);
 bag_round_stop, last_round = run_mc_raptor(timetable, query);
 
 journeys = reconstruct_journeys(query, bag_round_stop, last_round);
-display_journeys(journeys,false)
+display_journeys(journeys)
