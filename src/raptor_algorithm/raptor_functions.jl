@@ -49,11 +49,18 @@ function is_geq_at_everything(label1::Label, label2::Label)
     return all(getfield(label1, field) >= getfield(label2, field) for field in criteria)
 end
 
+is_much_slower(label1::Label, label2::Label, threshold::Minute = Minute(60)) = Minute(label1.arrival_time - label2.arrival_time) > threshold
+
 function isdominated(label::Label, labels::Vector{Label})
     """Check if there is a label in labels that dominates label."""
     for other_label in labels
-        if other_label != label && is_geq_at_everything(label, other_label)
-            return true
+        is_different = other_label != label
+        is_worse_at_everything = is_geq_at_everything(label, other_label)
+        is_very_slow = is_much_slower(label, other_label)
+        if is_different
+            if is_worse_at_everything || is_very_slow
+                return true
+            end
         end
     end
     return false
