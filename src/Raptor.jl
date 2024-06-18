@@ -4,6 +4,7 @@ export parse_gtfs, GtfsData, GtfsTimeTable
 
 export McRaptorQuery
 export run_mc_raptor
+export reconstruct_journies_to_all_destinations
 export reconstruct_journeys, display_journeys
 
 include("utils.jl")

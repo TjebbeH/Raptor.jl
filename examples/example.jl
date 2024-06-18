@@ -18,8 +18,11 @@ origin = "VS"
 destination = "AKM"
 departure_time = DateTime(2024, 5, 20, 8, 0, 0);
 
-query = McRaptorQuery(origin, destination, departure_time, timetable);
-bag_round_stop, last_round = run_mc_raptor(timetable, query);
-
-journeys = reconstruct_journeys(query, bag_round_stop, last_round);
-display_journeys(journeys)
+using BenchmarkTools
+using Logging
+with_logger(ConsoleLogger(Info)) do
+    query = McRaptorQuery(origin, destination, departure_time, timetable);
+    @time bag_round_stop, last_round = run_mc_raptor(timetable, query);
+    @time journeys = reconstruct_journies_to_all_destinations(query.origin, timetable, bag_round_stop, last_round);
+end
+display_journeys(journeys[query.destination])

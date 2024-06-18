@@ -45,12 +45,13 @@ function one_step_journey_reconstruction(
     return new_journeys
 end
 
-function reconstruct_journeys(query, bag_round_stop, last_round)
-    """Reconstruct journeys"""
+"""Reconstruct journeys to destionation station"""
+function reconstruct_journeys(origin::Station, destination::Station, bag_round_stop, last_round)
     bag_last_round = bag_round_stop[last_round]
 
-    to_stops = query.destination.stops
+    to_stops = destination.stops
     station_bag = merge_bags([bag_last_round[s] for s in to_stops])
+    
     #TODO: make nicer
     #TODO: make test which tests this
     journeys = Journey[]
@@ -67,12 +68,18 @@ function reconstruct_journeys(query, bag_round_stop, last_round)
         @warn "destination $(query.destination.name) unreachable"
     end
     function one_step(journeys::Vector{Journey})
-        one_step_journey_reconstruction(journeys, query.origin.stops, bag_last_round)
+        one_step_journey_reconstruction(journeys, origin.stops, bag_last_round)
     end
     for _ in 1:last_round*2 #times two because for every round we have train and footpaths
         journeys = one_step(journeys)
     end
     return journeys
+end
+
+"""Reconstruct journies to all destinations"""
+function reconstruct_journies_to_all_destinations(origin::Station, timetable::TimeTable, bag_round_stop, last_round)
+    destination_stops = Iterators.filter(!isequal(origin), values(timetable.stations))
+    return Dict(destination => reconstruct_journeys(origin, destination, bag_round_stop, last_round) for destination in destination_stops)
 end
 
 is_transfer(leg::JourneyLeg) = leg.to_stop.station_name == leg.from_stop.station_name
