@@ -1,6 +1,4 @@
 
-using Dates
-
 struct StationAbbreviation
     abbreviation::String
 end
@@ -60,4 +58,5 @@ struct TimeTable
     footpaths::Dict{Tuple{String, String}, FootPath}
     stop_routes_lookup::Dict{Stop, Dict{Route, Int64}}
     route_trip_lookup::Dict{Route, Vector{Trip}}
+    station_departures_lookup::Dict{String, Vector{DateTime}}
 end

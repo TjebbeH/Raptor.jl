@@ -1,5 +1,3 @@
-using Dates
-
 struct JourneyLeg
     from_stop::Stop
     to_stop::Stop

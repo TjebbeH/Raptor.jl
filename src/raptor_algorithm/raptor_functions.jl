@@ -301,3 +301,7 @@ function run_mc_raptor(timetable::TimeTable, query::McRaptorQuery)
     @info "finished raptor algorithm to create bag with best options"
     return bag_round_stop, last_round
 end
+
+# function run_mc_raptor(timetable:: Timetable, query::RangeMcRaptorQuery)
+    
+# end

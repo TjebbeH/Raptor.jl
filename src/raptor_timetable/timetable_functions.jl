@@ -107,8 +107,7 @@ function get_earliest_trip(
     trips = timetable.route_trip_lookup[route]
     departures_from_stop = Dict(get_stop_time(trip, stop).departure_time => trip
     for trip in trips)
-    departures_in_scope = filter(
-        departure -> departure >= departure_time, keys(departures_from_stop))
+    departures_in_scope = filter(>=(departure_time), keys(departures_from_stop))
     if isempty(departures_in_scope)
         return nothing, nothing
     end
@@ -116,3 +115,12 @@ function get_earliest_trip(
     earliest_trip = departures_from_stop[earliest_departure_time]
     return earliest_trip, earliest_departure_time
 end
+
+"""Collect all departure moments between t0 and t1 (inclusive)"""
+function departure_times(timetable::TimeTable, station::Station, t0::DateTime, t1::DateTime)
+    departures = timetable.station_departures_lookup[station.abbreviation.abbreviation]
+    filter!(t -> t0 <= t <= t1, departures)
+    return departures
+end
+
+

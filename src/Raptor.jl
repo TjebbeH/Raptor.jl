@@ -2,10 +2,16 @@ module Raptor
 
 export parse_gtfs, GtfsData, GtfsTimeTable
 
-export McRaptorQuery
+export McRaptorQuery, RangeMcRaptorQuery
 export run_mc_raptor
+export try_to_get_station
 export reconstruct_journies_to_all_destinations
 export reconstruct_journeys, display_journeys
+
+using Dates
+using Logging
+using DataFrames, CSV
+using Serialization
 
 include("utils.jl")
 

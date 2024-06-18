@@ -54,7 +54,7 @@ function create_test_timetable()
             StopTime(stops["s22"], today + Time(14), today + Time(14, 1), 0.0),
             StopTime(stops["s31"], today + Time(15), today + Time(15, 1), 0.0),
             StopTime(stops["s42"], today + Time(16), today + Time(16, 1), 0.0),
-            StopTime(stops["s51"], today + Time(17), today + Time(16, 1), 0.0)
+            StopTime(stops["s51"], today + Time(17), today + Time(17, 1), 0.0)
         ]
     )
     trip201 = Trip(
@@ -107,6 +107,17 @@ function create_test_timetable()
 
     stop_routes_lookup = create_stop_routes_lookup(list_of_stops, list_of_routes)
     route_trip_lookup = create_route_trip_lookup(list_of_trips, list_of_routes)
+   
+    station_departures_lookup = Dict(
+        "S1" => [today + Time(13, 1)],
+        "S2" => [today + Time(14, 1), today + Time(16, 1)] ,
+        "S3" => [today + Time(15, 1)], 
+        "S4" => [today + Time(15, 1), today + Time(16, 1), today + Time(15, 46)], 
+        "S5" => [today + Time(17, 1)], 
+        "S6" => [today + Time(16, 16)], 
+        "S7" => [today + Time(15, 16), today + Time(15, 1), today + Time(17, 1)], 
+        "S8" => [today + Time(14, 31)],
+    )
 
     period = (first_arrival = today + Time(13), last_departure = today + Time(17, 1))
 
@@ -118,6 +129,7 @@ function create_test_timetable()
         routes,
         footpaths,
         stop_routes_lookup,
-        route_trip_lookup
+        route_trip_lookup,
+        station_departures_lookup
     )
 end

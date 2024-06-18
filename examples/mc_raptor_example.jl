@@ -20,9 +20,8 @@ departure_time = DateTime(2024, 5, 20, 8, 0, 0);
 
 using BenchmarkTools
 using Logging
-with_logger(ConsoleLogger(Info)) do
-    query = McRaptorQuery(origin, destination, departure_time, timetable);
-    @time bag_round_stop, last_round = run_mc_raptor(timetable, query);
-    @time journeys = reconstruct_journies_to_all_destinations(query.origin, timetable, bag_round_stop, last_round);
-end
-display_journeys(journeys[query.destination])
+query = McRaptorQuery(origin, departure_time, timetable);
+@time bag_round_stop, last_round = run_mc_raptor(timetable, query);
+@time journeys = reconstruct_journies_to_all_destinations(query.origin, timetable, bag_round_stop, last_round);
+destination_station = try_to_get_station(destination, timetable)
+display_journeys(journeys[destination_station])
