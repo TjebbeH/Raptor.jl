@@ -65,21 +65,47 @@ function reconstruct_journeys(origin::Station, destination::Station, bag_round_s
     end
 
     if isempty(journeys)
-        @warn "destination $(query.destination.name) unreachable"
+        @warn "destination $(destination.name) unreachable"
     end
     function one_step(journeys::Vector{Journey})
         one_step_journey_reconstruction(journeys, origin.stops, bag_last_round)
     end
-    for _ in 1:last_round*2 #times two because for every round we have train and footpaths
+    for _ in 1:last_round*2 #times two because for every round we have train trips and footpaths
         journeys = one_step(journeys)
     end
     return journeys
 end
 
-"""Reconstruct journies to all destinations"""
-function reconstruct_journies_to_all_destinations(origin::Station, timetable::TimeTable, bag_round_stop, last_round)
+"""Reconstruct journeys to all destinations"""
+function reconstruct_journeys_to_all_destinations(origin::Station, timetable::TimeTable, bag_round_stop, last_round)
     destination_stops = Iterators.filter(!isequal(origin), values(timetable.stations))
     return Dict(destination => reconstruct_journeys(origin, destination, bag_round_stop, last_round) for destination in destination_stops)
+end
+
+"""Reconstruct journeys to all destinations and append to journeys_to_destination dict"""
+function reconstruct_journeys_to_all_destinations!(journeys_to_destination::Dict{Station,Vector{Journey}}, origin::Station, timetable::TimeTable, bag_round_stop, last_round)
+    destination_stations = Iterators.filter(!isequal(origin), values(timetable.stations))
+    for destination in destination_stations
+        if destination in keys(journeys_to_destination)
+            append!(journeys_to_destination[destination], reconstruct_journeys(origin, destination, bag_round_stop, last_round))
+        else
+            journeys_to_destination[destination] = reconstruct_journeys(origin, destination, bag_round_stop, last_round)
+        end
+    end
+end
+
+"""Remove duplicate journeys"""
+function remove_duplicate_journeys!(journeys_to_destination::Dict{Station,Vector{Journey}})
+    for destination in keys(journeys_to_destination)
+        unique!(journeys_to_destination[destination])
+    end
+end
+
+"""sort duplicate journeys"""
+function sort_journeys!(journeys_to_destination::Dict{Station,Vector{Journey}})
+    for destination in keys(journeys_to_destination)
+        sort!(journeys_to_destination[destination], by = x -> x.legs[1].departure_time)
+    end
 end
 
 is_transfer(leg::JourneyLeg) = leg.to_stop.station_name == leg.from_stop.station_name

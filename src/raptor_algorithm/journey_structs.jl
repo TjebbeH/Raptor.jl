@@ -8,6 +8,7 @@ struct JourneyLeg
     to_label::Label # criteria for arriving at to_stop
 end
 
+
 function JourneyLeg(option::Option, to_stop::Stop)
     """Construct journey leg from option and to_stop"""
     return JourneyLeg(
@@ -27,6 +28,9 @@ end
 struct Journey <: Comparable
     legs::Vector{JourneyLeg}
 end
+# hash journey legs to make unique work
+Base.hash(journey::Journey) = hash(getfield(journey, :legs))
+
 function Journeys(options::Vector{Option}, to_stop::Stop)
     [Journey([leg]) for leg in JourneyLegs(options, to_stop)]
 end
