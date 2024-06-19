@@ -25,4 +25,4 @@ StaticLint = "b3cc710f-9c33-5bdb-a03d-a94903873e97"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "StaticLint", "Aqua", "BenchmarkTools", "JuliaFormatter"]
+test = ["Test", "StaticLint", "Aqua", "BenchmarkTools"]
