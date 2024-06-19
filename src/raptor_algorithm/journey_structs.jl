@@ -8,7 +8,6 @@ struct JourneyLeg
     to_label::Label # criteria for arriving at to_stop
 end
 
-
 function JourneyLeg(option::Option, to_stop::Stop)
     """Construct journey leg from option and to_stop"""
     return JourneyLeg(

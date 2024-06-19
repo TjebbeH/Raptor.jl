@@ -2,20 +2,21 @@
 Check if it is ok that leg1 is before leg 2:
 - It is possible to go from current leg to other leg concerning arrival and departure time
 - Number of trips of leg1 < number of trips of leg2, or <= when leg2 is transfer leg
-""" 
+"""
 function is_compatible_before(leg1::JourneyLeg, leg2::JourneyLeg)
     time_compatible = (
-            leg1.arrival_time <= leg2.departure_time
-        )
+        leg1.arrival_time <= leg2.departure_time
+    )
     if is_transfer(leg2)
-        number_of_trips_compatible = leg1.to_label.number_of_trips <= leg2.to_label.number_of_trips
+        number_of_trips_compatible = leg1.to_label.number_of_trips <=
+                                     leg2.to_label.number_of_trips
     else
-        number_of_trips_compatible = leg1.to_label.number_of_trips < leg2.to_label.number_of_trips
+        number_of_trips_compatible = leg1.to_label.number_of_trips <
+                                     leg2.to_label.number_of_trips
     end
     only_one_is_transfer = !(is_transfer(leg1) & is_transfer(leg2))
     return time_compatible & number_of_trips_compatible & only_one_is_transfer
 end
-
 
 function one_step_journey_reconstruction(
         journeys::Vector{Journey},
@@ -46,12 +47,13 @@ function one_step_journey_reconstruction(
 end
 
 """Reconstruct journeys to destionation station"""
-function reconstruct_journeys(origin::Station, destination::Station, bag_round_stop, last_round)
+function reconstruct_journeys(
+        origin::Station, destination::Station, bag_round_stop, last_round)
     bag_last_round = bag_round_stop[last_round]
 
     to_stops = destination.stops
     station_bag = merge_bags([bag_last_round[s] for s in to_stops])
-    
+
     #TODO: make nicer
     #TODO: make test which tests this
     journeys = Journey[]
@@ -70,39 +72,46 @@ function reconstruct_journeys(origin::Station, destination::Station, bag_round_s
     function one_step(journeys::Vector{Journey})
         one_step_journey_reconstruction(journeys, origin.stops, bag_last_round)
     end
-    for _ in 1:last_round*2 #times two because for every round we have train trips and footpaths
+    for _ in 1:(last_round * 2) #times two because for every round we have train trips and footpaths
         journeys = one_step(journeys)
     end
     return journeys
 end
 
 """Reconstruct journeys to all destinations"""
-function reconstruct_journeys_to_all_destinations(origin::Station, timetable::TimeTable, bag_round_stop, last_round)
+function reconstruct_journeys_to_all_destinations(
+        origin::Station, timetable::TimeTable, bag_round_stop, last_round)
     destination_stops = Iterators.filter(!isequal(origin), values(timetable.stations))
-    return Dict(destination => reconstruct_journeys(origin, destination, bag_round_stop, last_round) for destination in destination_stops)
+    return Dict(destination => reconstruct_journeys(
+                    origin, destination, bag_round_stop, last_round)
+    for destination in destination_stops)
 end
 
 """Reconstruct journeys to all destinations and append to journeys_to_destination dict"""
-function reconstruct_journeys_to_all_destinations!(journeys_to_destination::Dict{Station,Vector{Journey}}, origin::Station, timetable::TimeTable, bag_round_stop, last_round)
+function reconstruct_journeys_to_all_destinations!(
+        journeys_to_destination::Dict{Station, Vector{Journey}},
+        origin::Station, timetable::TimeTable, bag_round_stop, last_round)
     destination_stations = Iterators.filter(!isequal(origin), values(timetable.stations))
     for destination in destination_stations
         if destination in keys(journeys_to_destination)
-            append!(journeys_to_destination[destination], reconstruct_journeys(origin, destination, bag_round_stop, last_round))
+            append!(journeys_to_destination[destination],
+                reconstruct_journeys(origin, destination, bag_round_stop, last_round))
         else
-            journeys_to_destination[destination] = reconstruct_journeys(origin, destination, bag_round_stop, last_round)
+            journeys_to_destination[destination] = reconstruct_journeys(
+                origin, destination, bag_round_stop, last_round)
         end
     end
 end
 
 """Remove duplicate journeys"""
-function remove_duplicate_journeys!(journeys_to_destination::Dict{Station,Vector{Journey}})
+function remove_duplicate_journeys!(journeys_to_destination::Dict{Station, Vector{Journey}})
     for destination in keys(journeys_to_destination)
         unique!(journeys_to_destination[destination])
     end
 end
 
 """sort duplicate journeys"""
-function sort_journeys!(journeys_to_destination::Dict{Station,Vector{Journey}})
+function sort_journeys!(journeys_to_destination::Dict{Station, Vector{Journey}})
     for destination in keys(journeys_to_destination)
         sort!(journeys_to_destination[destination], by = x -> x.legs[1].departure_time)
     end

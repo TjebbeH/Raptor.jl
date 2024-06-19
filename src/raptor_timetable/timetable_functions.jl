@@ -122,5 +122,3 @@ function departure_times(timetable::TimeTable, station::Station, t0::DateTime, t
     filter!(t -> t0 <= t <= t1, departures)
     return departures
 end
-
-

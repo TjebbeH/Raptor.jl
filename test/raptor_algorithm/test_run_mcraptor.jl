@@ -19,6 +19,7 @@ options42 = bag_round_stop[last_round][timetable.stops["s42"]].options
 @test minimum(o.label.fare for o in options42) == 0.0
 @test minimum(o.label.number_of_trips for o in options42) == 1
 
-journeys = reconstruct_journeys_to_all_destinations(query.origin, timetable, bag_round_stop, last_round);
+journeys = reconstruct_journeys_to_all_destinations(
+    query.origin, timetable, bag_round_stop, last_round);
 destination = timetable.stations["S4"]
 @test length(journeys[destination]) == 3

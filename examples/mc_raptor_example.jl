@@ -20,7 +20,7 @@ import Raptor: save_timetable
 
 import Raptor: load_timetable
 # date = Date(2024, 5, 20)
-date = Date(2024,6,19)
+date = Date(2024, 6, 19)
 timetable = load_timetable();
 
 origin = "VS"
@@ -31,6 +31,7 @@ departure_time = date + Time(9);
 # using Logging
 query = McRaptorQuery(origin, departure_time, timetable);
 @time bag_round_stop, last_round = run_mc_raptor(timetable, query);
-@time journeys = reconstruct_journeys_to_all_destinations(query.origin, timetable, bag_round_stop, last_round);
+@time journeys = reconstruct_journeys_to_all_destinations(
+    query.origin, timetable, bag_round_stop, last_round);
 destination_station = try_to_get_station(destination, timetable)
 display_journeys(journeys[destination_station])

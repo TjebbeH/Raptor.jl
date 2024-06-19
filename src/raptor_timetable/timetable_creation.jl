@@ -136,18 +136,19 @@ function departures_from_stop(stop::Stop, gtfs_stop_times::DataFrame)
 end
 """Collect departures from station"""
 function departures_from_station(station::Station, gtfs_stop_times::DataFrame)
-    departures = collect(Iterators.flatten(departures_from_stop.(station.stops, Ref(gtfs_stop_times))))
+    departures = collect(Iterators.flatten(departures_from_stop.(
+        station.stops, Ref(gtfs_stop_times))))
     unique!(departures)
     return departures
 end
 
-function create_station_departures_lookup(stations::Dict{String, Station}, stop_times::DataFrame)
+function create_station_departures_lookup(
+        stations::Dict{String, Station}, stop_times::DataFrame)
     return Dict(
         station.abbreviation.abbreviation => departures_from_station(station, stop_times)
-        for station in values(stations)
+    for station in values(stations)
     )
 end
-
 
 function create_raptor_timetable(gtfs_timetable::GtfsTimeTable)
     @info "convert gtfs timetable to raptor timetable"
@@ -163,7 +164,8 @@ function create_raptor_timetable(gtfs_timetable::GtfsTimeTable)
     collected_stops = collect(values(stops))
     collected_trips = collect(values(trips))
 
-    station_departures_lookup = create_station_departures_lookup(stations, gtfs_timetable.stop_times)
+    station_departures_lookup = create_station_departures_lookup(
+        stations, gtfs_timetable.stop_times)
     stop_routes_lookup = create_stop_routes_lookup(collected_stops, collected_routes)
     route_trip_lookup = create_route_trip_lookup(collected_trips, collected_routes)
 

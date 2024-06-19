@@ -58,10 +58,9 @@ expected_departure_time2 = today + Time(16, 1)
 @test actual_earliest_trip2 == expected_trip2
 @test actual_departure_time2 == expected_departure_time2
 
-
 t0 = today + Time(14)
 t1 = today + Time(16)
 expected_departures = [
-    today + Time(14,1),
+    today + Time(14, 1)
 ]
 @test expected_departures == departure_times(tt, tt.stations["S2"], t0, t1)

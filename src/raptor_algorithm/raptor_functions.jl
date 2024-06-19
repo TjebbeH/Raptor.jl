@@ -16,8 +16,6 @@ function initialize_bag_round_stop(
     return bag_round_stop
 end
 
-
-
 function initialize_round1!(bag_round_stop::Vector{Dict{Stop, Bag}}, query::McRaptorQuery)
     """Initialize empty bags for every stop at every round.
     More over, initialize bags for each round with the stops at the departure stations
@@ -56,7 +54,9 @@ function is_geq_at_everything(label1::Label, label2::Label)
     return all(getfield(label1, field) >= getfield(label2, field) for field in criteria)
 end
 
-is_much_slower(label1::Label, label2::Label, threshold::Minute = Minute(60)) = Minute(label1.arrival_time - label2.arrival_time) > threshold
+function is_much_slower(label1::Label, label2::Label, threshold::Minute = Minute(60))
+    Minute(label1.arrival_time - label2.arrival_time) > threshold
+end
 
 function isdominated(label::Label, labels::Vector{Label})
     """Check if there is a label in labels that dominates label."""
@@ -275,10 +275,12 @@ function add_walking!(
     return new_marked_stops
 end
 
-function run_mc_raptor(timetable::TimeTable, query::McRaptorQuery, result_previous_run::Union{Dict{Stop, Bag},Nothing})
+function run_mc_raptor(timetable::TimeTable, query::McRaptorQuery,
+        result_previous_run::Union{Dict{Stop, Bag}, Nothing})
     maximum_rounds = query.maximum_number_of_rounds
     @info "round 1: initialization"
-    bag_round_stop = initialize_bag_round_stop(maximum_rounds, values(timetable.stops), result_previous_run)
+    bag_round_stop = initialize_bag_round_stop(
+        maximum_rounds, values(timetable.stops), result_previous_run)
     initialize_round1!(bag_round_stop, query)
 
     marked_stops = Set{Stop}(query.origin.stops)
@@ -308,29 +310,34 @@ function run_mc_raptor(timetable::TimeTable, query::McRaptorQuery, result_previo
     @info "finished raptor algorithm to create bag with best options"
     return bag_round_stop, last_round
 end
-run_mc_raptor(timetable::TimeTable, query::McRaptorQuery) = run_mc_raptor(timetable, query, nothing)
+function run_mc_raptor(timetable::TimeTable, query::McRaptorQuery)
+    run_mc_raptor(timetable, query, nothing)
+end
 
 """Run McRaptor for range query"""
-function run_mc_raptor_and_construct_journeys(timetable:: TimeTable, range_query::RangeMcRaptorQuery)
+function run_mc_raptor_and_construct_journeys(
+        timetable::TimeTable, range_query::RangeMcRaptorQuery)
     origin = range_query.origin
     departure_time_min = range_query.departure_time_min
     departure_time_max = range_query.departure_time_max
     maximum_number_of_rounds = range_query.maximum_number_of_rounds
 
     journeys = Dict{Station, Vector{Journey}}()
-    departure_times_from_origin = departure_times(timetable, origin, departure_time_min, departure_time_max)
+    departure_times_from_origin = departure_times(
+        timetable, origin, departure_time_min, departure_time_max)
     println("$(length(departure_times_from_origin)) departures from $(origin.name)")
 
     last_round_bag = nothing
     for departure in departure_times_from_origin
-            query = McRaptorQuery(origin, departure, maximum_number_of_rounds)
-            if isnothing(last_round_bag)
-                bag_round_stop, last_round = run_mc_raptor(timetable, query);
-            else
-                bag_round_stop, last_round = run_mc_raptor(timetable, query, last_round_bag);
-            end
-            last_round_bag = copy(bag_round_stop[last_round])
-            reconstruct_journeys_to_all_destinations!(journeys, query.origin, timetable, bag_round_stop, last_round)  
+        query = McRaptorQuery(origin, departure, maximum_number_of_rounds)
+        if isnothing(last_round_bag)
+            bag_round_stop, last_round = run_mc_raptor(timetable, query)
+        else
+            bag_round_stop, last_round = run_mc_raptor(timetable, query, last_round_bag)
+        end
+        last_round_bag = copy(bag_round_stop[last_round])
+        reconstruct_journeys_to_all_destinations!(
+            journeys, query.origin, timetable, bag_round_stop, last_round)
     end
     remove_duplicate_journeys!(journeys)
     sort_journeys!(journeys)

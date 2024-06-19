@@ -6,7 +6,7 @@ end
 
 struct Option
     label::Label
-    trip_to_station::Union{Trip,Nothing} # trip to take to obtain criteria
+    trip_to_station::Union{Trip, Nothing} # trip to take to obtain criteria
     from_stop::Union{Stop, Nothing} # stop to hop-on the trip
     from_departure_time::Union{DateTime, Nothing} # moment to hop-on the trip
 end
@@ -61,12 +61,12 @@ function McRaptorQuery(
 end
 
 function RangeMcRaptorQuery(
-    origin::String,
-    departure_time_min::DateTime,
-    departure_time_max::DateTime,
-    timetable::TimeTable,
-    maximum_number_of_rounds::Integer
-    )
+        origin::String,
+        departure_time_min::DateTime,
+        departure_time_max::DateTime,
+        timetable::TimeTable,
+        maximum_number_of_rounds::Integer
+)
     origin_station = try_to_get_station(origin, timetable)
     return RangeMcRaptorQuery(
         origin_station,
@@ -77,11 +77,11 @@ function RangeMcRaptorQuery(
 end
 
 function RangeMcRaptorQuery(
-    origin::String,
-    departure_time_min::DateTime,
-    departure_time_max::DateTime,
-    timetable::TimeTable,
-    )
+        origin::String,
+        departure_time_min::DateTime,
+        departure_time_max::DateTime,
+        timetable::TimeTable
+)
     maximum_number_of_rounds = 10
     return RangeMcRaptorQuery(
         origin,
