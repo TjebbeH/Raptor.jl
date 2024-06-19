@@ -3,7 +3,7 @@ using Dates
 using Logging
 using Test
 
-include("../create_test_timetable.jl")
+
 timetable = create_test_timetable();
 today = Date(2021, 10, 21)
 

@@ -11,7 +11,6 @@ import Raptor: departure_times
 using Test
 using Dates
 
-include("../create_test_timetable.jl")
 tt = create_test_timetable();
 today = Date(2021, 10, 21)
 

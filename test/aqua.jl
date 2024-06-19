@@ -6,7 +6,7 @@ using Raptor
 Aqua.test_all(
     Raptor,
     ambiguities = false,
-    stale_deps = (ignore = [:Revise],),
+    stale_deps = (ignore = [:Revise, :JuliaFormatter],),
     deps_compat = (
         check_extras = false, ignore = [:Revise, :Dates, :Logging, :Serialization])
 )
