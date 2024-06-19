@@ -3,7 +3,6 @@ using Dates
 using Logging
 using Test
 
-
 timetable = create_test_timetable();
 today = Date(2021, 10, 21)
 
