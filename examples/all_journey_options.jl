@@ -27,4 +27,5 @@ function calculate_all_journeys(timetable)
         journeys = run_mc_raptor_and_construct_journeys(timetable, range_query)
     end
 end
+
 @time calculate_all_journeys(timetable)
