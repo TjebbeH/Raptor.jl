@@ -278,7 +278,7 @@ end
 function run_mc_raptor(timetable::TimeTable, query::McRaptorQuery,
         result_previous_run::Union{Dict{Stop, Bag}, Nothing})
     maximum_rounds = query.maximum_number_of_rounds
-    @info "round 1: initialization"
+    @debug "round 1: initialization"
     bag_round_stop = initialize_bag_round_stop(
         maximum_rounds, values(timetable.stops), result_previous_run)
     initialize_round1!(bag_round_stop, query)
@@ -287,7 +287,7 @@ function run_mc_raptor(timetable::TimeTable, query::McRaptorQuery,
 
     last_round = 1
     for k in 2:maximum_rounds
-        @info "round $k: analyzing possibilities from $(length(marked_stops)) stops"
+        @debug "round $k: analyzing possibilities from $(length(marked_stops)) stops"
 
         # Copy bag from previous round
         bag_round_stop[k] = copy(bag_round_stop[k - 1])
@@ -307,7 +307,7 @@ function run_mc_raptor(timetable::TimeTable, query::McRaptorQuery,
         # Combine marked stops
         marked_stops = union(marked_stops_by_train, marked_stops_by_walking)
     end
-    @info "finished raptor algorithm to create bag with best options"
+    @debug "finished raptor algorithm to create bag with best options"
     return bag_round_stop, last_round
 end
 function run_mc_raptor(timetable::TimeTable, query::McRaptorQuery)
@@ -325,7 +325,7 @@ function run_mc_raptor_and_construct_journeys(
     journeys = Dict{Station, Vector{Journey}}()
     departure_times_from_origin = departure_times(
         timetable, origin, departure_time_min, departure_time_max)
-    println("$(length(departure_times_from_origin)) departures from $(origin.name)")
+    @info "calculating journey options for $(length(departure_times_from_origin)) departures from $(origin.name)"
 
     last_round_bag = nothing
     for departure in departure_times_from_origin
