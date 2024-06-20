@@ -12,9 +12,6 @@
 		}
 	},
 
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
-
 	// Configure tool-specific properties.
 	"customizations": {
 		// Configure properties specific to VS Code.
@@ -25,11 +22,9 @@
 			]
 		}
 	},
-	"runArgs": [ "--env-file", ".devcontainer/devcontainer.env" ],
+	"runArgs": [ "--env-file", ".devcontainer/variables.env" ],
 	"postCreateCommand": "bash .devcontainer/setup.sh",
 
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	// "remoteUser": "root"
-
-	
+	// "remoteUser": "root"	
 }
