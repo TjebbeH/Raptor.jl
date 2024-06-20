@@ -343,3 +343,17 @@ function run_mc_raptor_and_construct_journeys(
     sort_journeys!(journeys)
     return journeys
 end
+
+"""Run McRaptor and construct all journeys on a date"""
+function calculate_all_journeys(timetable::TimeTable, date::Date, maximum_number_of_rounds::Integer=5)
+    stations = sort(collect(values(timetable.stations)), by = station -> station.name);
+    all_journeys = Dict{Station, Dict{Station, Vector{Journey}}}()
+    for origin in stations
+        departure_time_min = date + Time(0)
+        departure_time_max = date + Time(23, 59)
+
+        range_query = RangeMcRaptorQuery(origin, departure_time_min, departure_time_max, maximum_number_of_rounds)
+        all_journeys[origin] = run_mc_raptor_and_construct_journeys(timetable, range_query)
+    end
+    return all_journeys
+end

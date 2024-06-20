@@ -7,6 +7,7 @@ export run_mc_raptor
 export try_to_get_station
 export reconstruct_journeys, reconstruct_journeys_to_all_destinations
 export run_mc_raptor_and_construct_journeys
+export calculate_all_journeys
 export display_journeys
 
 using Dates
