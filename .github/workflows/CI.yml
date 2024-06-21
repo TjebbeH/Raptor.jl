@@ -27,7 +27,7 @@ jobs:
           if out == ""
               exit(0)
           else
-              @error "Some files have not been formatted, please run `using JuliaFormatter; format(".")` locally and push the changes."
+              @error "Some files have not been formatted, please run `using JuliaFormatter; format(\".\")` locally and push the changes."
               write(stdout, out)
               exit(1)
           end'
