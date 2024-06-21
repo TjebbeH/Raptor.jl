@@ -5,7 +5,7 @@ create_stop_to_empty_bags(from_stops) = Dict(stop => Bag() for stop in from_stop
 
 """Initialize empty bags for every stop at every round."""
 function initialize_bag_round_stop(
-        maximum_rounds::Int,
+        maximum_rounds:: Integer,
         stops::Base.ValueIterator{Dict{String, Stop}},
         result_previous_run::Union{Dict{Stop, Bag}, Nothing}
 )
@@ -58,7 +58,7 @@ function is_much_slower(label1::Label, label2::Label, threshold::Minute = Minute
     Minute(label1.arrival_time - label2.arrival_time) > threshold
 end
 
-function isdominated(label::Label, labels::Vector{Label})
+function isdominated(label::Label, labels::Vector{<:Label})
     """Check if there is a label in labels that dominates label."""
     for other_label in labels
         is_different = other_label != label
@@ -73,7 +73,7 @@ function isdominated(label::Label, labels::Vector{Label})
     return false
 end
 
-function pareto_set_idx(labels::Vector{Label})
+function pareto_set_idx(labels::Vector{<:Label})
     """Calculate pareto set of labels of options.
     That is, remove all labels that are dominated by an other.
     Note that duplicates are not removed."""
@@ -104,7 +104,7 @@ different_options(b1::Bag, b2::Bag) = b1.options != b2.options
 
 function traverse_routes!(
         bag_round_stop::Vector{Dict{Stop, Bag}},
-        k::Int,
+        k::Integer,
         timetable::TimeTable,
         marked_stops::Set{Stop}
 )
@@ -122,7 +122,7 @@ end
 
 function traverse_route!(
         bag_round_stop::Vector{Dict{Stop, Bag}},
-        k::Int,
+        k:: Integer,
         timetable::TimeTable,
         route::Route,
         stop::Stop
@@ -236,7 +236,7 @@ end
 
 function add_walking!(
         bag_round_stop::Vector{Dict{Stop, Bag}},
-        k::Int,
+        k:: Integer,
         timetable::TimeTable,
         stops::Set{Stop}
 )

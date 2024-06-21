@@ -77,7 +77,7 @@ function create_trips(
     )
 end
 
-function create_footpaths(stations::Dict{String, Station}, duration_sec::Number)
+function create_footpaths(stations::Dict{String, Station}, duration_sec::T) where T <: Number
     """Create a dict with footpaths for every combination of stops in a station"""
     footpaths = Dict()
     for station in values(stations)

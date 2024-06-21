@@ -9,11 +9,11 @@ struct Stop
     platform_code::String
 end
 
-struct StopTime
+struct StopTime{T <: Number}
     stop::Stop
     arrival_time::DateTime
     departure_time::DateTime
-    fare::Number
+    fare::T
 end
 
 struct Station <: Comparable
