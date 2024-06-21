@@ -8,7 +8,8 @@ Aqua.test_all(
     ambiguities = false,
     stale_deps = (ignore = [:Revise, :JuliaFormatter],),
     deps_compat = (
-        check_extras = false, ignore = [:Revise, :Dates, :Logging, :Serialization])
+        check_extras = false, ignore = [
+            :Revise, :Dates, :Logging, :Serialization, :Distributed])
 )
 # Base and Core have some ambiguities, so dont check them
 Aqua.test_ambiguities([Raptor], recursive = false)

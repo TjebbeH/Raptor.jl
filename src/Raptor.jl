@@ -14,6 +14,7 @@ using Dates
 using Logging
 using DataFrames, CSV
 using Serialization
+using Distributed
 
 include("utils.jl")
 

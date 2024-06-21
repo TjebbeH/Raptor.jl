@@ -66,9 +66,9 @@ function reconstruct_journeys(
         end
     end
 
-    if isempty(journeys)
-        @warn "destination $(destination.name) unreachable"
-    end
+    # if isempty(journeys)
+    #     @warn "destination $(destination.name) unreachable"
+    # end
     function one_step(journeys::Vector{Journey})
         one_step_journey_reconstruction(journeys, origin.stops, bag_last_round)
     end

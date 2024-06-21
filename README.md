@@ -15,6 +15,10 @@ Based on [pyraptor](https://github.com/lmeulen/pyraptor).
 
 [gtfs nl](https://gtfs.ovapi.nl/nl/)
 
+
+# Notes
+To format: `using JuliaFormatter; format(".")`
+
 # TODO:
 - [ ] Make config with threshold, fare, footpaths
 - [ ] More functional unittests

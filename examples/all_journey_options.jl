@@ -1,4 +1,9 @@
-using Raptor
+using Distributed
+nworkers()
+addprocs(4)
+nworkers()
+
+@everywhere using Raptor
 
 using Dates
 
@@ -13,6 +18,6 @@ import Raptor: load_timetable
 # date = Date(2024,5,20)
 date = Date(2024, 6, 19)
 timetable = load_timetable();
+maxiumum_number_of_transfers = 5
 
-maxiumum_number_of_rounds = 5
-@time calculate_all_journeys(timetable, date, maxiumum_number_of_rounds)
+@time calculate_all_journeys(timetable, date, maxiumum_number_of_transfers);
