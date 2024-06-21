@@ -2,3 +2,4 @@ data/
 *.DS_Store
 *secrets.env
 Manifest.toml
+.vscode/
