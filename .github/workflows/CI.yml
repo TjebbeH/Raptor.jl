@@ -3,8 +3,6 @@ name: CI
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
-  push:
-    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
@@ -29,7 +27,7 @@ jobs:
           if out == ""
               exit(0)
           else
-              @error "Some files have not been formatted !!!"
+              @error "Some files have not been formatted, please run 'using JuliaFormatter; format(".")` locally and push the changes."
               write(stdout, out)
               exit(1)
           end'
