@@ -15,11 +15,6 @@ Download [gtfs data](https://gtfs.ovapi.nl/nl/) (see `test/gtfs/testdata` for ex
 # McRaptor
 Based on [pyraptor](https://github.com/lmeulen/pyraptor).
 
-
-
-# Notes
-To format: `using JuliaFormatter; format(".")`
-
 # TODO:
 - [ ] More functional unittests
 - [ ] Type stability tests
