@@ -13,16 +13,22 @@ Then, open in container.
 Download [gtfs data](https://gtfs.ovapi.nl/nl/) (see `test/gtfs/testdata` for expected format).
 
 # McRaptor
-Based on [pyraptor](https://github.com/lmeulen/pyraptor).
+Implementation based on [pyraptor](https://github.com/lmeulen/pyraptor).
+
+### References
+D. Delling, T. Pajor, R. F. Werneck (2014) Round-Based Public Transit Routing. Transportation Science 49(3):591-604. 
+https://doi.org/10.1287/trsc.2014.0534.
 
 # TODO:
 - [ ] More functional unittests
 - [ ] Type stability tests
 - [ ] Make config with threshold, fare, default footpaths
 - [ ] Parametrize structs with abstract types
-- [ ] parallelize calculate all journey options
+- [ ] Improve parallelization
 - [ ] clean up/refactor?
 - [ ] docstrings above functions
 - [ ] Readme
 - [ ] Documentation(.jl)
+
+
 
