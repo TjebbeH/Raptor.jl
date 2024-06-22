@@ -1,11 +1,11 @@
-struct Label{T <: Number, S <: Integer}
+struct Label
     arrival_time::DateTime
-    fare::T
-    number_of_trips::S
+    fare::Float64
+    number_of_trips::Int
 end
 
-struct Option{L <: Label}
-    label::L
+struct Option
+    label::Label
     trip_to_station::Union{Trip, Nothing} # trip to take to obtain criteria
     from_stop::Union{Stop, Nothing} # stop to hop-on the trip
     from_departure_time::Union{DateTime, Nothing} # moment to hop-on the trip
@@ -15,20 +15,20 @@ Option(label::Label) = Option(label, nothing, nothing, nothing)
 struct Bag <: Comparable
     options::Vector{Option}
 end
-Bag() = Bag([])
-Bag(labels::Vector{<:Label}) = Bag([Option(label) for label in labels])
+Bag() = Bag(Option[])
+Bag(labels::Vector{Label}) = Bag([Option(label) for label in labels])
 
-struct McRaptorQuery{T <: Integer}
+struct McRaptorQuery
     origin::Station
     departure_time::DateTime
-    maximum_number_of_rounds::T
+    maximum_number_of_rounds::Int
 end
 
-struct RangeMcRaptorQuery{T <: Integer}
+struct RangeMcRaptorQuery
     origin::Station
     departure_time_min::DateTime
     departure_time_max::DateTime
-    maximum_number_of_rounds::T
+    maximum_number_of_rounds::Int
 end
 
 """Constructor where it trys to interpret the origin and destination string as a station"""
@@ -36,8 +36,8 @@ function McRaptorQuery(
         origin::String,
         departure_time::DateTime,
         timetable::TimeTable,
-        maximum_number_of_rounds::T
-) where T <: Integer
+        maximum_number_of_rounds::Integer
+)
     origin_station = try_to_get_station(origin, timetable)
     return McRaptorQuery(
         origin_station,
@@ -65,8 +65,8 @@ function RangeMcRaptorQuery(
         departure_time_min::DateTime,
         departure_time_max::DateTime,
         timetable::TimeTable,
-        maximum_number_of_rounds::T
-) where T <: Integer
+        maximum_number_of_rounds::Integer
+)
     origin_station = try_to_get_station(origin, timetable)
     return RangeMcRaptorQuery(
         origin_station,

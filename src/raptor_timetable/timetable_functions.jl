@@ -94,7 +94,7 @@ function get_fare(trip::Trip, departing_stop::Stop)
     if !isnothing(stop_time)
         return stop_time.fare
     end
-    return 0
+    return zero(fieldtype(StopTime,:fare))
 end
 
 """Get earliest trip traveling route departing at stop after departure_time"""

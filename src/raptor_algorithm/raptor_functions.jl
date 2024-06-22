@@ -36,7 +36,7 @@ function get_routes_to_travers(timetable::TimeTable, marked_stops::Set{Stop})
     Q = Dict{Route, Stop}()
     for marked_stop in marked_stops
         routes_serving_marked_stop = get(
-            timetable.stop_routes_lookup, marked_stop, Dict{Route, Int64}())
+            timetable.stop_routes_lookup, marked_stop, Dict{Route, Int}())
         for route in keys(routes_serving_marked_stop)
             stop_in_Q = get(Q, route, missing)
             if marked_stop == first_in_route(timetable, route, stop_in_Q, marked_stop)
@@ -58,7 +58,7 @@ function is_much_slower(label1::Label, label2::Label, threshold::Minute = Minute
     Minute(label1.arrival_time - label2.arrival_time) > threshold
 end
 
-function isdominated(label::Label, labels::Vector{<:Label})
+function isdominated(label::Label, labels::Vector{Label})
     """Check if there is a label in labels that dominates label."""
     for other_label in labels
         is_different = other_label != label
@@ -73,7 +73,7 @@ function isdominated(label::Label, labels::Vector{<:Label})
     return false
 end
 
-function pareto_set_idx(labels::Vector{<:Label})
+function pareto_set_idx(labels::Vector{Label})
     """Calculate pareto set of labels of options.
     That is, remove all labels that are dominated by an other.
     Note that duplicates are not removed."""

@@ -4,13 +4,13 @@ using Dates
 
 # import Raptor: create_raptor_timetable
 # import Raptor: save_timetable
-# gtfs_dir = joinpath([@__DIR__, "..", "src","gtfs","data","gtfs_nl_2024_06_19"])
-# date = Date(2024, 6, 19)
+# gtfs_dir = joinpath([@__DIR__, "..", "src","gtfs","data","gtfs_nl_2024_05_20"])
+# date = Date(2024, 5, 20)
 # timetable = create_raptor_timetable(gtfs_dir,date);
 # save_timetable(timetable)
 
 import Raptor: load_timetable
-date = Date(2024, 6, 19)
+date = Date(2024, 5, 20)
 timetable = load_timetable();
 
 origin = "VS"
@@ -20,7 +20,7 @@ departure_time_max = date + Time(9, 59)
 using BenchmarkTools
 
 range_query = RangeMcRaptorQuery(origin, departure_time_min, departure_time_max, timetable);
-@time journeys = run_mc_raptor_and_construct_journeys(timetable, range_query);
+@btime journeys = run_mc_raptor_and_construct_journeys(timetable, range_query);
 
 destination = "AKM"
 destination_station = try_to_get_station(destination, timetable);

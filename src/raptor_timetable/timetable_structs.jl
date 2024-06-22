@@ -9,11 +9,11 @@ struct Stop
     platform_code::String
 end
 
-struct StopTime{T <: Number}
+struct StopTime
     stop::Stop
     arrival_time::DateTime
     departure_time::DateTime
-    fare::T
+    fare::Float64
 end
 
 struct Station <: Comparable
@@ -56,7 +56,7 @@ struct TimeTable
     trips::Dict{String, Trip}
     routes::Dict{String, Route}
     footpaths::Dict{Tuple{String, String}, FootPath}
-    stop_routes_lookup::Dict{Stop, Dict{Route, Int64}}
+    stop_routes_lookup::Dict{Stop, Dict{Route, Int}}
     route_trip_lookup::Dict{Route, Vector{Trip}}
     station_departures_lookup::Dict{String, Vector{DateTime}}
 end
