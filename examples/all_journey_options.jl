@@ -17,6 +17,6 @@ import Raptor: load_timetable
 date = Date(2024, 5, 20)
 # date = Date(2024, 6, 19)
 timetable = load_timetable();
-maximum_number_of_transfers = 5
+maximum_transfers = 5
 
-@time calculate_all_journeys(timetable, date, maximum_number_of_transfers);
+@time calculate_all_journeys(timetable, date, maximum_transfers);
