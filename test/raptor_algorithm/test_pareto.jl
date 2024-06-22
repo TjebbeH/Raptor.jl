@@ -37,5 +37,3 @@ b13 = Bag([Option(l1), Option(l3)])
 @test merge_bags(b_all1, b_all2) == bag_expected
 @test merge_bags(b12, b3) == b13
 @test merge_bags([b12, b3, b13]) == b13
-
-

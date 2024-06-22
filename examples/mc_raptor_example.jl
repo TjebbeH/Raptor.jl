@@ -30,5 +30,5 @@ query = McRaptorQuery(origin, departure_time, timetable);
 @btime journeys = reconstruct_journeys_to_all_destinations(
     query.origin, timetable, bag_round_stop, last_round);
 
-    destination_station = try_to_get_station(destination, timetable)
+destination_station = try_to_get_station(destination, timetable)
 display_journeys(journeys[destination_station])

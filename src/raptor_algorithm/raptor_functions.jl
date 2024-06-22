@@ -5,7 +5,7 @@ create_stop_to_empty_bags(from_stops) = Dict(stop => Bag() for stop in from_stop
 
 """Initialize empty bags for every stop at every round."""
 function initialize_bag_round_stop(
-        maximum_rounds:: Integer,
+        maximum_rounds::Integer,
         stops::Base.ValueIterator{Dict{String, Stop}},
         result_previous_run::Union{Dict{Stop, Bag}, Nothing}
 )
@@ -122,7 +122,7 @@ end
 
 function traverse_route!(
         bag_round_stop::Vector{Dict{Stop, Bag}},
-        k:: Integer,
+        k::Integer,
         timetable::TimeTable,
         route::Route,
         stop::Stop
@@ -236,7 +236,7 @@ end
 
 function add_walking!(
         bag_round_stop::Vector{Dict{Stop, Bag}},
-        k:: Integer,
+        k::Integer,
         timetable::TimeTable,
         stops::Set{Stop}
 )
