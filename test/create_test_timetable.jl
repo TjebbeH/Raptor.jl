@@ -49,55 +49,55 @@ function create_test_timetable()
         "101",
         "Sprinter",
         routes["r1"],
-        [
-            StopTime(stops["s11"], today + Time(13), today + Time(13, 1), 0.0),
-            StopTime(stops["s22"], today + Time(14), today + Time(14, 1), 0.0),
-            StopTime(stops["s31"], today + Time(15), today + Time(15, 1), 0.0),
-            StopTime(stops["s42"], today + Time(16), today + Time(16, 1), 0.0),
-            StopTime(stops["s51"], today + Time(17), today + Time(17, 1), 0.0)
-        ]
+        Dict(
+            "s11" => StopTime(stops["s11"], today + Time(13), today + Time(13, 1), 0.0),
+            "s22" => StopTime(stops["s22"], today + Time(14), today + Time(14, 1), 0.0),
+            "s31" => StopTime(stops["s31"], today + Time(15), today + Time(15, 1), 0.0),
+            "s42" => StopTime(stops["s42"], today + Time(16), today + Time(16, 1), 0.0),
+            "s51" => StopTime(stops["s51"], today + Time(17), today + Time(17, 1), 0.0)
+        )
     )
     trip201 = Trip(
         "t201",
         "201",
         "Sprinter",
         routes["r2"],
-        [
-            StopTime(stops["s71"], today + Time(15, 15), today + Time(15, 16), 0.0),
-            StopTime(stops["s43"], today + Time(15, 45), today + Time(15, 46), 0.0),
-            StopTime(stops["s61"], today + Time(16, 15), today + Time(16, 16), 0.0)
-        ]
+        Dict(
+            "s71" => StopTime(stops["s71"], today + Time(15, 15), today + Time(15, 16), 0.0),
+            "s43" => StopTime(stops["s43"], today + Time(15, 45), today + Time(15, 46), 0.0),
+            "s61" => StopTime(stops["s61"], today + Time(16, 15), today + Time(16, 16), 0.0)
+        )
     )
     trip301 = Trip(
         "t301",
         "301",
         "Sprinter",
         routes["r3"],
-        [
-            StopTime(stops["s23"], today + Time(14), today + Time(14, 1), 0.0),
-            StopTime(stops["s72"], today + Time(15), today + Time(15, 1), 0.0)
-        ]
+        Dict(
+            "s23" => StopTime(stops["s23"], today + Time(14), today + Time(14, 1), 0.0),
+            "s72" => StopTime(stops["s72"], today + Time(15), today + Time(15, 1), 0.0)
+        )
     )
     trip303 = Trip(
         "t303",
         "303",
         "Sprinter",
         routes["r3"],
-        [
-            StopTime(stops["s23"], today + Time(16), today + Time(16, 1), 0.0),
-            StopTime(stops["s72"], today + Time(17), today + Time(17, 1), 0.0)
-        ]
+        Dict(
+            "s23" => StopTime(stops["s23"], today + Time(16), today + Time(16, 1), 0.0),
+            "s72" => StopTime(stops["s72"], today + Time(17), today + Time(17, 1), 0.0)
+        )
     )
     trip401 = Trip(
         "t401",
         "401",
         "ICD",
         routes["r4"],
-        [
-            StopTime(stops["s21"], today + Time(14), today + Time(14, 1), 0.0),
-            StopTime(stops["s81"], today + Time(14, 30), today + Time(14, 31), 7.0),
-            StopTime(stops["s41"], today + Time(15), today + Time(15, 1), 0.0)
-        ]
+        Dict(
+            "s21" => StopTime(stops["s21"], today + Time(14), today + Time(14, 1), 0.0),
+            "s81" => StopTime(stops["s81"], today + Time(14, 30), today + Time(14, 31), 7.0),
+            "s41" => StopTime(stops["s41"], today + Time(15), today + Time(15, 1), 0.0)
+        )
     )
     list_of_trips = [trip101, trip201, trip301, trip303, trip401]
     trips = Dict(t.id => t for t in list_of_trips)

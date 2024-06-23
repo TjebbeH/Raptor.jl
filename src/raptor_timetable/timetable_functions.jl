@@ -1,5 +1,5 @@
 function first_arrival_time(trip::Trip)
-    return minimum([stoptime.arrival_time for stoptime in trip.stop_times])
+    return minimum([stoptime.arrival_time for stoptime in values(trip.stop_times)])
 end
 
 function first_arrival_time(trips::Dict{String, Trip})
@@ -7,7 +7,7 @@ function first_arrival_time(trips::Dict{String, Trip})
 end
 
 function last_departure_time(trip::Trip)
-    return maximum([stoptime.departure_time for stoptime in trip.stop_times])
+    return maximum([stoptime.departure_time for stoptime in values(trip.stop_times)])
 end
 
 function last_departure_time(trips::Dict{String, Trip})
@@ -76,15 +76,11 @@ end
 first_in_route(timetable::TimeTable, route::Route, stop1::Stop, stop2::Missing) = stop1
 first_in_route(timetable::TimeTable, route::Route, stop1::Missing, stop2::Stop) = stop2
 
-"""Get stop time from a stop in a trip.
-Returns nothing when stop is not in trip"""
-function get_stop_time(trip::Trip, stop::Stop)
-    stop_time = filter(stop_time -> stop_time.stop == stop, trip.stop_times)
-    if isempty(stop_time)
-        return nothing
-    end
-    return stop_time |> only
-end
+"""
+Get stop time from a stop in a trip.
+Returns nothing when stop is not in trip
+"""
+get_stop_time(trip::Trip, stop::Stop) = get(trip.stop_times, stop.id, nothing)
 
 """Get fare from departing stop in trip.
 Returns zero when stop is not in trip.

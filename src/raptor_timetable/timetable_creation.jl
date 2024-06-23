@@ -52,14 +52,13 @@ function create_trip(
     stops_in_trip_df = stop_times_with_trip_id(trip_id, gtfs_stop_times)
     sort!(stops_in_trip_df, [:arrival_time])
 
-    stops_in_trip = [stops[id] for id in stops_in_trip_df.stop_id]
-    stop_times = StopTime.(
-        stops_in_trip,
-        stops_in_trip_df.arrival_time,
-        stops_in_trip_df.departure_time,
-        0
-    )
-    route = Route(stops_in_trip)
+    stop_times = Dict{String,StopTime}()
+    for row in eachrow(stops_in_trip_df)
+        stop = stops[row.stop_id]
+        stop_times[stop.id] = StopTime(
+            stop, row.arrival_time, row.departure_time, 0.0)
+    end
+    route = Route([st.stop for st in values(stop_times)])
 
     return Trip(string(trip_id), trip_name, trip_formula, route, stop_times)
 end
