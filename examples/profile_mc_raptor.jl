@@ -35,4 +35,3 @@ pprof()
 Profile.Allocs.clear()
 Profile.Allocs.@profile run_mc_raptor(timetable, query);
 PProf.Allocs.pprof()
-
