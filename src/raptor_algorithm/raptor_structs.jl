@@ -1,6 +1,6 @@
 struct Label
     arrival_time::DateTime
-    fare::Number
+    fare::Float64
     number_of_trips::Int
 end
 
@@ -15,20 +15,20 @@ Option(label::Label) = Option(label, nothing, nothing, nothing)
 struct Bag <: Comparable
     options::Vector{Option}
 end
-Bag() = Bag([])
+Bag() = Bag(Option[])
 Bag(labels::Vector{Label}) = Bag([Option(label) for label in labels])
 
 struct McRaptorQuery
     origin::Station
     departure_time::DateTime
-    maximum_number_of_rounds::Integer
+    maximum_number_of_rounds::Int
 end
 
 struct RangeMcRaptorQuery
     origin::Station
     departure_time_min::DateTime
     departure_time_max::DateTime
-    maximum_number_of_rounds::Integer
+    maximum_number_of_rounds::Int
 end
 
 """Constructor where it trys to interpret the origin and destination string as a station"""

@@ -5,7 +5,7 @@ create_stop_to_empty_bags(from_stops) = Dict(stop => Bag() for stop in from_stop
 
 """Initialize empty bags for every stop at every round."""
 function initialize_bag_round_stop(
-        maximum_rounds::Int,
+        maximum_rounds::Integer,
         stops::Base.ValueIterator{Dict{String, Stop}},
         result_previous_run::Union{Dict{Stop, Bag}, Nothing}
 )
@@ -36,7 +36,7 @@ function get_routes_to_travers(timetable::TimeTable, marked_stops::Set{Stop})
     Q = Dict{Route, Stop}()
     for marked_stop in marked_stops
         routes_serving_marked_stop = get(
-            timetable.stop_routes_lookup, marked_stop, Dict{Route, Int64}())
+            timetable.stop_routes_lookup, marked_stop, Dict{Route, Int}())
         for route in keys(routes_serving_marked_stop)
             stop_in_Q = get(Q, route, missing)
             if marked_stop == first_in_route(timetable, route, stop_in_Q, marked_stop)
@@ -104,7 +104,7 @@ different_options(b1::Bag, b2::Bag) = b1.options != b2.options
 
 function traverse_routes!(
         bag_round_stop::Vector{Dict{Stop, Bag}},
-        k::Int,
+        k::Integer,
         timetable::TimeTable,
         marked_stops::Set{Stop}
 )
@@ -122,7 +122,7 @@ end
 
 function traverse_route!(
         bag_round_stop::Vector{Dict{Stop, Bag}},
-        k::Int,
+        k::Integer,
         timetable::TimeTable,
         route::Route,
         stop::Stop
@@ -236,7 +236,7 @@ end
 
 function add_walking!(
         bag_round_stop::Vector{Dict{Stop, Bag}},
-        k::Int,
+        k::Integer,
         timetable::TimeTable,
         stops::Set{Stop}
 )

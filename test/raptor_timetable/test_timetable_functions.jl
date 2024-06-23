@@ -28,7 +28,6 @@ today = Date(2021, 10, 21)
 
 @test get_other_stops_at_station(tt.stations["S2"], tt.stops["s21"]) ==
       [tt.stops["s2$s"] for s in 2:3]
-
 @test get_stop_idx_in_route(tt, tt.stops["s22"], tt.routes["r1"]) == 2
 
 @test first_in_route(tt, tt.routes["r3"], tt.stops["s23"], tt.stops["s72"]) ==
@@ -62,4 +61,4 @@ t1 = today + Time(16)
 expected_departures = [
     today + Time(14, 1)
 ]
-@test expected_departures == departure_times(tt, tt.stations["S2"], t0, t1)
+@test departure_times(tt, tt.stations["S2"], t0, t1) == expected_departures
