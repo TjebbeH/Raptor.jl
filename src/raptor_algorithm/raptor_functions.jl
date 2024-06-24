@@ -73,32 +73,34 @@ function isdominated(label::Label, labels::Vector{Label})
         is_different = other_label != label
         is_worse_at_everything = is_geq_at_everything(label, other_label)
         is_very_slow = is_much_slower(label, other_label)
-        if is_different
-            if is_worse_at_everything || is_very_slow
-                return true
-            end
+        if is_different && (is_worse_at_everything || is_very_slow)
+            return true
         end
     end
     return false
 end
 
 """
-Calculate pareto set of labels of options.
-That is, remove all labels that are dominated by an other.
-Note that duplicates are not removed.
+Calculate indexes for pareto set of labels of options.
 """
-function pareto_set_idx(labels::Vector{Label})
-    to_keep = trues(size(labels))
-    for (i, label) in enumerate(labels)
-        to_keep[i] = !isdominated(label, labels[to_keep])
+function pareto_set_idx(unique_label_idx::Vector{Int}, labels::Vector{Label})
+    to_keep = falses(size(labels))
+    to_keep[unique_label_idx] .= true
+    for i in unique_label_idx
+        to_keep[i] = !isdominated(labels[i], labels[to_keep])
     end
     return to_keep
 end
 
+"""
+Calculate pareto set of labels of options.
+That is, remove all labels that are dominated by an other.
+"""
 function pareto_set(options::Vector{Option})
     labels = [o.label for o in options]
-    to_keep = pareto_set_idx(labels)
-    return options[to_keep] |> unique
+    unique_label_idx = unique(i -> labels[i], 1:length(labels))
+    to_keep = pareto_set_idx(unique_label_idx, labels)
+    return options[to_keep]
 end
 
 """
