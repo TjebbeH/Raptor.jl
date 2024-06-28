@@ -23,7 +23,6 @@ https://doi.org/10.1287/trsc.2014.0534.
 - [ ] More functional unittests
 - [ ] Type stability tests
 - [ ] Make config with threshold, fare, default footpaths
-- [ ] Parametrize structs with abstract types
 - [ ] Improve parallelization
 - [ ] clean up/refactor?
 - [ ] docstrings above functions
