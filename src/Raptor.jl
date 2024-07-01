@@ -15,6 +15,7 @@ using Logging
 using DataFrames, CSV
 using Serialization
 using Distributed
+using DataStructures
 
 include("utils.jl")
 

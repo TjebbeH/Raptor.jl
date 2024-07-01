@@ -52,7 +52,7 @@ function create_trip(
     stops_in_trip_df = stop_times_with_trip_id(trip_id, gtfs_stop_times)
     sort!(stops_in_trip_df, [:arrival_time])
 
-    stop_times = Dict{String, StopTime}()
+    stop_times = OrderedDict{String, StopTime}()
     for row in eachrow(stops_in_trip_df)
         stop = stops[row.stop_id]
         stop_times[stop.id] = StopTime(
