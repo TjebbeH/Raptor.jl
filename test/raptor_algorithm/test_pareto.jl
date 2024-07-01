@@ -31,7 +31,7 @@ b13 = Bag([Option(l1), Option(l3)])
 @test isdominated(l2, ls)
 @test !isdominated(l3, ls)
 
-@test pareto_set_idx(ls) == [true, false, true, true] # duplicates not yet removed
+@test pareto_set_idx([1,2,3],ls) == [true, false, true, false]
 @test pareto_set(options_input) == options_expected
 
 @test merge_bags(b_all1, b_all2) == bag_expected
