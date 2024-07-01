@@ -19,9 +19,9 @@ date = Date(2024, 5, 20)
 # date = Date(2024, 6, 19)
 timetable = load_timetable();
 
-origin = "VS"
+origin = "ASD"
 destination = "AKM"
-departure_time = date + Time(9);
+departure_time = date + Time(13);
 
 using BenchmarkTools
 query = McRaptorQuery(origin, departure_time, timetable);
