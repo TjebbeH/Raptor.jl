@@ -8,6 +8,7 @@ import Raptor: create_stop_routes_lookup, create_route_trip_lookup
 using Test
 using Dates
 using DataFrames
+using DataStructures
 
 date = Date(2021, 10, 21)
 path = joinpath([@__DIR__, "..", "gtfs", "testdata", "gtfs_test"])
@@ -43,7 +44,7 @@ expected_stations = Dict(
 trips = create_trips(gtfs_timetable.trips, gtfs_timetable.stop_times, stops)
 expected_route = Route([
     Stop("2473089", "Station A", "2"), Stop("2473090", "Station B", "?")])
-expected_stop_times_1 = Dict(
+expected_stop_times_1 = OrderedDict(
     "2473089" => StopTime(
         Stop("2473089", "Station A", "2"),
         DateTime(2021, 10, 21, 11, 58, 0),
@@ -57,7 +58,7 @@ expected_stop_times_1 = Dict(
         0
     )
 )
-expected_stop_times_2 = Dict(
+expected_stop_times_2 = OrderedDict(
     "2473089" => StopTime(
         Stop("2473089", "Station A", "2"),
         DateTime(2021, 10, 21, 23, 50, 0),
