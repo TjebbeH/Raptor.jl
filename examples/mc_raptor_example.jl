@@ -19,15 +19,15 @@ date = Date(2024, 5, 20)
 # date = Date(2024, 6, 19)
 timetable = load_timetable();
 
-origin = "VS"
+origin = "ASD"
 destination = "AKM"
-departure_time = date + Time(9);
+departure_time = date + Time(13);
 
 using BenchmarkTools
 query = McRaptorQuery(origin, departure_time, timetable);
 
-@btime bag_round_stop, last_round = run_mc_raptor(timetable, query);
-@btime journeys = reconstruct_journeys_to_all_destinations(
+bag_round_stop, last_round = @btime run_mc_raptor(timetable, query);
+journeys = @btime reconstruct_journeys_to_all_destinations(
     query.origin, timetable, bag_round_stop, last_round);
 
 destination_station = try_to_get_station(destination, timetable)

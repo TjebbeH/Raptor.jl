@@ -5,8 +5,10 @@ import Raptor: create_trips, get_routes, Trip, StopTime, Route
 import Raptor: create_footpaths, FootPath
 import Raptor: create_stop_routes_lookup, create_route_trip_lookup
 
+using Test
 using Dates
 using DataFrames
+using DataStructures
 
 date = Date(2021, 10, 21)
 path = joinpath([@__DIR__, "..", "gtfs", "testdata", "gtfs_test"])
@@ -42,34 +44,34 @@ expected_stations = Dict(
 trips = create_trips(gtfs_timetable.trips, gtfs_timetable.stop_times, stops)
 expected_route = Route([
     Stop("2473089", "Station A", "2"), Stop("2473090", "Station B", "?")])
-expected_stop_times_1 = [
-    StopTime(
+expected_stop_times_1 = OrderedDict(
+    "2473089" => StopTime(
         Stop("2473089", "Station A", "2"),
         DateTime(2021, 10, 21, 11, 58, 0),
         DateTime(2021, 10, 21, 12, 0, 0),
         0
     ),
-    StopTime(
+    "2473090" => StopTime(
         Stop("2473090", "Station B", "?"),
         DateTime(2021, 10, 21, 14, 0, 0),
         DateTime(2021, 10, 21, 14, 0, 0),
         0
     )
-]
-expected_stop_times_2 = [
-    StopTime(
+)
+expected_stop_times_2 = OrderedDict(
+    "2473089" => StopTime(
         Stop("2473089", "Station A", "2"),
         DateTime(2021, 10, 21, 23, 50, 0),
         DateTime(2021, 10, 21, 23, 51, 0),
         0
     ),
-    StopTime(
+    "2473090" => StopTime(
         Stop("2473090", "Station B", "?"),
         DateTime(2021, 10, 22, 0, 30, 0),
         DateTime(2021, 10, 22, 0, 32, 0),
         0
     )
-]
+)
 expected_trips = Dict(
     "191659463" => Trip(
         "191659463", "525", "Intercity", expected_route, expected_stop_times_1),

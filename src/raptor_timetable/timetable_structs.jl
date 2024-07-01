@@ -40,7 +40,7 @@ struct Trip <: Comparable
     name::String # trainnumber
     formula::String # eg. sprinter
     route::Route
-    stop_times::Vector{StopTime}
+    stop_times::Dict{String, StopTime} # stop.id => StopTime
 end
 
 struct FootPath

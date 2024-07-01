@@ -16,11 +16,11 @@ function initialize_bag_round_stop(
     return bag_round_stop
 end
 
+"""Initialize empty bags for every stop at every round.
+More over, initialize bags for each round with the stops at the departure stations
+and labels with arriving time equal to the departure time at those stops
+"""
 function initialize_round1!(bag_round_stop::Vector{Dict{Stop, Bag}}, query::McRaptorQuery)
-    """Initialize empty bags for every stop at every round.
-    More over, initialize bags for each round with the stops at the departure stations
-    and labels with arriving time equal to the departure time at those stops
-    """
     from_stops = query.origin.stops
     @debug "starting from stops: " * join(display_name.(from_stops), ", ")
     initial_label = Label(query.departure_time, 0, 0)
@@ -29,10 +29,10 @@ function initialize_round1!(bag_round_stop::Vector{Dict{Stop, Bag}}, query::McRa
     end
 end
 
+"""Collect routes to travers that serve one of the marked_stops.
+Returns dict with routes as keys and the corresponding marked stop as value.
+"""
 function get_routes_to_travers(timetable::TimeTable, marked_stops::Set{Stop})
-    """Collect routes to travers that serve one of the marked_stops.
-    Returns dict with routes as keys and the corresponding marked stop as value.
-    """
     Q = Dict{Route, Stop}()
     for marked_stop in marked_stops
         routes_serving_marked_stop = get(
@@ -48,51 +48,66 @@ function get_routes_to_travers(timetable::TimeTable, marked_stops::Set{Stop})
     return Q
 end
 
+"""Check if label1 is worse or equal at all criteria then label2"""
 function is_geq_at_everything(label1::Label, label2::Label)
-    """Check if label1 is worse or equal at all criteria then label2"""
-    criteria = fieldnames(Label)
-    return all(getfield(label1, field) >= getfield(label2, field) for field in criteria)
+    if label1.arrival_time < label2.arrival_time
+        return false
+    end
+    if label1.number_of_trips < label2.number_of_trips
+        return false
+    end
+    if label1.fare < label2.fare
+        return false
+    end
+    return true
 end
 
+"""Check if label2 is more than thresholds later than label2"""
 function is_much_slower(label1::Label, label2::Label, threshold::Minute = Minute(60))
     Minute(label1.arrival_time - label2.arrival_time) > threshold
 end
 
+"""Check if there is a label in labels that dominates label."""
 function isdominated(label::Label, labels::Vector{Label})
-    """Check if there is a label in labels that dominates label."""
     for other_label in labels
         is_different = other_label != label
         is_worse_at_everything = is_geq_at_everything(label, other_label)
         is_very_slow = is_much_slower(label, other_label)
-        if is_different
-            if is_worse_at_everything || is_very_slow
-                return true
-            end
+        if is_different && (is_worse_at_everything || is_very_slow)
+            return true
         end
     end
     return false
 end
 
-function pareto_set_idx(labels::Vector{Label})
-    """Calculate pareto set of labels of options.
-    That is, remove all labels that are dominated by an other.
-    Note that duplicates are not removed."""
-    to_keep = trues(size(labels))
-    for (i, label) in enumerate(labels)
-        to_keep[i] = !isdominated(label, labels[to_keep])
+"""
+Calculate indexes for pareto set of labels of options.
+"""
+function pareto_set_idx(unique_label_idx::Vector{Int}, labels::Vector{Label})
+    to_keep = falses(size(labels))
+    to_keep[unique_label_idx] .= true
+    for i in unique_label_idx
+        to_keep[i] = !isdominated(labels[i], labels[to_keep])
     end
     return to_keep
 end
 
+"""
+Calculate pareto set of labels of options.
+That is, remove all labels that are dominated by an other.
+"""
 function pareto_set(options::Vector{Option})
     labels = [o.label for o in options]
-    to_keep = pareto_set_idx(labels)
-    return options[to_keep] |> unique
+    unique_label_idx = unique(i -> labels[i], 1:length(labels))
+    to_keep = pareto_set_idx(unique_label_idx, labels)
+    return options[to_keep]
 end
 
+"""
+Merge bag1 and bag2.
+That is, return bag with pareto set of combined labels.
+"""
 function merge_bags(bag1::Bag, bag2::Bag)
-    """Merge bag1 and bag2.
-    That is, return bag with pareto set of combined labels."""
     combined_options = [bag1.options; bag2.options]
     pareto_options = pareto_set(combined_options)
     return Bag(pareto_options)
@@ -120,6 +135,10 @@ function traverse_routes!(
     return new_marked_stops
 end
 
+"""
+Traverse in round k, through a route from a (marked) stop.
+It updates (inplace) bag_round_stop and returns newly marked stops
+"""
 function traverse_route!(
         bag_round_stop::Vector{Dict{Stop, Bag}},
         k::Integer,
@@ -127,8 +146,6 @@ function traverse_route!(
         route::Route,
         stop::Stop
 )
-    """Traverse in round k, through a route from a (marked) stop.
-    It updates (inplace) bag_round_stop and returns newly marked stops"""
     @debug "traverse route= $(route)"
     @debug "from stop: $stop"
 
@@ -206,13 +223,13 @@ function update_option_label(option::Option, label::Label)
     Option(label, option.trip_to_station, option.from_stop, option.from_departure_time)
 end
 
+"""Update option if trip is different from the trip in option"""
 function update_option(
         option::Option,
         from_stop::Stop,
         trip::Trip,
         departure_time::DateTime
 )
-    """Update option if trip is different from the trip in option"""
     if option.trip_to_station != trip
         old_label = option.label
         new_label = Label(
@@ -222,8 +239,8 @@ function update_option(
     return option
 end
 
+"""Update option with new arrival time and fare addition"""
 function update_option(option::Option, arrival_time::DateTime, fare_addition::Number)
-    """Update option with new arrival time and fare addition"""
     old_label = option.label
     new_label = Label(
         arrival_time, old_label.fare + fare_addition, old_label.number_of_trips)
@@ -234,14 +251,16 @@ function get_walking_time(timetable::TimeTable, stop1::Stop, stop2::Stop)
     timetable.footpaths[(stop1.id, stop2.id)].duration
 end
 
+"""
+Adds walking times in round k, from stops to other stops at the same station.
+It updates (inplace) bag_round_stop and returns newly marked stops
+"""
 function add_walking!(
         bag_round_stop::Vector{Dict{Stop, Bag}},
         k::Integer,
         timetable::TimeTable,
         stops::Set{Stop}
 )
-    """Adds walking times in round k, from stops to other stops at the same station.
-    It updates (inplace) bag_round_stop and returns newly marked stops"""
     new_marked_stops = Set{Stop}()
     for stop in stops
         station = get_station(stop, timetable)

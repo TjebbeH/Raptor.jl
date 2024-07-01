@@ -3,3 +3,4 @@ data/
 *secrets.env
 Manifest.toml
 .vscode/
+*profile.pb.gz

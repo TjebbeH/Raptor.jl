@@ -10,7 +10,5 @@ origin = "S2"
 destination = "S4"
 departure_time = today + Time(13, 15);
 
-query = McRaptorQuery(origin, destination, departure_time, timetable);
-
-maximum_rounds = 5
-@benchmark bag_round_stop, last_round = run_mc_raptor(timetable, query, maximum_rounds)
+query = McRaptorQuery(origin, departure_time, timetable);
+@benchmark bag_round_stop, last_round = run_mc_raptor(timetable, query)
