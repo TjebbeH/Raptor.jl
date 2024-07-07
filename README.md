@@ -25,7 +25,6 @@ https://doi.org/10.1287/trsc.2014.0534.
 - [ ] Make config with threshold, fare, default footpaths
 - [ ] Improve parallelization
 - [ ] clean up/refactor?
-- [ ] docstrings above functions
 - [ ] Readme
 - [ ] Documentation(.jl)
 
