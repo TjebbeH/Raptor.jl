@@ -86,6 +86,7 @@ function parse_gtfs_stops(gtfs_data::GtfsData, stop_ids_in_scope::Vector)
     return stops
 end
 
+"""Parse gtfs files for selected date and agencies"""
 function parse_gtfs(path::String, date::Date, agencies_in_scope::Vector = ["NS"])
     @info "create gtfs timetable"
 
