@@ -18,12 +18,12 @@ function is_compatible_before(leg1::JourneyLeg, leg2::JourneyLeg)
     return time_compatible & number_of_trips_compatible & only_one_is_transfer
 end
 
+"""One step in the journey reconstruction"""
 function one_step_journey_reconstruction(
         journeys::Vector{Journey},
         origin_stops::Vector{Stop},
         bag_last_round
 )
-    """One step in the journey reconstruction"""
     new_journeys = Journey[]
     for journey in journeys
         first_leg = journey.legs[1]
