@@ -4,8 +4,8 @@ import Raptor: create_stop_routes_lookup, create_route_trip_lookup
 
 using Dates
 
+"""Create timetable for testing"""
 function create_test_timetable()
-    """Create timetable for testing"""
     list_of_stops = [
         Stop("s11", "Station 1", "1"),
         Stop("s21", "Station 2", "1"),
