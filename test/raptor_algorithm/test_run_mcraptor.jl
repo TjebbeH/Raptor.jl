@@ -4,7 +4,7 @@ using Logging
 using Test
 using JET
 
-include("../create_test_timetable.jl")
+# include("../create_test_timetable.jl")
 timetable = create_test_timetable();
 today = Date(2021, 10, 21)
 
