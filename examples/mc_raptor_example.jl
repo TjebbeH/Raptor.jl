@@ -32,4 +32,4 @@ journeys = @btime reconstruct_journeys_to_all_destinations(
 );
 
 destination_station = try_to_get_station(destination, timetable)
-display_journeys(journeys[destination_station])
+println(journeys[destination_station])

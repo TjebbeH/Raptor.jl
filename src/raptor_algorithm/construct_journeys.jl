@@ -130,14 +130,15 @@ end
 
 is_transfer(leg::JourneyLeg) = leg.to_stop.station_name == leg.from_stop.station_name
 
-function display_journey(journey::Journey)
+
+function Base.show(io::IO, journey::Journey)
     for leg in journey.legs
         printstyled("| "; bold=true, color=:yellow)
-        println(display_leg(leg))
+        print(leg)
     end
 end
 
-function display_leg(leg::JourneyLeg)
+function Base.show(io::IO, leg::JourneyLeg)
     station_string_length = 30
     from = "$(leg.from_stop.station_name) sp.$(leg.from_stop.platform_code)"
     to = "$(leg.to_stop.station_name) sp.$(leg.to_stop.platform_code)"
@@ -148,15 +149,13 @@ function display_leg(leg::JourneyLeg)
     arrival_time = "$(Dates.format(leg.arrival_time, dateformat"HH:MM"))"
     departure_time = "$(Dates.format(leg.departure_time, dateformat"HH:MM"))"
     fare = leg.fare > 0 ? "(additional fare: €$(leg.fare))" : ""
-    return "$from ($departure_time)  to  $to ($arrival_time)  $mode $fare"
+    println("$from ($departure_time)  to  $to ($arrival_time)  $mode $fare")
 end
 
-function display_journeys(journeys::Vector{Journey}, ignore_walking::Bool=true)
+function Base.show(io::IO, journeys::Vector{Journey})
     for (i, journey) in enumerate(journeys)
-        if ignore_walking
-            journey = Journey(filter(!is_transfer, journey.legs))
-        end
+        journey = Journey(filter(!is_transfer, journey.legs))
         printstyled("Option $i:\n"; bold=true, color=:yellow)
-        display_journey(journey)
+        println(journey)
     end
 end

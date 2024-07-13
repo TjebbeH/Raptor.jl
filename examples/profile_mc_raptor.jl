@@ -25,7 +25,7 @@ departure_time = date + Time(9);
 using BenchmarkTools
 query = McRaptorQuery(origin, departure_time, timetable);
 
-@btime bag_round_stop, last_round = run_mc_raptor(timetable, query);
+bag_round_stop, last_round = @btime run_mc_raptor(timetable, query);
 
 using Profile, PProf
 Profile.clear()

@@ -24,8 +24,8 @@ journeys = @time run_mc_raptor_and_construct_journeys(timetable, range_query);
 
 destination = "AKM"
 destination_station = try_to_get_station(destination, timetable);
-display_journeys(journeys[destination_station])
+println(journeys[destination_station])
 
 destination = "GN"
 destination_station = try_to_get_station(destination, timetable);
-display_journeys(journeys[destination_station])
+println(journeys[destination_station])
