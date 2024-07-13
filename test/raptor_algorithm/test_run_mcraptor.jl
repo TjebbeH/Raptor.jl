@@ -2,7 +2,9 @@ using Raptor
 using Dates
 using Logging
 using Test
+using JET
 
+# include("../create_test_timetable.jl")
 timetable = create_test_timetable();
 today = Date(2021, 10, 21)
 
@@ -22,3 +24,14 @@ journeys = reconstruct_journeys_to_all_destinations(
     query.origin, timetable, bag_round_stop, last_round);
 destination = timetable.stations["S4"]
 @test length(journeys[destination]) == 3
+
+@testset "type-stabilities (JET)" begin
+    @test_opt target_modules=(@__MODULE__,) run_mc_raptor(timetable, query)
+    @test_opt target_modules=(@__MODULE__,) reconstruct_journeys_to_all_destinations(
+        query.origin, timetable, bag_round_stop, last_round)
+end
+@testset "code calls (JET)" begin
+    @test_call target_modules=(@__MODULE__,) run_mc_raptor(timetable, query)
+    @test_call target_modules=(@__MODULE__,) reconstruct_journeys_to_all_destinations(
+        query.origin, timetable, bag_round_stop, last_round)
+end

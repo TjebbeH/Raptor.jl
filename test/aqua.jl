@@ -7,7 +7,7 @@ Aqua.test_all(
     Raptor,
     ambiguities = false,
     stale_deps = (ignore = [
-        :Revise, :JuliaFormatter, :BenchmarkTools, :PProf, :DataStructures],),
+        :Revise, :JuliaFormatter, :BenchmarkTools, :PProf, :JET],),
     deps_compat = (
         check_extras = false, ignore = [
             :Revise, :Dates, :Logging, :Serialization, :Distributed,

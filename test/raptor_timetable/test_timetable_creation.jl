@@ -4,11 +4,13 @@ import Raptor: create_stations, stops_with_stopname, Station
 import Raptor: create_trips, get_routes, Trip, StopTime, Route
 import Raptor: create_footpaths, FootPath
 import Raptor: create_stop_routes_lookup, create_route_trip_lookup
+import Raptor: create_raptor_timetable
 
 using Test
 using Dates
 using DataFrames
 using DataStructures
+using JET
 
 date = Date(2021, 10, 21)
 path = joinpath([@__DIR__, "..", "gtfs", "testdata", "gtfs_test"])
@@ -126,3 +128,10 @@ input_trips = collect(values(trips))
 input_routes = collect(values(routes))
 route_trip_lookup = create_route_trip_lookup(input_trips, input_routes)
 @test route_trip_lookup == Dict(input_routes[1] => input_trips)
+
+@testset "type-stabilities (JET)" begin
+    @test_opt target_modules=(@__MODULE__,) create_raptor_timetable(gtfs_timetable)
+end
+@testset "code calls (JET)" begin
+    @test_call target_modules=(@__MODULE__,) create_raptor_timetable(gtfs_timetable)
+end

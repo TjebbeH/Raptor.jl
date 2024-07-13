@@ -101,8 +101,15 @@ function get_earliest_trip(
         departure_time::DateTime
 )
     trips = timetable.route_trip_lookup[route]
-    departures_from_stop = Dict(get_stop_time(trip, stop).departure_time => trip
-    for trip in trips)
+
+    departures_from_stop = Dict{DateTime, Trip}()
+    for trip in trips
+        stop_time = get_stop_time(trip, stop)
+        if !isnothing(stop_time)
+            departures_from_stop[stop_time.departure_time] = trip
+        end
+    end
+
     departures_in_scope = filter(>=(departure_time), keys(departures_from_stop))
     if isempty(departures_in_scope)
         return nothing, nothing

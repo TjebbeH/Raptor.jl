@@ -60,8 +60,11 @@ function reconstruct_journeys(
     for option in station_bag.options
         for s in to_stops
             if option in bag_last_round[s].options
-                leg = JourneyLeg(option, s)
-                push!(journeys, Journey([leg]))
+                if !isnothing(option.from_stop) && !isnothing(option.from_departure_time) &&
+                   !isnothing(option.trip_to_station)
+                    leg = JourneyLeg(option, s)
+                    push!(journeys, Journey([leg]))
+                end
             end
         end
     end

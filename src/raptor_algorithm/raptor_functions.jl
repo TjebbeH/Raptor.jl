@@ -161,15 +161,22 @@ function traverse_route!(
         # Step 1: update earliest arrival times and criteria for each label L in route-bag
         updated_options = Option[]
         for option in route_bag.options
-            trip_stop_time = get_stop_time(option.trip_to_station, current_stop)
+            if isnothing(option.trip_to_station)
+                @debug "option has no trip_to_station: $option"
+            else
+                # Take fare of previous stop in trip as fare is defined on start
+                previous_stop = remaining_stops_in_route[stop_idx - 1]
+                from_fare = get_fare(option.trip_to_station, previous_stop)
 
-            # Take fare of previous stop in trip as fare is defined on start
-            previous_stop = remaining_stops_in_route[stop_idx - 1]
-            from_fare = get_fare(option.trip_to_station, previous_stop)
-
-            new_arrival_time = trip_stop_time.arrival_time
-            option = update_option(option, new_arrival_time, from_fare)
-            push!(updated_options, option)
+                trip_stop_time = get_stop_time(option.trip_to_station, current_stop)
+                if isnothing(trip_stop_time)
+                    @debug "$current_stop not in $(option.trip_to_station.name)"
+                else
+                    new_arrival_time = trip_stop_time.arrival_time
+                    option = update_option(option, new_arrival_time, from_fare)
+                    push!(updated_options, option)
+                end
+            end
         end
 
         route_bag = Bag(updated_options)
@@ -197,7 +204,7 @@ function traverse_route!(
             @debug "get earliest trip from $(current_stop) after $(label.arrival_time)"
             earliest_trip, departure_time = get_earliest_trip(
                 timetable, route, current_stop, label.arrival_time)
-            if !isnothing(earliest_trip)
+            if !isnothing(earliest_trip) && !isnothing(departure_time)
                 @debug "earliest trip is $(earliest_trip.name) with stop_times = $(earliest_trip.stop_times)"
                 # Update label with earliest trip in route leaving from this station
                 # If trip is different we board the trip at current_stop
