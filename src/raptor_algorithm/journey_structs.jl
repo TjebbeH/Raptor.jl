@@ -17,11 +17,11 @@ function JourneyLeg(option::Option, to_stop::Stop)
         option.label.arrival_time,
         option.label.fare,
         option.trip_to_station,
-        option.label
+        option.label,
     )
 end
 function JourneyLegs(options::Vector{Option}, to_stop::Stop)
-    [JourneyLeg(option, to_stop) for option in options]
+    return [JourneyLeg(option, to_stop) for option in options]
 end
 
 struct Journey <: Comparable
@@ -31,5 +31,5 @@ end
 Base.hash(journey::Journey) = hash(getfield(journey, :legs))
 
 function Journeys(options::Vector{Option}, to_stop::Stop)
-    [Journey([leg]) for leg in JourneyLegs(options, to_stop)]
+    return [Journey([leg]) for leg in JourneyLegs(options, to_stop)]
 end

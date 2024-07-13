@@ -21,10 +21,12 @@ destination_station = try_to_get_station(destination, timetable);
 @test length(journeys[destination_station]) == 3
 
 @testset "type-stabilities (JET)" begin
-    @test_opt target_modules=(@__MODULE__,) run_mc_raptor_and_construct_journeys(
-        timetable, range_query)
+    @test_opt target_modules = (@__MODULE__,) run_mc_raptor_and_construct_journeys(
+        timetable, range_query
+    )
 end
 @testset "code calls (JET)" begin
-    @test_call target_modules=(@__MODULE__,) run_mc_raptor_and_construct_journeys(
-        timetable, range_query)
+    @test_call target_modules = (@__MODULE__,) run_mc_raptor_and_construct_journeys(
+        timetable, range_query
+    )
 end

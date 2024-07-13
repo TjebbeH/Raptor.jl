@@ -40,16 +40,16 @@ expected_arrival_times = [
     DateTime(2021, 10, 21, 11, 58, 0),
     DateTime(2021, 10, 21, 14, 0, 0),
     DateTime(2021, 10, 21, 23, 50, 0),
-    DateTime(2021, 10, 22, 0, 30, 0)
+    DateTime(2021, 10, 22, 0, 30, 0),
 ]
 expected_departure_times = [
     DateTime(2021, 10, 21, 12, 0, 0),
     DateTime(2021, 10, 21, 14, 0, 0),
     DateTime(2021, 10, 21, 23, 51, 0),
-    DateTime(2021, 10, 22, 0, 32, 0)
+    DateTime(2021, 10, 22, 0, 32, 0),
 ]
-@test stop_times.trip_id == repeat(["191659463", "191659464"], inner = 2)
-@test stop_times.stop_id == repeat(["2473089", "2473090"], outer = 2)
+@test stop_times.trip_id == repeat(["191659463", "191659464"]; inner=2)
+@test stop_times.stop_id == repeat(["2473089", "2473090"]; outer=2)
 @test stop_times.arrival_time == expected_arrival_times
 @test stop_times.departure_time == expected_departure_times
 stop_ids_in_scope = string.(unique(stop_times.stop_id))

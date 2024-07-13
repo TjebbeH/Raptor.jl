@@ -20,7 +20,7 @@ end
 
 function read_gtfs_csv(gtfs_data::GtfsData, filename::String)
     path_to_file = joinpath([gtfs_data.path, filename])
-    return CSV.read(path_to_file, DataFrame, types = String)
+    return CSV.read(path_to_file, DataFrame; types=String)
 end
 
 function parse_gtfs_agencies(gtfs_data::GtfsData, agencies_in_scope::Vector)
@@ -41,7 +41,7 @@ function parse_gtfs_trips(gtfs_data::GtfsData, route_ids_in_scope::Vector)
 
     # Add date to trips and filter on the selected day
     calendar_dates = read_gtfs_csv(gtfs_data, "calendar_dates.txt")
-    trips = leftjoin(trips, calendar_dates; on = :service_id)
+    trips = leftjoin(trips, calendar_dates; on=:service_id)
     trips.date = Date.(string.(trips.date), dateformat"yyyymmdd")
     filter!(:date => ==(gtfs_data.date), trips)
 
@@ -54,7 +54,7 @@ function parse_gtfs_stop_times(gtfs_data::GtfsData, trips::DataFrame)
     select!(stop_times, :trip_id, :stop_id, :arrival_time, :departure_time)
 
     # add date to stop_times and convert times to datetimes
-    stop_times = innerjoin(stop_times, select(trips, :trip_id, :date), on = :trip_id)
+    stop_times = innerjoin(stop_times, select(trips, :trip_id, :date); on=:trip_id)
     function combine(date::Date, time::String)
         @assert length(time) == 8
         hours, minutes, seconds = split(time, ":")
@@ -77,7 +77,7 @@ function parse_gtfs_stops(gtfs_data::GtfsData, stop_ids_in_scope::Vector)
     stations.stop_code = uppercase.(stations.stop_code)
     select!(stations, :stop_id, :stop_code)
     select!(stops, :stop_id, :stop_name, :parent_station, :platform_code)
-    stops = leftjoin(stops, stations, on = :parent_station => :stop_id)
+    stops = leftjoin(stops, stations; on=:parent_station => :stop_id)
 
     dropmissing(stops, :parent_station)
     select!(stops, :stop_id, :stop_name, :stop_code, :platform_code)
@@ -87,7 +87,7 @@ function parse_gtfs_stops(gtfs_data::GtfsData, stop_ids_in_scope::Vector)
 end
 
 """Parse gtfs files for selected date and agencies"""
-function parse_gtfs(path::String, date::Date, agencies_in_scope::Vector = ["NS"])
+function parse_gtfs(path::String, date::Date, agencies_in_scope::Vector=["NS"])
     @info "create gtfs timetable"
 
     gtfs_data = GtfsData(path, date)
