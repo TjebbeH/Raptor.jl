@@ -28,7 +28,8 @@ query = McRaptorQuery(origin, departure_time, timetable);
 
 bag_round_stop, last_round = @btime run_mc_raptor(timetable, query);
 journeys = @btime reconstruct_journeys_to_all_destinations(
-    query.origin, timetable, bag_round_stop, last_round);
+    query.origin, timetable, bag_round_stop, last_round
+);
 
 destination_station = try_to_get_station(destination, timetable)
 display_journeys(journeys[destination_station])

@@ -22,7 +22,7 @@ struct Station <: Comparable
     stops::Vector{Stop}
 end
 function Station(abbreviation::String, name::String, stops::Vector{Stop})
-    Station(StationAbbreviation(abbreviation), name, stops)
+    return Station(StationAbbreviation(abbreviation), name, stops)
 end
 
 struct Route <: Comparable
@@ -40,7 +40,7 @@ struct Trip <: Comparable
     name::String # trainnumber
     formula::String # eg. sprinter
     route::Route
-    stop_times::Dict{String, StopTime} # stop.id => StopTime
+    stop_times::Dict{String,StopTime} # stop.id => StopTime
 end
 
 struct FootPath
@@ -51,12 +51,12 @@ end
 
 struct TimeTable
     period::@NamedTuple{first_arrival::DateTime, last_departure::DateTime}
-    stations::Dict{String, Station}
-    stops::Dict{String, Stop}
-    trips::Dict{String, Trip}
-    routes::Dict{String, Route}
-    footpaths::Dict{Tuple{String, String}, FootPath}
-    stop_routes_lookup::Dict{Stop, Dict{Route, Int}}
-    route_trip_lookup::Dict{Route, Vector{Trip}}
-    station_departures_lookup::Dict{String, Vector{DateTime}}
+    stations::Dict{String,Station}
+    stops::Dict{String,Stop}
+    trips::Dict{String,Trip}
+    routes::Dict{String,Route}
+    footpaths::Dict{Tuple{String,String},FootPath}
+    stop_routes_lookup::Dict{Stop,Dict{Route,Int}}
+    route_trip_lookup::Dict{Route,Vector{Trip}}
+    station_departures_lookup::Dict{String,Vector{DateTime}}
 end
