@@ -133,7 +133,7 @@ is_transfer(leg::JourneyLeg) = leg.to_stop.station_name == leg.from_stop.station
 function Base.show(io::IO, journey::Journey)
     for leg in journey.legs
         printstyled("| "; bold=true, color=:yellow)
-        print(leg)
+        println(io, leg)
     end
 end
 
@@ -148,13 +148,17 @@ function Base.show(io::IO, leg::JourneyLeg)
     arrival_time = "$(Dates.format(leg.arrival_time, dateformat"HH:MM"))"
     departure_time = "$(Dates.format(leg.departure_time, dateformat"HH:MM"))"
     fare = leg.fare > 0 ? "(additional fare: €$(leg.fare))" : ""
-    return println("$from ($departure_time)  to  $to ($arrival_time)  $mode $fare")
+    return print(io, "$from ($departure_time)  to  $to ($arrival_time)  $mode $fare")
 end
 
 function Base.show(io::IO, journeys::Vector{Journey})
     for (i, journey) in enumerate(journeys)
         journey = Journey(filter(!is_transfer, journey.legs))
         printstyled("Option $i:\n"; bold=true, color=:yellow)
-        println(journey)
+        if i == length(journeys)
+            print(io, journey)
+        else
+            println(io,journey)
+        end
     end
 end
