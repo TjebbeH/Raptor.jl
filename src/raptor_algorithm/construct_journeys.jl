@@ -158,7 +158,7 @@ function Base.show(io::IO, journeys::Vector{Journey})
         if i == length(journeys)
             print(io, journey)
         else
-            println(io,journey)
+            println(io, journey)
         end
     end
 end
