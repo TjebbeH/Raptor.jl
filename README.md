@@ -1,4 +1,5 @@
 ![Project Status: WIP - Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)
+[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://JuliaStats.github.io/Distributions.jl/stable/)
 
 # Getting started
 Create a file `.devcontainter/variables.env` with your git name and email

@@ -40,6 +40,8 @@ jobs:
 
       # Set up Julia environment
       - uses: julia-actions/setup-julia@v2
-     
+        with:
+            version: '1.10'
+
       # Run tests
       - uses: julia-actions/julia-runtest@v1

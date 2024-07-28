@@ -1,0 +1,6 @@
+[deps]
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+Raptor = "b090d68a-8df8-4aea-b865-41f2ccd73d3a"
+
+[compat]
+Documenter = "^1.5"

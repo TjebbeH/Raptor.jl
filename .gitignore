@@ -4,3 +4,4 @@ data/
 Manifest.toml
 .vscode/
 *profile.pb.gz
+docs/build/
