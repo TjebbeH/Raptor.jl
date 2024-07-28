@@ -21,8 +21,9 @@ See [Documentation](https://tjebbeh.github.io/Raptor.jl/) for instructions on ho
 
 
 # TODO:
-- [ ] More functional unittests
-- [ ] Make config with threshold, fare, default footpaths
-- [ ] Improve parallelization
-- [ ] Clean up/refactor?
-- [ ] Improve Documentation (o.a., explain toy example, more doc strings api, general timetable) 
+- More functional unittests
+- Make config with threshold, fare, default footpaths
+- Improve parallelization
+- Clean up/refactor?
+- Improve Documentation (o.a., explain toy example, more doc strings api, general timetable)
+- Register package
