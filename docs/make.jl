@@ -2,7 +2,7 @@ using Documenter, Raptor
 
 makedocs(;
     sitename="Raptor.jl",
-    format=Documenter.HTML(; ansicolor=true, prettyurls=get(ENV, "CI", nothing) == "true"),
+    format=Documenter.HTML(ansicolor=true, prettyurls=get(ENV, "CI", nothing) == "true"),
     pages=[
         "Home" => "index.md",
         "Getting started" =>
