@@ -1,5 +1,5 @@
 ![Project Status: WIP - Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)
-[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://JuliaStats.github.io/Distributions.jl/stable/)
+[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://tjebbeh.github.io/Raptor.jl/)
 
 # McRaptor
 Implementation based on [pyraptor](https://github.com/lmeulen/pyraptor).
@@ -17,7 +17,7 @@ GIT_EMAIL="<your-email>"
 ```
 Then, open in container.
 
-See [Documentation](https://JuliaStats.github.io/Distributions.jl/stable/) for instructions on how to calculate journey options.
+See [Documentation](https://tjebbeh.github.io/Raptor.jl/) for instructions on how to calculate journey options.
 
 
 # TODO:
@@ -26,5 +26,3 @@ See [Documentation](https://JuliaStats.github.io/Distributions.jl/stable/) for i
 - [ ] Improve parallelization
 - [ ] clean up/refactor?
 - [ ] Improve Documentation (o.a., explain toy example, more doc strings api, general timetable) 
-
-
