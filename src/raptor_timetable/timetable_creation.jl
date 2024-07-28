@@ -197,7 +197,7 @@ end
 
 """Serialize timetable and save as 'raptor_timetable'"""
 function save_timetable(timetable::TimeTable)
-    save_timetable(timetable, "raptor_timetable")
+    return save_timetable(timetable, "raptor_timetable")
 end
 
 function load_timetable(filename::String)

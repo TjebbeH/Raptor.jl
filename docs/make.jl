@@ -1,19 +1,14 @@
 using Documenter, Raptor
 
-makedocs(
+makedocs(;
     sitename="Raptor.jl",
-    format = Documenter.HTML(; prettyurls = get(ENV, "CI", nothing) == "true"),
-    pages = [
+    format=Documenter.HTML(; prettyurls=get(ENV, "CI", nothing) == "true"),
+    pages=[
         "Home" => "index.md",
-        "Getting started" => [
-            "Create Timetable" => "timetable.md",
-            "Run McRaptor" => "mcraptor.md",
-        ],
-        "Toy example" => "toy_example.md"
-    ]
+        "Getting started" =>
+            ["Create Timetable" => "timetable.md", "Run McRaptor" => "mcraptor.md"],
+        "Toy example" => "toy_example.md",
+    ],
 )
 
-deploydocs(
-    repo = "github.com/TjebbeH/Raptor.jl.git",
-    push_preview=true,
-)
+deploydocs(; repo="github.com/TjebbeH/Raptor.jl.git", push_preview=true)
