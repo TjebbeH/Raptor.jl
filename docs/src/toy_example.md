@@ -3,7 +3,7 @@
 Toy example from tests.
 We wish to travel from station S2 to S4 at 13:15 on 2024-10-21.
 
-```@example; ansicolor = true
+```@example
 
 # Load function to create the test timetable
 using Raptor
