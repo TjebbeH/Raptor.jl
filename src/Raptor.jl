@@ -1,6 +1,7 @@
 module Raptor
 
 export parse_gtfs, GtfsData, GtfsTimeTable
+export create_raptor_timetable, save_timetable, load_timetable
 
 export McRaptorQuery, RangeMcRaptorQuery
 export run_mc_raptor

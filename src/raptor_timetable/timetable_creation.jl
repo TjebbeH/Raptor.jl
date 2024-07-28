@@ -186,14 +186,18 @@ function create_raptor_timetable(
     return create_raptor_timetable(gtfs_timetable)
 end
 
-function save_timetable(timetable::TimeTable)
-    path = joinpath(@__DIR__, "data", "raptor_timetable")
-    return serialize(path, timetable)
+"""Serialize timetable and save file as 'name'."""
+function save_timetable(timetable::TimeTable, name::String)
+    path_data_dir = joinpath(@__DIR__, "data")
+    mkpath(path_data_dir)
+    path = joinpath(path_data_dir, name)
+    serialize(path, timetable)
+    return nothing
 end
 
-function save_timetable(timetable::TimeTable, appendix::String)
-    path = joinpath([@__DIR__, "data", "raptor_timetable_" * appendix])
-    return serialize(path, timetable)
+"""Serialize timetable and save as 'raptor_timetable'"""
+function save_timetable(timetable::TimeTable)
+    return save_timetable(timetable, "raptor_timetable")
 end
 
 function load_timetable(filename::String)
@@ -202,6 +206,5 @@ function load_timetable(filename::String)
 end
 
 function load_timetable()
-    path = joinpath([@__DIR__, "data", "raptor_timetable"])
-    return deserialize(path)
+    return load_timetable("raptor_timetable")
 end
