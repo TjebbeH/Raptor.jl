@@ -1,5 +1,5 @@
 ![Project Status: WIP - Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)
-[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://tjebbeh.github.io/Raptor.jl/)
+[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://tjebbeh.github.io/Raptor.jl/)
 
 # McRaptor
 Implementation based on [pyraptor](https://github.com/lmeulen/pyraptor).
@@ -24,5 +24,5 @@ See [Documentation](https://tjebbeh.github.io/Raptor.jl/) for instructions on ho
 - [ ] More functional unittests
 - [ ] Make config with threshold, fare, default footpaths
 - [ ] Improve parallelization
-- [ ] clean up/refactor?
+- [ ] Clean up/refactor?
 - [ ] Improve Documentation (o.a., explain toy example, more doc strings api, general timetable) 
