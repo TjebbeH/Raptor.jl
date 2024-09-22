@@ -11,6 +11,10 @@ The name of the route (R1, ..., R4) is written next to the line connecting two p
 The euro sign € denotes that for a trip between S8 and S4 an extra fare is needed. 
 The thin lines between platforms denote footpaths.*
 
+![Toy_example](./toytimetable.svg)
+
+*Timetable of toy example. The horizontal axes denotes time, the vertical one the stations. The different colors are the different trips.*
+
 ```@example
 
 # Load function to create the test timetable
