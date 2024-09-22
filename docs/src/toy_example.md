@@ -1,7 +1,7 @@
 # Toy example
 
 Toy example from tests.
-We wish to travel from station S2 to S4 at 13:15 on 2024-10-21.
+We wish to travel from station S2 to S4 at 13:15 on 2024-10-21. The first figure shows the network and the second the timetable.
 
 ![Toy_example](./toy_example.drawio.svg)
 
@@ -16,7 +16,6 @@ The thin lines between platforms denote footpaths.*
 *Timetable of toy example. The horizontal axes denotes time, the vertical one the stations. The different colors are the different trips.*
 
 ```@example
-
 # Load function to create the test timetable
 using Raptor
 using Dates
