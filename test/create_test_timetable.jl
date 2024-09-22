@@ -54,7 +54,7 @@ function create_test_timetable()
             "s22" => StopTime(stops["s22"], today + Time(14), today + Time(14, 1), 0.0),
             "s31" => StopTime(stops["s31"], today + Time(15), today + Time(15, 1), 0.0),
             "s43" => StopTime(stops["s43"], today + Time(16), today + Time(16, 1), 0.0),
-            "s51" => StopTime(stops["s51"], today + Time(17), today + Time(17, 1), 0.0),
+            "s61" => StopTime(stops["s61"], today + Time(17), today + Time(17, 1), 0.0),
         ),
     )
     trip201 = Trip(
@@ -67,8 +67,8 @@ function create_test_timetable()
                 StopTime(stops["s71"], today + Time(15, 15), today + Time(15, 16), 0.0),
             "s42" =>
                 StopTime(stops["s42"], today + Time(15, 45), today + Time(15, 46), 0.0),
-            "s61" =>
-                StopTime(stops["s61"], today + Time(16, 15), today + Time(16, 16), 0.0),
+            "s51" =>
+                StopTime(stops["s51"], today + Time(16, 15), today + Time(16, 16), 0.0),
         ),
     )
     trip301 = Trip(
@@ -117,8 +117,8 @@ function create_test_timetable()
         "S2" => [today + Time(14, 1), today + Time(16, 1)],
         "S3" => [today + Time(15, 1)],
         "S4" => [today + Time(15, 1), today + Time(16, 1), today + Time(15, 46)],
-        "S5" => [today + Time(17, 1)],
-        "S6" => [today + Time(16, 16)],
+        "S5" => [today + Time(16, 16)],
+        "S6" => [today + Time(17, 1)],
         "S7" => [today + Time(15, 16), today + Time(15, 1), today + Time(17, 1)],
         "S8" => [today + Time(14, 31)],
     )
