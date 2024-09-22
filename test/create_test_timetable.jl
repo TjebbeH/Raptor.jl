@@ -36,9 +36,9 @@ function create_test_timetable()
     stations = Dict(s.abbreviation.abbreviation => s for s in list_of_stations)
 
     list_of_routes = [
-        Route("r1", [stops[id] for id in ["s11", "s22", "s31", "s42", "s51"]]),
-        Route("r2", [stops[id] for id in ["s71", "s43", "s61"]]),
-        Route("r3", [stops[id] for id in ["s23", "s72"]]),
+        Route("r1", [stops[id] for id in ["s11", "s22", "s31", "s43", "s51"]]),
+        Route("r2", [stops[id] for id in ["s71", "s42", "s61"]]),
+        Route("r3", [stops[id] for id in ["s22", "s72"]]),
         Route("r4", [stops[id] for id in ["s21", "s81", "s41"]]),
     ]
     routes = Dict(r.id => r for r in list_of_routes)
@@ -53,7 +53,7 @@ function create_test_timetable()
             "s11" => StopTime(stops["s11"], today + Time(13), today + Time(13, 1), 0.0),
             "s22" => StopTime(stops["s22"], today + Time(14), today + Time(14, 1), 0.0),
             "s31" => StopTime(stops["s31"], today + Time(15), today + Time(15, 1), 0.0),
-            "s42" => StopTime(stops["s42"], today + Time(16), today + Time(16, 1), 0.0),
+            "s43" => StopTime(stops["s43"], today + Time(16), today + Time(16, 1), 0.0),
             "s51" => StopTime(stops["s51"], today + Time(17), today + Time(17, 1), 0.0),
         ),
     )
@@ -65,8 +65,8 @@ function create_test_timetable()
         Dict(
             "s71" =>
                 StopTime(stops["s71"], today + Time(15, 15), today + Time(15, 16), 0.0),
-            "s43" =>
-                StopTime(stops["s43"], today + Time(15, 45), today + Time(15, 46), 0.0),
+            "s42" =>
+                StopTime(stops["s42"], today + Time(15, 45), today + Time(15, 46), 0.0),
             "s61" =>
                 StopTime(stops["s61"], today + Time(16, 15), today + Time(16, 16), 0.0),
         ),
@@ -77,7 +77,7 @@ function create_test_timetable()
         "Sprinter",
         routes["r3"],
         Dict(
-            "s23" => StopTime(stops["s23"], today + Time(14), today + Time(14, 1), 0.0),
+            "s22" => StopTime(stops["s22"], today + Time(14), today + Time(14, 1), 0.0),
             "s72" => StopTime(stops["s72"], today + Time(15), today + Time(15, 1), 0.0),
         ),
     )
@@ -87,7 +87,7 @@ function create_test_timetable()
         "Sprinter",
         routes["r3"],
         Dict(
-            "s23" => StopTime(stops["s23"], today + Time(16), today + Time(16, 1), 0.0),
+            "s22" => StopTime(stops["s22"], today + Time(16), today + Time(16, 1), 0.0),
             "s72" => StopTime(stops["s72"], today + Time(17), today + Time(17, 1), 0.0),
         ),
     )
