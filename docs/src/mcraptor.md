@@ -79,9 +79,13 @@ We use 8 parallel processes for the calculation.
 using Distributed
 addprocs(8)
 
+@everywhere using Raptor
+using Dates
+
 date = Date(2024,7,1)
 timetable = load_timetable();
 maximum_transfers = 5
+
 journeys = calculate_all_journeys(timetable, date, maximum_transfers);
 ```
 
