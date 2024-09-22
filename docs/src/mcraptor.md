@@ -1,8 +1,8 @@
 # McRaptor
 
 McRaptor is the multi-criteria version of Raptor.
-Below we show how to calculate
-1. a journey from an origin station to a destination station at a given departure time.
+Below it is shown how to calculate
+1. A journey from an origin station to a destination station at a given departure time.
 2. All journeys from an origin station to a destination station in a range of departure times.
 3. All journeys from every origin to every destination on a given date. 
 
@@ -79,6 +79,7 @@ We use 8 parallel processes for the calculation.
 using Distributed
 addprocs(8)
 
+date = Date(2024,7,1)
 timetable = load_timetable();
 maximum_transfers = 5
 journeys = calculate_all_journeys(timetable, date, maximum_transfers);
