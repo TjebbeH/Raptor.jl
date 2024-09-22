@@ -1,7 +1,8 @@
 # Toy example
 
 Toy example from tests.
-We wish to travel from station S2 to S4 at 13:15 on 2024-10-21. The first figure shows the network and the second the timetable.
+We wish to travel from station S2 to S4 at 13:15 on 2024-10-21. 
+The first figure shows the network and the second the timetable.
 
 ![Toy_example](./toy_example.drawio.svg)
 
