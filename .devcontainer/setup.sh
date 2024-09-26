@@ -6,3 +6,5 @@ git config --global core.autocrlf input
 git config --global user.email "${GIT_MAIL}"
 git config --global user.name "${GIT_EMAIL}"
 julia -e 'using Pkg; Pkg.activate("."); Pkg.instantiate()'
+juliaup add release # for language server
+juliaup update
