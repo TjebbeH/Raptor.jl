@@ -26,4 +26,5 @@ See [Documentation](https://tjebbeh.github.io/Raptor.jl/) for instructions on ho
 - Improve parallelization
 - Clean up/refactor?
 - Improve Documentation (o.a., more doc strings api, general timetable)
+- Write output
 - Register package
