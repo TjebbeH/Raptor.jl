@@ -3,7 +3,10 @@ labels(bag::Bag) = [option.label for option in bag.options]
 
 create_stop_to_empty_bags(from_stops) = Dict(stop => Bag() for stop in from_stops)
 
-"""Initialize empty bags for every stop at every round."""
+"""
+Initialize empty bags for every stop at every round.
+Use result of previous round if available
+"""
 function initialize_bag_round_stop(
     maximum_rounds::Integer,
     stops::Base.ValueIterator{Dict{String,Stop}},
@@ -16,8 +19,8 @@ function initialize_bag_round_stop(
     return bag_round_stop
 end
 
-"""Initialize empty bags for every stop at every round.
-More over, initialize bags for each round with the stops at the departure stations
+"""
+Initialize bags for first round with the stops at the departure stations
 and labels with arriving time equal to the departure time at those stops
 """
 function initialize_round1!(bag_round_stop::Vector{Dict{Stop,Bag}}, query::McRaptorQuery)
@@ -359,7 +362,7 @@ function run_mc_raptor_and_construct_journeys(
     maximum_transfers = range_query.maximum_transfers
 
     journeys = Dict{Station,Vector{Journey}}()
-    departure_times_from_origin = departure_times(
+    departure_times_from_origin = descending_departure_times(
         timetable, origin, departure_time_min, departure_time_max
     )
     @info "calculating journey options for $(length(departure_times_from_origin)) departures from $(origin.name)"
@@ -367,18 +370,14 @@ function run_mc_raptor_and_construct_journeys(
     last_round_bag = nothing
     for departure in departure_times_from_origin
         query = McRaptorQuery(origin, departure, maximum_transfers)
-        if isnothing(last_round_bag)
-            bag_round_stop, last_round = run_mc_raptor(timetable, query)
-        else
-            bag_round_stop, last_round = run_mc_raptor(timetable, query, last_round_bag)
-        end
-        last_round_bag = copy(bag_round_stop[last_round])
+        bag_round_stop, last_round = run_mc_raptor(timetable, query, last_round_bag)
+        last_round_bag = deepcopy(bag_round_stop[last_round])
         reconstruct_journeys_to_all_destinations!(
             journeys, query.origin, timetable, bag_round_stop, last_round
         )
     end
     remove_duplicate_journeys!(journeys)
-    sort_journeys!(journeys)
+    # sort_journeys!(journeys)
     return journeys
 end
 

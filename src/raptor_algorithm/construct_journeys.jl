@@ -115,11 +115,11 @@ end
 """Remove duplicate journeys"""
 function remove_duplicate_journeys!(journeys_to_destination::Dict{Station,Vector{Journey}})
     for destination in keys(journeys_to_destination)
-        unique!(journeys_to_destination[destination])
+        journeys_to_destination[destination] = unique(journeys_to_destination[destination])
     end
 end
 
-"""sort duplicate journeys"""
+"""Sort journeys"""
 function sort_journeys!(journeys_to_destination::Dict{Station,Vector{Journey}})
     for destination in keys(journeys_to_destination)
         sort!(journeys_to_destination[destination]; by=x -> x.legs[1].departure_time)
@@ -130,8 +130,10 @@ is_transfer(leg::JourneyLeg) = leg.to_stop.station_name == leg.from_stop.station
 
 function Base.show(io::IO, journey::Journey)
     for leg in journey.legs
-        printstyled("| "; bold=true, color=:yellow)
-        println(io, leg)
+        if !is_transfer(leg)
+            printstyled("| "; bold=true, color=:yellow)
+            println(io, leg)
+        end
     end
 end
 

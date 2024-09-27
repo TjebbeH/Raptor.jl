@@ -117,9 +117,10 @@ function get_earliest_trip(
     return earliest_trip, earliest_departure_time
 end
 
-"""Collect all departure moments between t0 and t1 (inclusive)"""
-function departure_times(timetable::TimeTable, station::Station, t0::DateTime, t1::DateTime)
+"""Collect all departure moments between t0 and t1 (inclusive) and sort in descending order"""
+function descending_departure_times(timetable::TimeTable, station::Station, t0::DateTime, t1::DateTime)
     departures = timetable.station_departures_lookup[station.abbreviation.abbreviation]
     filter!(t -> t0 <= t <= t1, departures)
+    sort!(departures, rev=true)
     return departures
 end
