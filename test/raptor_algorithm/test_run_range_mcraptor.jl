@@ -15,7 +15,6 @@ departure_time_max = today + Time(20);
 range_query = RangeMcRaptorQuery(origin, departure_time_min, departure_time_max, timetable);
 journeys = run_mc_raptor_and_construct_journeys(timetable, range_query);
 
-
 destination_station_S4 = try_to_get_station("S4", timetable);
 @test length(journeys[destination_station_S4]) == 3
 

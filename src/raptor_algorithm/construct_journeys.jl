@@ -50,8 +50,11 @@ function last_legs(destination::Station, bag_last_round)
     journeys = Journey[]
     for option in station_bag.options
         # find the stop of the station at which the option arrives
-        to_stop = only(filter(s -> option in bag_last_round[s].options, to_stops)) 
-        clear_how_to_get_there = !isnothing(option.from_stop) && !isnothing(option.from_departure_time) && !isnothing(option.trip_to_station)
+        to_stop = only(filter(s -> option in bag_last_round[s].options, to_stops))
+        clear_how_to_get_there =
+            !isnothing(option.from_stop) &&
+            !isnothing(option.from_departure_time) &&
+            !isnothing(option.trip_to_station)
         if clear_how_to_get_there
             leg = JourneyLeg(option, to_stop)
             push!(journeys, Journey([leg]))

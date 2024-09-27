@@ -7,30 +7,35 @@ struct JourneyLeg <: Comparable
     trip::Trip
     to_label::Label # criteria for arriving at to_stop
 end
-leg_as_string(leg::JourneyLeg) = 
-    join(string.(
-        [getfield(leg, :from_stop).id,
-        getfield(leg, :to_stop).id,
-        getfield(leg, :departure_time),
-        getfield(leg, :arrival_time),
-        getfield(leg, :fare),
-        getfield(leg, :trip).name
-        ],
-        "_"
+function leg_as_string(leg::JourneyLeg)
+    return join(
+        string.(
+            [
+                getfield(leg, :from_stop).id,
+                getfield(leg, :to_stop).id,
+                getfield(leg, :departure_time),
+                getfield(leg, :arrival_time),
+                getfield(leg, :fare),
+                getfield(leg, :trip).name,
+            ],
+            "_",
+        ),
     )
-)
+end
 # hash legs to make unique work
-Base.hash(leg::JourneyLeg, h::UInt) = hash(
-    (
-        getfield(leg, :from_stop),
-        getfield(leg, :to_stop),
-        getfield(leg, :departure_time),
-        getfield(leg, :arrival_time),
-        getfield(leg, :fare),
-        getfield(leg, :trip).name,
+function Base.hash(leg::JourneyLeg, h::UInt)
+    return hash(
+        (
+            getfield(leg, :from_stop),
+            getfield(leg, :to_stop),
+            getfield(leg, :departure_time),
+            getfield(leg, :arrival_time),
+            getfield(leg, :fare),
+            getfield(leg, :trip).name,
+        ),
+        h,
     )
-    , h
-)
+end
 
 """Construct journey leg from option and to_stop"""
 function JourneyLeg(option::Option, to_stop::Stop)

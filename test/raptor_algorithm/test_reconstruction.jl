@@ -30,4 +30,3 @@ bag_last_round = bag_round_stop[last_round];
 destination = timetable.stations["S4"];
 journeys_with_last_legs = last_legs(destination, bag_last_round);
 @test length(journeys_with_last_legs) == 2
-
