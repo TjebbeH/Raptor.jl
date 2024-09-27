@@ -310,7 +310,7 @@ function run_mc_raptor(
     query::McRaptorQuery,
     result_previous_run::Union{Dict{Stop,Bag},Nothing},
 )
-    maximum_rounds = query.maximum_number_of_rounds
+    maximum_rounds = query.maximum_transfers + 2
     @debug "round 1: initialization"
     bag_round_stop = initialize_bag_round_stop(
         maximum_rounds, values(timetable.stops), result_previous_run
@@ -356,7 +356,7 @@ function run_mc_raptor_and_construct_journeys(
     origin = range_query.origin
     departure_time_min = range_query.departure_time_min
     departure_time_max = range_query.departure_time_max
-    maximum_number_of_rounds = range_query.maximum_number_of_rounds
+    maximum_transfers = range_query.maximum_transfers
 
     journeys = Dict{Station,Vector{Journey}}()
     departure_times_from_origin = departure_times(
@@ -366,7 +366,7 @@ function run_mc_raptor_and_construct_journeys(
 
     last_round_bag = nothing
     for departure in departure_times_from_origin
-        query = McRaptorQuery(origin, departure, maximum_number_of_rounds)
+        query = McRaptorQuery(origin, departure, maximum_transfers)
         if isnothing(last_round_bag)
             bag_round_stop, last_round = run_mc_raptor(timetable, query)
         else
@@ -384,17 +384,16 @@ end
 
 """Run McRaptor and construct all journeys on a date"""
 function calculate_all_journeys(
-    timetable::TimeTable, date::Date, maximum_number_of_transfers::Integer=5
+    timetable::TimeTable, date::Date, maximum_transfers::Integer=5
 )
     stations = sort(collect(values(timetable.stations)); by=station -> station.name)
 
-    maximum_number_of_rounds = maximum_number_of_transfers + 1
     all_journeys = @sync @distributed (merge!) for origin in stations
         departure_time_min = date + Time(0)
         departure_time_max = date + Time(23, 59)
 
         range_query = RangeMcRaptorQuery(
-            origin, departure_time_min, departure_time_max, maximum_number_of_rounds
+            origin, departure_time_min, departure_time_max, maximum_transfers
         )
         Dict(origin => run_mc_raptor_and_construct_journeys(timetable, range_query))
     end
