@@ -23,6 +23,7 @@ See [Documentation](https://tjebbeh.github.io/Raptor.jl/) for instructions on ho
 ## TODO:
 - More functional unittests
 - Make config with threshold, fare, default footpaths
+- Optimize
 - Improve parallelization
 - Clean up/refactor?
 - Improve Documentation (o.a., more doc strings api, general timetable)
