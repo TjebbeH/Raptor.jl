@@ -6,7 +6,7 @@ import Raptor: get_stop_idx_in_route, first_in_route
 import Raptor: get_stop_time, StopTime
 import Raptor: get_fare
 import Raptor: get_earliest_trip
-import Raptor: departure_times
+import Raptor: descending_departure_times
 
 using Test
 using Dates
@@ -60,6 +60,6 @@ expected_departure_time2 = today + Time(16, 1)
 @test actual_departure_time2 == expected_departure_time2
 
 t0 = today + Time(14)
-t1 = today + Time(16)
-expected_departures = [today + Time(14, 1)]
-@test departure_times(tt, tt.stations["S2"], t0, t1) == expected_departures
+t1 = today + Time(18)
+expected_departures = [today + Time(16, 1), today + Time(14, 1)]
+@test descending_departure_times(tt, tt.stations["S2"], t0, t1) == expected_departures
