@@ -42,39 +42,40 @@ function one_step_journey_reconstruction(
     return new_journeys
 end
 
+"""Constructs last legs of journey assuming arrive at any platform of the station is ok"""
+function last_legs(destination::Station, bag_last_round)
+    to_stops = destination.stops
+    station_bag = merge_bags([bag_last_round[s] for s in to_stops])
+
+    journeys = Journey[]
+    for option in station_bag.options
+        # find the stop of the station at which the option arrives
+        to_stop = only(filter(s -> option in bag_last_round[s].options, to_stops))
+        clear_how_to_get_there =
+            !isnothing(option.from_stop) &&
+            !isnothing(option.from_departure_time) &&
+            !isnothing(option.trip_to_station)
+        if clear_how_to_get_there
+            leg = JourneyLeg(option, to_stop)
+            push!(journeys, Journey([leg]))
+        end
+    end
+    return journeys
+end
+
 """Reconstruct journeys to destionation station"""
 function reconstruct_journeys(
     origin::Station, destination::Station, bag_round_stop, last_round
 )
     bag_last_round = bag_round_stop[last_round]
 
-    to_stops = destination.stops
-    station_bag = merge_bags([bag_last_round[s] for s in to_stops])
-
-    #TODO: make nicer
-    #TODO: make test which tests this
-    journeys = Journey[]
-    for option in station_bag.options
-        for s in to_stops
-            if option in bag_last_round[s].options
-                if !isnothing(option.from_stop) &&
-                    !isnothing(option.from_departure_time) &&
-                    !isnothing(option.trip_to_station)
-                    leg = JourneyLeg(option, s)
-                    push!(journeys, Journey([leg]))
-                end
-            end
-        end
-    end
+    journeys = last_legs(destination, bag_last_round)
 
     # if isempty(journeys)
     #     @warn "destination $(destination.name) unreachable"
     # end
-    function one_step(journeys::Vector{Journey})
-        return one_step_journey_reconstruction(journeys, origin.stops, bag_last_round)
-    end
     for _ in 1:(last_round * 2) #times two because for every round we have train trips and footpaths
-        journeys = one_step(journeys)
+        journeys = one_step_journey_reconstruction(journeys, origin.stops, bag_last_round)
     end
     return journeys
 end
@@ -117,11 +118,11 @@ end
 """Remove duplicate journeys"""
 function remove_duplicate_journeys!(journeys_to_destination::Dict{Station,Vector{Journey}})
     for destination in keys(journeys_to_destination)
-        unique!(journeys_to_destination[destination])
+        journeys_to_destination[destination] = unique(journeys_to_destination[destination])
     end
 end
 
-"""sort duplicate journeys"""
+"""Sort journeys"""
 function sort_journeys!(journeys_to_destination::Dict{Station,Vector{Journey}})
     for destination in keys(journeys_to_destination)
         sort!(journeys_to_destination[destination]; by=x -> x.legs[1].departure_time)
@@ -132,8 +133,10 @@ is_transfer(leg::JourneyLeg) = leg.to_stop.station_name == leg.from_stop.station
 
 function Base.show(io::IO, journey::Journey)
     for leg in journey.legs
-        printstyled("| "; bold=true, color=:yellow)
-        println(io, leg)
+        if !is_transfer(leg)
+            printstyled("| "; bold=true, color=:yellow)
+            println(io, leg)
+        end
     end
 end
 
