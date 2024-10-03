@@ -166,27 +166,16 @@ is_transfer(leg::JourneyLeg) = leg.to_stop.station_name == leg.from_stop.station
 #     end
 # end
 
-
 """Converts a vector of journeys to a DataFrame"""
 function journey_dataframe(journeys::Vector{Journey})
-    df_journeys = DataFrame(
-        origin = String[],
-        destination = String[],
-        departure_time_ams = DateTime[],
-        arrival_time_ams = DateTime[],
-        transfers = Int[],
-        fare = Float64[],
+    first_legs = [journey.legs[1] for journey in journeys]
+    last_legs = [journey.legs[end] for journey in journeys]
+    return DataFrame(
+        "origin" => [leg.from_stop.station_name for leg in first_legs],
+        "destination" => [leg.to_stop.station_name for leg in last_legs],
+        "departure_time_ams" => [leg.departure_time for leg in first_legs],
+        "arrival_time_ams" => [leg.arrival_time for leg in last_legs],
+        "transfers" => [leg.to_label.number_of_trips - 1 for leg in last_legs],
+        "fare" => [leg.to_label.fare for leg in last_legs]
     )
-
-    for journey in journeys
-        first_leg, last_leg = journey.legs[1], journey.legs[end]
-        origin = first_leg.from_stop.station_name
-        destination = last_leg.to_stop.station_name
-        departure_time = first_leg.departure_time
-        arrival_time = last_leg.arrival_time
-        n_trips = last_leg.to_label.number_of_trips - 1
-        fare = last_leg.to_label.fare
-        push!(df_journeys, (origin, destination, departure_time, arrival_time, n_trips, fare))
-    end
-    return df_journeys
 end
