@@ -368,6 +368,7 @@ function run_mc_raptor_and_construct_journeys(
     @info "calculating journey options for $(length(departure_times_from_origin)) departures from $(origin.name)"
 
     last_round_bag = nothing
+    #TODO: multi-thread?
     for departure in departure_times_from_origin
         query = McRaptorQuery(origin, departure, maximum_transfers)
         bag_round_stop, last_round = run_mc_raptor(timetable, query, last_round_bag)
@@ -381,20 +382,51 @@ function run_mc_raptor_and_construct_journeys(
     return journeys
 end
 
+
+"""Run McRaptor for range query"""
+function run_mc_raptor_and_construct_journeys2(
+    timetable::TimeTable, range_query::RangeMcRaptorQuery
+)
+    origin = range_query.origin
+    departure_time_min = range_query.departure_time_min
+    departure_time_max = range_query.departure_time_max
+    maximum_transfers = range_query.maximum_transfers
+
+    departure_times_from_origin = descending_departure_times(
+        timetable, origin, departure_time_min, departure_time_max
+    )
+    @info "calculating journey options for $(length(departure_times_from_origin)) departures from $(origin.name)"
+
+    last_round_bag = nothing
+    
+    #TODO: multi-threading?
+    journeys = Vector{Journey}()
+    for departure in departure_times_from_origin
+        query = McRaptorQuery(origin, departure, maximum_transfers)
+        bag_round_stop, last_round = run_mc_raptor(timetable, query, last_round_bag)
+        last_round_bag = deepcopy(bag_round_stop[last_round])
+        new_journeys = journeys_to_all_destinations(query.origin, timetable, bag_round_stop, last_round)
+        append!(journeys, new_journeys)
+    end
+    unique!(journeys)
+    return journeys
+end
+
 """Run McRaptor and construct all journeys on a date"""
 function calculate_all_journeys(
     timetable::TimeTable, date::Date, maximum_transfers::Integer=5
 )
     stations = sort(collect(values(timetable.stations)); by=station -> station.name)
 
-    all_journeys = @sync @distributed (merge!) for origin in stations
-        departure_time_min = date + Time(0)
-        departure_time_max = date + Time(23, 59)
+    all_journeys = @sync @distributed (vcat) for origin in stations
+        departure_time_min = date + Time(8)
+        departure_time_max = date + Time(9)
 
         range_query = RangeMcRaptorQuery(
             origin, departure_time_min, departure_time_max, maximum_transfers
         )
-        Dict(origin => run_mc_raptor_and_construct_journeys(timetable, range_query))
+        run_mc_raptor_and_construct_journeys2(timetable, range_query)
     end
-    return all_journeys
+    df_journeys = journey_leg_dataframe(all_journeys)
+    return df_journeys
 end

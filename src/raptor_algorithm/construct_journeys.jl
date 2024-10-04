@@ -92,6 +92,20 @@ function reconstruct_journeys_to_all_destinations(
     )
 end
 
+
+"""Reconstruct journeys to all destinations"""
+function journeys_to_all_destinations(
+    origin::Station, timetable::TimeTable, bag_round_stop, last_round
+)
+    destination_stops = Iterators.filter(!isequal(origin), values(timetable.stations))
+    journeys = reduce(vcat, [
+        reconstruct_journeys(origin, destination, bag_round_stop, last_round)
+        for destination in destination_stops
+    ])
+
+    return journeys
+end
+
 """Reconstruct journeys to all destinations and append to journeys_to_destination dict"""
 function reconstruct_journeys_to_all_destinations!(
     journeys_to_destination::Dict{Station,Vector{Journey}},
@@ -166,12 +180,26 @@ is_transfer(leg::JourneyLeg) = leg.to_stop.station_name == leg.from_stop.station
 #     end
 # end
 
+"""Converts a vector of journeys to a DataFrame"""
+function journey_dataframe(journeys::Vector{Journey})
+    first_legs = [journey.legs[1] for journey in journeys]
+    last_legs = [journey.legs[end] for journey in journeys]
+    return DataFrame(
+        "origin" => [leg.from_stop.station_name for leg in first_legs],
+        "destination" => [leg.to_stop.station_name for leg in last_legs],
+        "departure_time_ams" => [leg.departure_time for leg in first_legs],
+        "arrival_time_ams" => [leg.arrival_time for leg in last_legs],
+        "transfers" => [leg.to_label.number_of_trips - 1 for leg in last_legs],
+        "fare" => [leg.to_label.fare for leg in last_legs],
+        "journey_hash" => [hash(journey) for journey in journeys],
+    )
+end
+
 """Converts a vector of journeys into a DataFrame with journey legs"""
 function journey_leg_dataframe(journeys::Vector{Journey})
     legs = [(hash(journey),leg) for journey in journeys for leg in journey.legs]
 
     return DataFrame(
-        "departure_date_ams" => [Date(leg.departure_time) for (_,leg) in legs],
         "journey_hash" => [h for (h,_) in legs],
         "start_station" => [leg.from_stop.station_name for (_,leg) in legs],
         "end_station" => [leg.to_stop.station_name for (_,leg) in legs],
@@ -183,3 +211,4 @@ function journey_leg_dataframe(journeys::Vector{Journey})
         "fare" => [leg.fare for (_,leg) in legs]
     )
 end
+
