@@ -16,7 +16,7 @@ function is_compatible_before(leg1::JourneyLeg, leg2::JourneyLeg)
     return time_compatible & number_of_trips_compatible & only_one_is_transfer
 end
 
-"""One step in the journey reconstruction"""
+"""One step in the journey reconstruction by adding one set of legs"""
 function one_step_journey_reconstruction(
     journeys::Vector{Journey}, origin_stops::Vector{Stop}, bag_last_round
 )
@@ -42,7 +42,7 @@ function one_step_journey_reconstruction(
     return new_journeys
 end
 
-"""Constructs last legs of journey assuming arrive at any platform of the station is ok"""
+"""Constructs last legs of journey assuming arriving at any platform of the station is ok"""
 function last_legs(destination::Station, bag_last_round)
     to_stops = destination.stops
     station_bag = merge_bags([bag_last_round[s] for s in to_stops])
@@ -166,16 +166,20 @@ is_transfer(leg::JourneyLeg) = leg.to_stop.station_name == leg.from_stop.station
 #     end
 # end
 
-"""Converts a vector of journeys to a DataFrame"""
-function journey_dataframe(journeys::Vector{Journey})
-    first_legs = [journey.legs[1] for journey in journeys]
-    last_legs = [journey.legs[end] for journey in journeys]
+"""Converts a vector of journeys into a DataFrame with journey legs"""
+function journey_leg_dataframe(journeys::Vector{Journey})
+    legs = [(hash(journey),leg) for journey in journeys for leg in journey.legs]
+
     return DataFrame(
-        "origin" => [leg.from_stop.station_name for leg in first_legs],
-        "destination" => [leg.to_stop.station_name for leg in last_legs],
-        "departure_time_ams" => [leg.departure_time for leg in first_legs],
-        "arrival_time_ams" => [leg.arrival_time for leg in last_legs],
-        "transfers" => [leg.to_label.number_of_trips - 1 for leg in last_legs],
-        "fare" => [leg.to_label.fare for leg in last_legs]
+        "departure_date_ams" => [Date(leg.departure_time) for (_,leg) in legs],
+        "journey_hash" => [h for (h,_) in legs],
+        "start_station" => [leg.from_stop.station_name for (_,leg) in legs],
+        "end_station" => [leg.to_stop.station_name for (_,leg) in legs],
+        "start_platform" => [leg.from_stop.platform_code for (_,leg) in legs],
+        "end_platform" => [leg.to_stop.platform_code for (_,leg) in legs],
+        "departure_time_ams" => [leg.departure_time for (_,leg) in legs],
+        "arrival_time_ams" => [leg.arrival_time for (_,leg) in legs],
+        "mode" => [is_transfer(leg) ? "foot" : "train" for (_,leg) in legs],
+        "fare" => [leg.fare for (_,leg) in legs]
     )
 end
