@@ -17,7 +17,7 @@ addprocs(4)
     
     date = Date(2024, 7, 1)
     timetable = load_timetable();
-    maximum_transfers = 1;
+    maximum_transfers = 5;
     
     # using Logging
     # warn_logger = ConsoleLogger(stderr, Logging.Warn)

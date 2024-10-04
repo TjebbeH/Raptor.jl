@@ -419,8 +419,8 @@ function calculate_all_journeys(
     stations = sort(collect(values(timetable.stations)); by=station -> station.name)
 
     all_journeys = @sync @distributed (vcat) for origin in stations
-        departure_time_min = date + Time(8)
-        departure_time_max = date + Time(9)
+        departure_time_min = date + Time(0)
+        departure_time_max = date + Time(23,59)
 
         range_query = RangeMcRaptorQuery(
             origin, departure_time_min, departure_time_max, maximum_transfers
