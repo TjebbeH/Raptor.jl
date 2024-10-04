@@ -21,11 +21,11 @@ See [Documentation](https://tjebbeh.github.io/Raptor.jl/) for instructions on ho
 
 
 ## TODO:
-- More functional unittests
+- More functional tests
 - Make config with threshold, fare, default footpaths
 - Optimize
-- Improve parallelization
-- Clean up/refactor?
+- Improve parallelization (multi-thread on departure time?)
+- Clean up/refactor? (in particular the journey reconstruction)
 - Improve Documentation (o.a., more doc strings api, general timetable)
 - Write output
 - Register package
