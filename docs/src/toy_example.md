@@ -17,7 +17,7 @@ The thin lines between platforms denote footpaths.*
 *Timetable of toy example. The horizontal axes denotes time, the vertical one the stations. The different colors are the different trips.*
 
 ```@example
-# Load function to create the test timetable
+# Load package
 using Raptor
 using Dates
 
@@ -42,7 +42,7 @@ destination = timetable.stations["S4"];
 print(journeys[destination])
 ```
 
-We see there are three non dominated options.
-- Option 1: A direct very fast one that costs extra.
-- Option 2: A direct one and free of extra charge but slow.
-- Option 3: A moderately fast one, free of extra charge, but with a transfer.
+We see there are three non dominated options:
+- A direct very fast one that costs extra.
+- A direct one and free of extra charge but slow.
+- A moderately fast one, free of extra charge, but with a transfer.
