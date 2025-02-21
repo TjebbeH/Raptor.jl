@@ -21,11 +21,10 @@ See [Documentation](https://tjebbeh.github.io/Raptor.jl/) for instructions on ho
 
 
 ## TODO:
-- More functional unittests
-- Make config with threshold, fare, default footpaths
-- Optimize
-- Improve parallelization
-- Clean up/refactor?
-- Improve Documentation (o.a., more doc strings api, general timetable)
 - Write output
-- Register package
+- Optimize (e.g., `get_earliest_trip`, improve parallelization?)
+- More functional tests
+- Consider threshold, fares and default footpaths as input
+- Improve Documentation (o.a., more doc strings api, general timetable)
+- Maybe scan if timetable has hours that are exact translations of others? And then compute only once and reuse?
+- Clean up and register package
