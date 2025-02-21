@@ -377,7 +377,6 @@ function run_mc_raptor_and_construct_journeys(
         )
     end
     remove_duplicate_journeys!(journeys)
-    # sort_journeys!(journeys)
     return journeys
 end
 
@@ -387,14 +386,15 @@ function calculate_all_journeys(
 )
     stations = sort(collect(values(timetable.stations)); by=station -> station.name)
 
-    all_journeys = @sync @distributed (merge!) for origin in stations
+    all_journeys = @sync @distributed (vcat) for origin in stations
         departure_time_min = date + Time(0)
         departure_time_max = date + Time(23, 59)
 
         range_query = RangeMcRaptorQuery(
             origin, departure_time_min, departure_time_max, maximum_transfers
         )
-        Dict(origin => run_mc_raptor_and_construct_journeys(timetable, range_query))
+        run_mc_raptor_and_construct_journeys2(timetable, range_query)
     end
-    return all_journeys
+    df_journeys = journey_leg_dataframe(all_journeys)
+    return df_journeys
 end

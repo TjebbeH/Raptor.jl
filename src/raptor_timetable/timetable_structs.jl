@@ -1,11 +1,6 @@
-
-struct StationAbbreviation
-    abbreviation::String
-end
-
 struct Stop
     id::String
-    station_name::String
+    station_abbreviation::String
     platform_code::String
 end
 
@@ -17,12 +12,9 @@ struct StopTime
 end
 
 struct Station <: Comparable
-    abbreviation::StationAbbreviation
+    abbreviation::String
     name::String
     stops::Vector{Stop}
-end
-function Station(abbreviation::String, name::String, stops::Vector{Stop})
-    return Station(StationAbbreviation(abbreviation), name, stops)
 end
 
 struct Route <: Comparable

@@ -129,7 +129,9 @@ function sort_journeys!(journeys_to_destination::Dict{Station,Vector{Journey}})
     end
 end
 
-is_transfer(leg::JourneyLeg) = leg.to_stop.station_name == leg.from_stop.station_name
+function is_transfer(leg::JourneyLeg)
+    return leg.to_stop.station_abbreviation == leg.from_stop.station_abbreviation
+end
 
 function Base.show(io::IO, journey::Journey)
     for leg in journey.legs
@@ -141,9 +143,9 @@ function Base.show(io::IO, journey::Journey)
 end
 
 function Base.show(io::IO, leg::JourneyLeg)
-    station_string_length = 30
-    from = "$(leg.from_stop.station_name) sp.$(leg.from_stop.platform_code)"
-    to = "$(leg.to_stop.station_name) sp.$(leg.to_stop.platform_code)"
+    station_string_length = 11
+    from = "$(leg.from_stop.station_abbreviation) pl. $(leg.from_stop.platform_code)"
+    to = "$(leg.to_stop.station_abbreviation) pl. $(leg.to_stop.platform_code)"
     from = rpad(from, station_string_length, " ")
     to = rpad(to, station_string_length, " ")
 
@@ -151,7 +153,7 @@ function Base.show(io::IO, leg::JourneyLeg)
     arrival_time = "$(Dates.format(leg.arrival_time, dateformat"HH:MM"))"
     departure_time = "$(Dates.format(leg.departure_time, dateformat"HH:MM"))"
     fare = leg.fare > 0 ? "(additional fare: €$(leg.fare))" : ""
-    return print(io, "$from ($departure_time)  to  $to ($arrival_time)  $mode $fare")
+    return print(io, "$from ($departure_time)  to  $to ($arrival_time) $mode $fare")
 end
 
 function Base.show(io::IO, journeys::Vector{Journey})

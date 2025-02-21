@@ -19,8 +19,7 @@ gtfs_timetable = parse_gtfs(path, date);
 # Test if correct stops are created
 stops = create_stops(gtfs_timetable.stops)
 expected_stops = Dict(
-    "2473089" => Stop("2473089", "Station A", "2"),
-    "2473090" => Stop("2473090", "Station B", "?"),
+    "2473089" => Stop("2473089", "STA", "2"), "2473090" => Stop("2473090", "STB", "?")
 )
 @test stops == expected_stops
 
@@ -34,25 +33,23 @@ expected_stops_at_station_A = DataFrame(;
 # Test if correct stations are created
 stations = create_stations(gtfs_timetable.stops)
 expected_stations = Dict(
-    "STA" => Station("STA", "Station A", [Stop("2473089", "Station A", "2")]),
-    "STB" => Station("STB", "Station B", [Stop("2473090", "Station B", "?")]),
+    "STA" => Station("STA", "Station A", [Stop("2473089", "STA", "2")]),
+    "STB" => Station("STB", "Station B", [Stop("2473090", "STB", "?")]),
 )
 @test stations == expected_stations
 
 # Test if correct trips are created
 trips = create_trips(gtfs_timetable.trips, gtfs_timetable.stop_times, stops)
-expected_route = Route([
-    Stop("2473089", "Station A", "2"), Stop("2473090", "Station B", "?")
-])
+expected_route = Route([Stop("2473089", "STA", "2"), Stop("2473090", "STB", "?")])
 expected_stop_times_1 = OrderedDict(
     "2473089" => StopTime(
-        Stop("2473089", "Station A", "2"),
+        Stop("2473089", "STA", "2"),
         DateTime(2021, 10, 21, 11, 58, 0),
         DateTime(2021, 10, 21, 12, 0, 0),
         0,
     ),
     "2473090" => StopTime(
-        Stop("2473090", "Station B", "?"),
+        Stop("2473090", "STB", "?"),
         DateTime(2021, 10, 21, 14, 0, 0),
         DateTime(2021, 10, 21, 14, 0, 0),
         0,
@@ -60,13 +57,13 @@ expected_stop_times_1 = OrderedDict(
 )
 expected_stop_times_2 = OrderedDict(
     "2473089" => StopTime(
-        Stop("2473089", "Station A", "2"),
+        Stop("2473089", "STA", "2"),
         DateTime(2021, 10, 21, 23, 50, 0),
         DateTime(2021, 10, 21, 23, 51, 0),
         0,
     ),
     "2473090" => StopTime(
-        Stop("2473090", "Station B", "?"),
+        Stop("2473090", "STB", "?"),
         DateTime(2021, 10, 22, 0, 30, 0),
         DateTime(2021, 10, 22, 0, 32, 0),
         0,
@@ -82,17 +79,17 @@ expected_trips = Dict(
 
 # Test get_routes
 routes = get_routes(trips)
-route = Route([Stop("2473089", "Station A", "2"), Stop("2473090", "Station B", "?")])
+route = Route([Stop("2473089", "STA", "2"), Stop("2473090", "STB", "?")])
 @test routes == Dict(route.id => route)
 
 # Test if foothpaths are correctly created
 # input stations (added one platform at station A wrt gtfs stations)
-stop_STA_platform2 = Stop("2473089", "Station A", "2")
-stop_STA_platform3 = Stop("2473088", "Station A", "3")
+stop_STA_platform2 = Stop("2473089", "STA", "2")
+stop_STA_platform3 = Stop("2473088", "STA", "3")
 walktime = 5.0 * 60
 input_stations = Dict(
     "STA" => Station("STA", "Station A", [stop_STA_platform2, stop_STA_platform3]),
-    "STB" => Station("STB", "Station B", [Stop("2473090", "Station B", "?")]),
+    "STB" => Station("STB", "Station B", [Stop("2473090", "STB", "?")]),
 )
 foothpaths = create_footpaths(input_stations, walktime)
 expected_footpaths = Dict(
