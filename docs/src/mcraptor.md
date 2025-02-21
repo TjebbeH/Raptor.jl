@@ -39,7 +39,7 @@ journeys = reconstruct_journeys_to_all_destinations(
     query.origin, timetable, bag_round_stop, last_round
 );
 
-destination_station = try_to_get_station(destination, timetable)
+destination_station = get_station(destination, timetable)
 println(journeys[destination_station])
 ```
 The first line is runs the round based algorithm and returns the resulting so called round bags.
@@ -64,7 +64,7 @@ departure_time_max = date + Time(15);
 range_query = RangeMcRaptorQuery(origin, departure_time_min, departure_time_max, timetable);
 journeys = run_mc_raptor_and_construct_journeys(timetable, range_query);
 
-destination_station = try_to_get_station(destination, timetable)
+destination_station = get_station(destination, timetable)
 println(journeys[destination_station])
 ```
 

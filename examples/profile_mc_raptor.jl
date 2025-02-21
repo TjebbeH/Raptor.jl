@@ -1,4 +1,5 @@
 using Raptor
+using Revise
 
 using Dates
 
@@ -11,12 +12,10 @@ date = Date(2024, 7, 1)
 timetable = load_timetable();
 
 origin = "VS"
-destination = "AKM"
 departure_time = date + Time(9);
 
 using BenchmarkTools
 query = McRaptorQuery(origin, departure_time, timetable);
-
 bag_round_stop, last_round = @btime run_mc_raptor(timetable, query);
 
 using Profile, PProf

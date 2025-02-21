@@ -3,7 +3,7 @@ function create_stops(gtfs_stops::DataFrame)
     stops =
         Stop.(
             String.(gtfs_stops.stop_id),
-            gtfs_stops.stop_name,
+            gtfs_stops.stop_code,
             String.(gtfs_stops.platform_code),
         )
     return Dict(stop.id => stop for stop in stops)
@@ -21,7 +21,7 @@ function create_station(stationrow::DataFrameRow, gtfs_stops::DataFrame)
 
     stops_at_station = stops_with_stopname(name, gtfs_stops)
 
-    stops = Stop.(stops_at_station.stop_id, name, stops_at_station.platform_code)
+    stops = Stop.(stops_at_station.stop_id, abbreviation, stops_at_station.platform_code)
     return Station(abbreviation, name, stops)
 end
 
@@ -118,9 +118,18 @@ function get_trips_of_route(trips::Vector{Trip}, route::Route)
     return filter(t -> t.route == route, trips)
 end
 
-"""Create a lookup dict to search all routes that travel along a route"""
+"""Get all trips that travel along a route sorted by departure time of first stop"""
+function get_sorted_trips_of_route(trips::Vector{Trip}, route::Route)
+    trips = get_trips_of_route(trips, route)
+    return sort(trips; by=t -> first(t.stop_times)[2].departure_time)
+end
+
+"""
+Create a lookup dict to search all routes that travel along a route
+The trips are sorted on departure time of the first stop
+"""
 function create_route_trip_lookup(trips::Vector{Trip}, routes::Vector{Route})
-    return Dict(route => get_trips_of_route(trips, route) for route in routes)
+    return Dict(route => get_sorted_trips_of_route(trips, route) for route in routes)
 end
 
 """Collect departure times from stop"""
@@ -128,6 +137,7 @@ function departures_from_stop(stop::Stop, gtfs_stop_times::DataFrame)
     departures = filter(:stop_id => ==(stop.id), gtfs_stop_times)
     return departures.departure_time
 end
+
 """Collect departures from station"""
 function departures_from_station(station::Station, gtfs_stop_times::DataFrame)
     departures = collect(
@@ -141,8 +151,8 @@ function create_station_departures_lookup(
     stations::Dict{String,Station}, stop_times::DataFrame
 )
     return Dict(
-        station.abbreviation.abbreviation => departures_from_station(station, stop_times)
-        for station in values(stations)
+        station.abbreviation => departures_from_station(station, stop_times) for
+        station in values(stations)
     )
 end
 

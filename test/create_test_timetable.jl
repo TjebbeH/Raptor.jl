@@ -7,33 +7,33 @@ using Dates
 """Create timetable for testing"""
 function create_test_timetable()
     list_of_stops = [
-        Stop("s11", "Station 1", "1"),
-        Stop("s21", "Station 2", "1"),
-        Stop("s22", "Station 2", "2"),
-        Stop("s23", "Station 2", "3"),
-        Stop("s31", "Station 3", "1"),
-        Stop("s41", "Station 4", "1"),
-        Stop("s42", "Station 4", "2"),
-        Stop("s43", "Station 4", "3"),
-        Stop("s51", "Station 5", "1"),
-        Stop("s61", "Station 6", "1"),
-        Stop("s71", "Station 7", "1"),
-        Stop("s72", "Station 7", "2"),
-        Stop("s81", "Station 8", "1"),
+        Stop("s11", "S1", "1"),
+        Stop("s21", "S2", "1"),
+        Stop("s22", "S2", "2"),
+        Stop("s23", "S2", "3"),
+        Stop("s31", "S3", "1"),
+        Stop("s41", "S4", "1"),
+        Stop("s42", "S4", "2"),
+        Stop("s43", "S4", "3"),
+        Stop("s51", "S5", "1"),
+        Stop("s61", "S6", "1"),
+        Stop("s71", "S7", "1"),
+        Stop("s72", "S7", "2"),
+        Stop("s81", "S8", "1"),
     ]
     stops = Dict(s.id => s for s in list_of_stops)
 
     list_of_stations = [
-        Station("S1", "Station 1", [Stop("s11", "Station 1", "1")]),
-        Station("S2", "Station 2", [Stop("s2$i", "Station 2", "$i") for i in 1:3]),
-        Station("S3", "Station 3", [Stop("s31", "Station 3", "1")]),
-        Station("S4", "Station 4", [Stop("s4$i", "Station 4", "$i") for i in 1:3]),
-        Station("S5", "Station 5", [Stop("s51", "Station 5", "1")]),
-        Station("S6", "Station 6", [Stop("s61", "Station 6", "1")]),
-        Station("S7", "Station 7", [Stop("s7$i", "Station 7", "$i") for i in 1:2]),
-        Station("S8", "Station 8", [Stop("s81", "Station 8", "1")]),
+        Station("S1", "Station 1", [Stop("s11", "S1", "1")]),
+        Station("S2", "Station 2", [Stop("s2$i", "S2", "$i") for i in 1:3]),
+        Station("S3", "Station 3", [Stop("s31", "S3", "1")]),
+        Station("S4", "Station 4", [Stop("s4$i", "S4", "$i") for i in 1:3]),
+        Station("S5", "Station 5", [Stop("s51", "S5", "1")]),
+        Station("S6", "Station 6", [Stop("s61", "S6", "1")]),
+        Station("S7", "Station 7", [Stop("s7$i", "S7", "$i") for i in 1:2]),
+        Station("S8", "Station 8", [Stop("s81", "S8", "1")]),
     ]
-    stations = Dict(s.abbreviation.abbreviation => s for s in list_of_stations)
+    stations = Dict(s.abbreviation => s for s in list_of_stations)
 
     list_of_routes = [
         Route("r1", [stops[id] for id in ["s11", "s22", "s31", "s43", "s51"]]),
