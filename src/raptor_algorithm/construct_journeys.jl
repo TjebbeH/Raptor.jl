@@ -149,8 +149,8 @@ function journey_dataframe(journeys::Vector{Journey})
     first_legs = [journey.legs[1] for journey in journeys]
     last_legs = [journey.legs[end] for journey in journeys]
     return DataFrame(
-        "origin" => [leg.from_stop.station_name for leg in first_legs],
-        "destination" => [leg.to_stop.station_name for leg in last_legs],
+        "origin" => [leg.from_stop.station_abbreviation for leg in first_legs],
+        "destination" => [leg.to_stop.station_abbreviation for leg in last_legs],
         "departure_time_ams" => [leg.departure_time for leg in first_legs],
         "arrival_time_ams" => [leg.arrival_time for leg in last_legs],
         "transfers" => [leg.to_label.number_of_trips - 1 for leg in last_legs],
@@ -165,8 +165,8 @@ function journey_leg_dataframe(journeys::Vector{Journey})
 
     return DataFrame(
         "journey_hash" => [h for (h,_) in legs],
-        "start_station" => [leg.from_stop.station_name for (_,leg) in legs],
-        "end_station" => [leg.to_stop.station_name for (_,leg) in legs],
+        "start_station" => [leg.from_stop.station_abbreviation for (_,leg) in legs],
+        "end_station" => [leg.to_stop.station_abbreviation for (_,leg) in legs],
         "start_platform" => [leg.from_stop.platform_code for (_,leg) in legs],
         "end_platform" => [leg.to_stop.platform_code for (_,leg) in legs],
         "departure_time_ams" => [leg.departure_time for (_,leg) in legs],
