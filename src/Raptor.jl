@@ -18,6 +18,7 @@ using DataFrames, CSV
 using Serialization
 using Distributed
 using DataStructures
+using Parquet2
 
 include("utils.jl")
 
