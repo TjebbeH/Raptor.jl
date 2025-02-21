@@ -197,7 +197,7 @@ end
 
 """Converts a vector of journeys into a DataFrame with journey legs"""
 function journey_leg_dataframe(journeys::Vector{Journey})
-    legs = [(hash(journey),leg) for journey in journeys for leg in journey.legs]
+    legs = [(hash(journey),leg) for journey in journeys for leg in journey.legs if !is_transfer(leg)]
 
     return DataFrame(
         "journey_hash" => [h for (h,_) in legs],
@@ -207,7 +207,6 @@ function journey_leg_dataframe(journeys::Vector{Journey})
         "end_platform" => [leg.to_stop.platform_code for (_,leg) in legs],
         "departure_time_ams" => [leg.departure_time for (_,leg) in legs],
         "arrival_time_ams" => [leg.arrival_time for (_,leg) in legs],
-        "mode" => [is_transfer(leg) ? "foot" : "train" for (_,leg) in legs],
         "fare" => [leg.fare for (_,leg) in legs]
     )
 end
