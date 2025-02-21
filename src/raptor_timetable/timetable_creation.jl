@@ -121,7 +121,7 @@ end
 """Get all trips that travel along a route sorted by departure time of first stop"""
 function get_sorted_trips_of_route(trips::Vector{Trip}, route::Route)
     trips = get_trips_of_route(trips, route)
-    return sort(trips, by = t -> first(t.stop_times)[2].departure_time)
+    return sort(trips; by=t -> first(t.stop_times)[2].departure_time)
 end
 
 """

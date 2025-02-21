@@ -110,7 +110,6 @@ function get_earliest_trip(
     return nothing, nothing
 end
 
-
 """Collect all departure moments between t0 and t1 (inclusive) and sort in descending order"""
 function descending_departure_times(
     timetable::TimeTable, station::Station, t0::DateTime, t1::DateTime
