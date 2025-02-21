@@ -399,7 +399,6 @@ function run_mc_raptor_and_construct_journeys2(
 
     last_round_bag = nothing
     
-    #TODO: multi-threading?
     journeys = Vector{Journey}()
     for departure in departure_times_from_origin
         query = McRaptorQuery(origin, departure, maximum_transfers)
