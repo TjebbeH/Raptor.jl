@@ -1,5 +1,5 @@
 using Distributed
-addprocs(4)
+addprocs(8)
 @show nworkers()
 
 
@@ -17,7 +17,7 @@ addprocs(4)
     
     date = Date(2024, 7, 1)
     timetable = load_timetable();
-    maximum_transfers = 5;
+    maximum_transfers = 3;
     
     # using Logging
     # warn_logger = ConsoleLogger(stderr, Logging.Warn)
