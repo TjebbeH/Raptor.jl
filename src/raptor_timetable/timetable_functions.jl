@@ -98,23 +98,16 @@ end
 function get_earliest_trip(
     timetable::TimeTable, route::Route, stop::Stop, departure_time::DateTime
 )
-    trips = timetable.route_trip_lookup[route]
+    trips_orded_by_departure_time = timetable.route_trip_lookup[route]
 
-    departures_from_stop = Dict{DateTime,Trip}()
-    for trip in trips
+    # Retrive first trip that departures at stop after departure_time
+    for trip in trips_orded_by_departure_time
         stop_time = get_stop_time(trip, stop)
-        if !isnothing(stop_time)
-            departures_from_stop[stop_time.departure_time] = trip
+        if !isnothing(stop_time) && (stop_time.departure_time >= departure_time)
+            return trip, stop_time.departure_time
         end
     end
-
-    departures_in_scope = filter(>=(departure_time), keys(departures_from_stop))
-    if isempty(departures_in_scope)
-        return nothing, nothing
-    end
-    earliest_departure_time = minimum(departures_in_scope)
-    earliest_trip = departures_from_stop[earliest_departure_time]
-    return earliest_trip, earliest_departure_time
+    return nothing, nothing
 end
 
 """Collect all departure moments between t0 and t1 (inclusive) and sort in descending order"""
