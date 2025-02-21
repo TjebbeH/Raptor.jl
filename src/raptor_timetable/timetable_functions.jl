@@ -24,43 +24,33 @@ function get_routes(trips::Dict{String,Trip})
     return Dict(trip.route.id => trip.route for trip in values(trips))
 end
 
-"""Try to get a station from timetable by name or abbreviation"""
-function try_to_get_station(name::String, timetable::TimeTable)
-    local station
-    try
-        station = get_station(name, timetable)
-    catch ArgumentError
-        try
-            abbreviation = StationAbbreviation(name)
-            station = get_station(abbreviation, timetable)
-        catch ArgumentError
-            @warn "Station '$name' not found in timetable"
-            return missing
-        end
-    end
-    return station
-end
-
+"""
+Get a station from timetable by abbreviation
+also possible to get by name but is less efficient
+"""
 function get_station(name::String, timetable::TimeTable)
-    return first(
-        Iterators.filter(station -> station.name == name, values(timetable.stations))
-    )
+    # If name is abbreviation
+    if name in keys(timetable.stations)
+        return timetable.stations[name]
+    end
+    # If name is full station name
+    stations = Iterators.filter(station -> station.name == name, values(timetable.stations))
+    if isempty(stations)
+        msg = "station '$name' not found in timetable"
+        throw(ArgumentError(msg))
+    end
+    return first(stations)
 end
 
-function get_station(abbreviation::StationAbbreviation, timetable::TimeTable)
-    return first(
-        Iterators.filter(
-            station -> station.abbreviation == abbreviation, values(timetable.stations)
-        ),
-    )
+display_name(stop::Stop) = stop.station_abbreviation * "-" * string(stop.platform_code)
+
+function get_station(stop::Stop, timetable::TimeTable)
+    return get_station(stop.station_abbreviation, timetable)
 end
 
-display_name(stop::Stop) = stop.station_name * "-" * string(stop.platform_code)
-
-get_station(stop::Stop, timetable::TimeTable) = get_station(stop.station_name, timetable)
-
+"""Iterator over all other stops at station"""
 function get_other_stops_at_station(station::Station, stop::Stop)
-    return filter(s -> s != stop, station.stops)
+    return Iterators.filter(s -> s != stop, station.stops)
 end
 
 """Look up stop index of stop in route"""
@@ -114,7 +104,7 @@ end
 function descending_departure_times(
     timetable::TimeTable, station::Station, t0::DateTime, t1::DateTime
 )
-    departures = timetable.station_departures_lookup[station.abbreviation.abbreviation]
+    departures = timetable.station_departures_lookup[station.abbreviation]
     filter!(t -> t0 <= t <= t1, departures)
     sort!(departures; rev=true)
     return departures

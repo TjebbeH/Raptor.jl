@@ -1,6 +1,6 @@
 import Raptor: first_arrival_time, last_departure_time
 import Raptor: get_timeperiod
-import Raptor: get_station, try_to_get_station
+import Raptor: get_station, get_station
 import Raptor: get_other_stops_at_station
 import Raptor: get_stop_idx_in_route, first_in_route
 import Raptor: get_stop_time, StopTime
@@ -23,11 +23,11 @@ today = Date(2021, 10, 21)
 
 @test get_station("Station 1", tt) == tt.stations["S1"]
 @test get_station(tt.stops["s11"], tt) == tt.stations["S1"]
-@test try_to_get_station("Station 1", tt) == tt.stations["S1"]
-@test try_to_get_station("S1", tt) == tt.stations["S1"]
-@test ismissing(try_to_get_station("Non existent station", tt))
+@test get_station("Station 1", tt) == tt.stations["S1"]
+@test get_station("S1", tt) == tt.stations["S1"]
+@test_throws ArgumentError get_station("Non existent station", tt)
 
-@test get_other_stops_at_station(tt.stations["S2"], tt.stops["s21"]) ==
+@test collect(get_other_stops_at_station(tt.stations["S2"], tt.stops["s21"])) ==
     [tt.stops["s2$s"] for s in 2:3]
 @test get_stop_idx_in_route(tt, tt.stops["s22"], tt.routes["r1"]) == 2
 

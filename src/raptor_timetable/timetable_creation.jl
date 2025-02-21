@@ -3,7 +3,7 @@ function create_stops(gtfs_stops::DataFrame)
     stops =
         Stop.(
             String.(gtfs_stops.stop_id),
-            gtfs_stops.stop_name,
+            gtfs_stops.stop_code,
             String.(gtfs_stops.platform_code),
         )
     return Dict(stop.id => stop for stop in stops)
@@ -21,7 +21,7 @@ function create_station(stationrow::DataFrameRow, gtfs_stops::DataFrame)
 
     stops_at_station = stops_with_stopname(name, gtfs_stops)
 
-    stops = Stop.(stops_at_station.stop_id, name, stops_at_station.platform_code)
+    stops = Stop.(stops_at_station.stop_id, abbreviation, stops_at_station.platform_code)
     return Station(abbreviation, name, stops)
 end
 
@@ -151,8 +151,8 @@ function create_station_departures_lookup(
     stations::Dict{String,Station}, stop_times::DataFrame
 )
     return Dict(
-        station.abbreviation.abbreviation => departures_from_station(station, stop_times)
-        for station in values(stations)
+        station.abbreviation => departures_from_station(station, stop_times) for
+        station in values(stations)
     )
 end
 
