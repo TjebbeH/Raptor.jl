@@ -22,9 +22,13 @@ See [Documentation](https://tjebbeh.github.io/Raptor.jl/) for instructions on ho
 
 ## TODO:
 - Write output
-- Optimize (e.g., `get_earliest_trip`, improve parallelization?)
+- Optimize, maybe:
+  - improve `get_earliest_trip`
+  - improve parallelism
+  - Somehow reuse results of previous origin?
+  - If timetable has hours that are exact translations of others (does this happen?), reuse?
 - More functional tests
 - Consider threshold, fares and default footpaths as input
 - Improve Documentation (o.a., more doc strings api, general timetable)
-- Maybe scan if timetable has hours that are exact translations of others? And then compute only once and reuse?
+
 - Clean up and register package
