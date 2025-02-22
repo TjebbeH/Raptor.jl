@@ -364,7 +364,7 @@ function run_mc_raptor_and_construct_journeys(
     departure_times_from_origin = descending_departure_times(
         timetable, origin, departure_time_min, departure_time_max
     )
-    @info "calculating journey options for $(length(departure_times_from_origin)) departures from $(origin.name) ($(origin.abbreviation))"
+    # @info "[thread $(Threads.threadid())] calculating journey options for $(length(departure_times_from_origin)) departures from $(origin.name) ($(origin.abbreviation))"
 
     last_round_bag = nothing
 
@@ -372,7 +372,7 @@ function run_mc_raptor_and_construct_journeys(
     for departure in departure_times_from_origin
         query = McRaptorQuery(origin, departure, maximum_transfers)
         bag_round_stop, last_round = run_mc_raptor(timetable, query, last_round_bag)
-        last_round_bag = deepcopy(bag_round_stop[last_round])
+        last_round_bag = copy(bag_round_stop[last_round])
         new_journeys = journeys_to_all_destinations(
             query.origin, timetable, bag_round_stop, last_round
         )
@@ -381,6 +381,52 @@ function run_mc_raptor_and_construct_journeys(
     unique!(journeys)
     return journeys
 end
+
+"""Run McRaptor and construct all journeys on a date"""
+function calculate_all_journeys_mt(
+    timetable::TimeTable, date::Date, maximum_transfers::Integer=5
+)
+    stations = values(timetable.stations)
+    nchucks = Threads.nthreads()
+    chuncksize = cld(length(stations), nchucks)
+
+    departure_time_min = date + Time(0)
+    departure_time_max = date + Time(12, 59)
+
+    @info "calculating all journeys between $(departure_time_min) and $(departure_time_max)"
+    @info "   number of stations = $(length(stations))"
+    @info "   number of threads = $(nchucks)"
+    @info "   number of origins per thread = $(chuncksize)"
+
+    thread_result = Vector{DataFrame}()
+    sizehint!(thread_result, nchucks)
+    @sync for (idx, chunck) in enumerate(Iterators.partition(stations, chuncksize))
+        Threads.@spawn begin
+            for (j, origin) in enumerate(chunck)
+                thread_id = lpad(Threads.threadid(),2," ")
+                station_j = lpad(j, 2," ")
+                @info "(thread $(thread_id): $(station_j)/$(chuncksize)) calculating journeys from $(origin.name) ($(origin.abbreviation))"
+                
+                range_query = RangeMcRaptorQuery(
+                    origin, departure_time_min, departure_time_max, maximum_transfers
+                )
+                df = journey_leg_dataframe(run_mc_raptor_and_construct_journeys(timetable, range_query))
+                
+                if !(idx in keys(thread_result))
+                    push!(thread_result, df)
+                else
+                    append!(thread_result[idx], df)
+                end
+            end
+        end
+    end
+    df = thread_result[1]
+    for result in thread_result[2:end]
+        append!(df, result)
+    end
+    return df
+end
+
 
 """Run McRaptor and construct all journeys on a date"""
 function calculate_all_journeys(
