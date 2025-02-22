@@ -364,7 +364,7 @@ function run_mc_raptor_and_construct_journeys(
     departure_times_from_origin = descending_departure_times(
         timetable, origin, departure_time_min, departure_time_max
     )
-    @info "calculating journey options for $(length(departure_times_from_origin)) departures from $(origin.name)"
+    @info "calculating journey options for $(length(departure_times_from_origin)) departures from $(origin.name) ($(origin.abbreviation))"
 
     last_round_bag = nothing
     
@@ -395,6 +395,5 @@ function calculate_all_journeys(
         )
         run_mc_raptor_and_construct_journeys(timetable, range_query)
     end
-    df_journeys = journey_leg_dataframe(all_journeys)
-    return df_journeys
+    return all_journeys
 end

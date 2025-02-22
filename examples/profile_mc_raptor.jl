@@ -2,10 +2,8 @@ using Raptor
 using Revise
 
 using Dates
-
-using Profile, PProf
 using BenchmarkTools
-
+using Profile, PProf
 
 gtfs_dir = joinpath([@__DIR__, "..", "data", "gtfs", "gtfs_nl_2024_07_01"])
 date = Date(2024, 7, 1)
