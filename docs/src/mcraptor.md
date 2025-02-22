@@ -16,14 +16,15 @@ timetable = load_timetable();
 ## Journey options for one specific departure time
 
 ### Create McRaptorQuery
-Let us plan a journey from Vlissingen to Groningen at 13h on 2024-07-01. We first create a query as below.
+Let us plan a journey from Utrecht Overvecht to Zwolle at 13h on 2024-07-01. We first create a query as below.
 
 ```julia
 date = Date(2024,7,1)
-origin = "Vlissingen"
-destination = "Groningen"
+origin = "UTO" # Utrecht Overvecht
+destination = "ZL" # Zwolle
 departure_time = date + Time(13);
 
+# Create query for algorithm
 query = McRaptorQuery(origin, departure_time, timetable);
 ```
 Note that the destination is not an argument of the constructor `McRaptorQuery`. 
@@ -34,21 +35,24 @@ So, later we will select the journeys arriving at Groningen.
 To calculate the journey options we run the following code.
 
 ```julia
+# Run algorithm
 bag_round_stop, last_round = run_mc_raptor(timetable, query);
-journeys = reconstruct_journeys_to_all_destinations(
-    query.origin, timetable, bag_round_stop, last_round
-);
 
-# Search for station with name Groningen
-destination_station = get_station(destination, timetable)
-destination_abbreviation = destination_station.abbreviation # GN
-println(journeys[destination_abbreviation])
+# Reonstruct journeys from bags resulting from mc raptor
+origin_station = timetable.stations[origin]
+destination_station = timetable.stations[destination]
+journeys = reconstruct_journeys(origin_station, destination_station, bag_round_stop, last_round);
+
+# Convert vector of journeys to dataframe
+df = journey_leg_dataframe(journeys);
+
+# Print dataframe
+println(df)
 ```
-The first line is runs the round based algorithm and returns the resulting so called round bags.
-The second line reconstructs journeys from these round bags.
-The resulting object `journeys` is a dictionary with destination Station abbreviations as keys and a vector of `Journey`s as values. 
-The second to last lines looks for a station with the name 'Groningen' in the timetable. 
-The last line prints the journeys to the destination station Groningen.
+The first line runs the round based algorithm and returns the resulting so called round bags.
+The second line reconstructs journeys to the specified destination from these round bags.
+The resulting object `journeys` is a vector of `Journey`s. 
+This is converted to a dataframe and printed.
 
 ## Journey options for a range of departure times
 Let us now calculate all journey options from Vlissingen between 9h and 15h on 2024-07-01 and print those to Groningen (abbreviation 'GN').
@@ -57,16 +61,32 @@ This works almost the same as above, only now we create a `RangeMcRaptorQuery`.
 ```julia
 timetable = load_timetable();
 
+# Create range query
 date = Date(2024,7,1)
-origin = "Vlissingen"
-departure_time_min = date + Time(9);
-departure_time_max = date + Time(15);
+origin = "VS" # Vlissingen
+departure_time_min = date + Time(9)
+departure_time_max = date + Time(15)
 
 range_query = RangeMcRaptorQuery(origin, departure_time_min, departure_time_max, timetable);
+
+# Run mcraptor
 journeys = run_mc_raptor_and_construct_journeys(timetable, range_query);
 
-# Print journeys to Groningen
-println(journeys["GN"])
+# Convert result to dataframes
+df_legs = journey_leg_dataframe(journeys);
+df_journeys = journey_dataframe(journeys);
+
+# Filter journeys to specific destination
+destination ="GN"; # Groningen
+df_journeys_to_dest = filter(:destination => ==(destination), df_journeys);
+
+# Check legs of first journey
+journey_hash = first(df_journeys_to_dest.journey_hash);
+legs_of_first_journey = filter(:journey_hash => ==(journey_hash), df_legs);
+
+# print Journeys and the legs of the first journey option
+println(df_journeys_to_dest)
+println(legs_of_first_journey)
 ```
 
 ## Calculate all journey options at a given date.
@@ -92,9 +112,7 @@ date = Date(2024, 7, 1);
 maximum_transfers = 5;
 journeys = calculate_all_journeys(timetable, date, maximum_transfers);
 
-# Print the journey options from Eindhoven to Groningen
-origin = "EHV";
-destination = "GN";
-println(journeys[origin][destination]) 
+# Save output
+Parquet2.writefile("journey_legs.parquet", journeys)
 ```
 

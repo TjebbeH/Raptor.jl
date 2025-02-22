@@ -16,7 +16,7 @@ function is_compatible_before(leg1::JourneyLeg, leg2::JourneyLeg)
     return time_compatible & number_of_trips_compatible & only_one_is_transfer
 end
 
-"""One step in the journey reconstruction"""
+"""One step in the journey reconstruction by adding one set of legs"""
 function one_step_journey_reconstruction(
     journeys::Vector{Journey}, origin_stops::Vector{Stop}, bag_last_round
 )
@@ -42,7 +42,7 @@ function one_step_journey_reconstruction(
     return new_journeys
 end
 
-"""Constructs last legs of journey assuming arrive at any platform of the station is ok"""
+"""Constructs last legs of journey assuming arriving at any platform of the station is ok"""
 function last_legs(destination::Station, bag_last_round)
     to_stops = destination.stops
     station_bag = merge_bags([bag_last_round[s] for s in to_stops])
@@ -71,9 +71,6 @@ function reconstruct_journeys(
 
     journeys = last_legs(destination, bag_last_round)
 
-    # if isempty(journeys)
-    #     @warn "destination $(destination.name) unreachable"
-    # end
     for _ in 1:(last_round * 2) #times two because for every round we have train trips and footpaths
         journeys = one_step_journey_reconstruction(journeys, origin.stops, bag_last_round)
     end
@@ -90,6 +87,22 @@ function reconstruct_journeys_to_all_destinations(
             reconstruct_journeys(origin, destination, bag_round_stop, last_round) for
         destination in destination_stations
     )
+end
+
+"""Reconstruct journeys to all destinations"""
+function journeys_to_all_destinations(
+    origin::Station, timetable::TimeTable, bag_round_stop, last_round
+)
+    destination_stops = Iterators.filter(!isequal(origin), values(timetable.stations))
+    journeys = reduce(
+        vcat,
+        [
+            reconstruct_journeys(origin, destination, bag_round_stop, last_round) for
+            destination in destination_stops
+        ],
+    )
+
+    return journeys
 end
 
 """Reconstruct journeys to all destinations and append to journeys_to_destination dict"""
@@ -133,37 +146,36 @@ function is_transfer(leg::JourneyLeg)
     return leg.to_stop.station_abbreviation == leg.from_stop.station_abbreviation
 end
 
-function Base.show(io::IO, journey::Journey)
-    for leg in journey.legs
-        if !is_transfer(leg)
-            printstyled("| "; bold=true, color=:yellow)
-            println(io, leg)
-        end
-    end
+"""Converts a vector of journeys to a DataFrame"""
+function journey_dataframe(journeys::Vector{Journey})
+    first_legs = [journey.legs[1] for journey in journeys]
+    last_legs = [journey.legs[end] for journey in journeys]
+    return DataFrame(
+        "origin" => [leg.from_stop.station_abbreviation for leg in first_legs],
+        "destination" => [leg.to_stop.station_abbreviation for leg in last_legs],
+        "departure_time_ams" => [leg.departure_time for leg in first_legs],
+        "arrival_time_ams" => [leg.arrival_time for leg in last_legs],
+        "transfers" => [leg.to_label.number_of_trips - 1 for leg in last_legs],
+        "fare" => [leg.to_label.fare for leg in last_legs],
+        "journey_hash" => [hash(journey) for journey in journeys],
+    )
 end
 
-function Base.show(io::IO, leg::JourneyLeg)
-    station_string_length = 11
-    from = "$(leg.from_stop.station_abbreviation) pl. $(leg.from_stop.platform_code)"
-    to = "$(leg.to_stop.station_abbreviation) pl. $(leg.to_stop.platform_code)"
-    from = rpad(from, station_string_length, " ")
-    to = rpad(to, station_string_length, " ")
+"""Converts a vector of journeys into a DataFrame with journey legs"""
+function journey_leg_dataframe(journeys::Vector{Journey})
+    legs = [
+        (hash(journey), leg) for journey in journeys for
+        leg in journey.legs if !is_transfer(leg)
+    ]
 
-    mode = is_transfer(leg) ? "by foot" : "with $(leg.trip.name)"
-    arrival_time = "$(Dates.format(leg.arrival_time, dateformat"HH:MM"))"
-    departure_time = "$(Dates.format(leg.departure_time, dateformat"HH:MM"))"
-    fare = leg.fare > 0 ? "(additional fare: €$(leg.fare))" : ""
-    return print(io, "$from ($departure_time)  to  $to ($arrival_time) $mode $fare")
-end
-
-function Base.show(io::IO, journeys::Vector{Journey})
-    for (i, journey) in enumerate(journeys)
-        journey = Journey(filter(!is_transfer, journey.legs))
-        printstyled("Option $i:\n"; bold=true, color=:yellow)
-        if i == length(journeys)
-            print(io, journey)
-        else
-            println(io, journey)
-        end
-    end
+    return DataFrame(
+        "journey_hash" => [h for (h, _) in legs],
+        "start_station" => [leg.from_stop.station_abbreviation for (_, leg) in legs],
+        "end_station" => [leg.to_stop.station_abbreviation for (_, leg) in legs],
+        "start_platform" => [leg.from_stop.platform_code for (_, leg) in legs],
+        "end_platform" => [leg.to_stop.platform_code for (_, leg) in legs],
+        "departure_time_ams" => [leg.departure_time for (_, leg) in legs],
+        "arrival_time_ams" => [leg.arrival_time for (_, leg) in legs],
+        "fare" => [leg.fare for (_, leg) in legs],
+    )
 end

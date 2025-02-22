@@ -41,9 +41,9 @@ function McRaptorQuery(
     origin_station = get_station(origin, timetable)
     return McRaptorQuery(origin_station, departure_time, maximum_transfers)
 end
-"""Constructor where it trys to interpret the origin and destination string as a station and default 10 transfers"""
+"""Constructor where it trys to interpret the origin and destination string as a station and default 5 transfers"""
 function McRaptorQuery(origin::String, departure_time::DateTime, timetable::TimeTable)
-    maximum_transfers = 10
+    maximum_transfers = 5
     return McRaptorQuery(origin, departure_time, timetable, maximum_transfers)
 end
 
@@ -66,7 +66,7 @@ function RangeMcRaptorQuery(
     departure_time_max::DateTime,
     timetable::TimeTable,
 )
-    maximum_transfers = 10
+    maximum_transfers = 5
     return RangeMcRaptorQuery(
         origin, departure_time_min, departure_time_max, timetable, maximum_transfers
     )

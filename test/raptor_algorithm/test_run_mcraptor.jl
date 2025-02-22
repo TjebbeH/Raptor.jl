@@ -24,7 +24,6 @@ journeys = reconstruct_journeys_to_all_destinations(
     query.origin, timetable, bag_round_stop, last_round
 );
 @test length(journeys["S4"]) == 3
-println(journeys["S4"]) # test if the dispatched Base.show functions run without error
 
 @testset "type-stabilities (JET)" begin
     @test_opt target_modules = (@__MODULE__,) run_mc_raptor(timetable, query)

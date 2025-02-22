@@ -26,3 +26,17 @@ pprof()
 Profile.Allocs.clear()
 Profile.Allocs.@profile run_mc_raptor(timetable, query);
 PProf.Allocs.pprof()
+
+origin = "VS"
+departure_time_min = date + Time(9)
+departure_time_max = date + Time(15)
+range_query = RangeMcRaptorQuery(origin, departure_time_min, departure_time_max, timetable);
+@btime run_mc_raptor_and_construct_journeys(timetable, range_query);
+
+Profile.clear()
+@profile run_mc_raptor_and_construct_journeys(timetable, range_query);
+pprof()
+
+Profile.Allocs.clear()
+Profile.Allocs.@profile run_mc_raptor_and_construct_journeys(timetable, range_query);
+PProf.Allocs.pprof()
