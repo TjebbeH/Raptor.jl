@@ -29,17 +29,23 @@ today = Date(2021, 10, 21)
 
 # Create the query
 origin = "S2"
+destination = "S4"
 departure_time = today + Time(13, 15)
 query = McRaptorQuery(origin, departure_time, timetable)
 
 # Calculate all journey options departing from S2 at 13:15
 bag_round_stop, last_round = run_mc_raptor(timetable, query);
-journeys = reconstruct_journeys_to_all_destinations(
-    query.origin, timetable, bag_round_stop, last_round
-);
 
-# Print the journey options to S4
-print(journeys["S4"])
+# Reonstruct journeys from bags
+origin_station = timetable.stations[origin]
+destination_station = timetable.stations[destination]
+journeys = reconstruct_journeys(origin_station, destination_station, bag_round_stop, last_round);
+
+# Convert vector of journeys to dataframe
+df = journey_dataframe(journeys)
+
+# Print dataframe
+println(df)
 ```
 
 We see there are three non dominated options:
