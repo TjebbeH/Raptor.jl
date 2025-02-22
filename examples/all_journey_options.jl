@@ -1,7 +1,7 @@
 using Distributed
 using Dates
 
-addprocs(8)
+addprocs(4)
 @show nworkers()
 
 # gtfs_dir = joinpath([@__DIR__, "..", "data", "gtfs", "gtfs_nl_2024_07_01"])
