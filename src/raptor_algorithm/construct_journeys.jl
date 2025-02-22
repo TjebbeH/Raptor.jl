@@ -89,16 +89,18 @@ function reconstruct_journeys_to_all_destinations(
     )
 end
 
-
 """Reconstruct journeys to all destinations"""
 function journeys_to_all_destinations(
     origin::Station, timetable::TimeTable, bag_round_stop, last_round
 )
     destination_stops = Iterators.filter(!isequal(origin), values(timetable.stations))
-    journeys = reduce(vcat, [
-        reconstruct_journeys(origin, destination, bag_round_stop, last_round)
-        for destination in destination_stops
-    ])
+    journeys = reduce(
+        vcat,
+        [
+            reconstruct_journeys(origin, destination, bag_round_stop, last_round) for
+            destination in destination_stops
+        ],
+    )
 
     return journeys
 end
@@ -161,17 +163,19 @@ end
 
 """Converts a vector of journeys into a DataFrame with journey legs"""
 function journey_leg_dataframe(journeys::Vector{Journey})
-    legs = [(hash(journey),leg) for journey in journeys for leg in journey.legs if !is_transfer(leg)]
+    legs = [
+        (hash(journey), leg) for journey in journeys for
+        leg in journey.legs if !is_transfer(leg)
+    ]
 
     return DataFrame(
-        "journey_hash" => [h for (h,_) in legs],
-        "start_station" => [leg.from_stop.station_abbreviation for (_,leg) in legs],
-        "end_station" => [leg.to_stop.station_abbreviation for (_,leg) in legs],
-        "start_platform" => [leg.from_stop.platform_code for (_,leg) in legs],
-        "end_platform" => [leg.to_stop.platform_code for (_,leg) in legs],
-        "departure_time_ams" => [leg.departure_time for (_,leg) in legs],
-        "arrival_time_ams" => [leg.arrival_time for (_,leg) in legs],
-        "fare" => [leg.fare for (_,leg) in legs]
+        "journey_hash" => [h for (h, _) in legs],
+        "start_station" => [leg.from_stop.station_abbreviation for (_, leg) in legs],
+        "end_station" => [leg.to_stop.station_abbreviation for (_, leg) in legs],
+        "start_platform" => [leg.from_stop.platform_code for (_, leg) in legs],
+        "end_platform" => [leg.to_stop.platform_code for (_, leg) in legs],
+        "departure_time_ams" => [leg.departure_time for (_, leg) in legs],
+        "arrival_time_ams" => [leg.arrival_time for (_, leg) in legs],
+        "fare" => [leg.fare for (_, leg) in legs],
     )
 end
-

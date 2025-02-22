@@ -23,7 +23,9 @@ bag_round_stop, last_round = run_mc_raptor(timetable, query);
 # Reonstruct journeys from bags resulting from mc raptor
 origin_station = timetable.stations[origin]
 destination_station = timetable.stations[destination]
-journeys = reconstruct_journeys(origin_station, destination_station, bag_round_stop, last_round);
+journeys = reconstruct_journeys(
+    origin_station, destination_station, bag_round_stop, last_round
+);
 
 # Convert vector of journeys to dataframe
 df = journey_leg_dataframe(journeys);

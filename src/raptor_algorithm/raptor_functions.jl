@@ -367,13 +367,15 @@ function run_mc_raptor_and_construct_journeys(
     @info "calculating journey options for $(length(departure_times_from_origin)) departures from $(origin.name) ($(origin.abbreviation))"
 
     last_round_bag = nothing
-    
+
     journeys = Vector{Journey}()
     for departure in departure_times_from_origin
         query = McRaptorQuery(origin, departure, maximum_transfers)
         bag_round_stop, last_round = run_mc_raptor(timetable, query, last_round_bag)
         last_round_bag = deepcopy(bag_round_stop[last_round])
-        new_journeys = journeys_to_all_destinations(query.origin, timetable, bag_round_stop, last_round)
+        new_journeys = journeys_to_all_destinations(
+            query.origin, timetable, bag_round_stop, last_round
+        )
         append!(journeys, new_journeys)
     end
     unique!(journeys)
@@ -388,7 +390,7 @@ function calculate_all_journeys(
 
     all_journeys = @sync @distributed (vcat) for origin in stations
         departure_time_min = date + Time(0)
-        departure_time_max = date + Time(23,59)
+        departure_time_max = date + Time(23, 59)
 
         range_query = RangeMcRaptorQuery(
             origin, departure_time_min, departure_time_max, maximum_transfers

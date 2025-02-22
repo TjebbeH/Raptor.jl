@@ -27,7 +27,6 @@ Profile.Allocs.clear()
 Profile.Allocs.@profile run_mc_raptor(timetable, query);
 PProf.Allocs.pprof()
 
-
 origin = "VS"
 departure_time_min = date + Time(9)
 departure_time_max = date + Time(15)

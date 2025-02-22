@@ -24,7 +24,7 @@ df_legs = journey_leg_dataframe(journeys);
 df_journeys = journey_dataframe(journeys);
 
 # Filter journeys to specific destination
-destination ="AKM";
+destination = "GN";
 df_journeys_to_dest = filter(:destination => ==(destination), df_journeys);
 
 # Check legs of first journey
