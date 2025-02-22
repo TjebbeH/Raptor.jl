@@ -361,7 +361,7 @@ function run_mc_raptor_and_construct_journeys(
     departure_time_max = range_query.departure_time_max
     maximum_transfers = range_query.maximum_transfers
 
-    journeys = Dict{String, Vector{Journey}}()
+    journeys = Dict{String,Vector{Journey}}()
     departure_times_from_origin = descending_departure_times(
         timetable, origin, departure_time_min, departure_time_max
     )
@@ -393,7 +393,10 @@ function calculate_all_journeys(
         range_query = RangeMcRaptorQuery(
             origin, departure_time_min, departure_time_max, maximum_transfers
         )
-        Dict(origin.abbreviation => run_mc_raptor_and_construct_journeys(timetable, range_query))
+        Dict(
+            origin.abbreviation =>
+                run_mc_raptor_and_construct_journeys(timetable, range_query),
+        )
     end
     return all_journeys
 end

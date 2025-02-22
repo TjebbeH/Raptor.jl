@@ -88,7 +88,7 @@ function reconstruct_journeys_to_all_destinations(
     return Dict(
         destination.abbreviation =>
             reconstruct_journeys(origin, destination, bag_round_stop, last_round) for
-            destination in destination_stations
+        destination in destination_stations
     )
 end
 

@@ -10,8 +10,8 @@ addprocs(4)
 # Broadcast package and timetable to all workers
 @everywhere begin
     using Raptor
-    
-    timetable = load_timetable();
+
+    timetable = load_timetable()
 end
 
 using Dates
@@ -22,4 +22,4 @@ journeys = calculate_all_journeys(timetable, date, maximum_transfers);
 # Check the journey options from Eindhoven to Groningen
 origin = "EHV";
 destination = "GN";
-println(journeys[origin][destination]) 
+println(journeys[origin][destination])
