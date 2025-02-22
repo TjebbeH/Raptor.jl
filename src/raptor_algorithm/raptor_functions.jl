@@ -361,11 +361,11 @@ function run_mc_raptor_and_construct_journeys(
     departure_time_max = range_query.departure_time_max
     maximum_transfers = range_query.maximum_transfers
 
-    journeys = Dict{Station,Vector{Journey}}()
+    journeys = Dict{String,Vector{Journey}}()
     departure_times_from_origin = descending_departure_times(
         timetable, origin, departure_time_min, departure_time_max
     )
-    @info "calculating journey options for $(length(departure_times_from_origin)) departures from $(origin.name)"
+    @info "calculating journey options for $(length(departure_times_from_origin)) departures from $(origin.name) ($(origin.abbreviation))"
 
     last_round_bag = nothing
     for departure in departure_times_from_origin
@@ -386,15 +386,17 @@ function calculate_all_journeys(
 )
     stations = sort(collect(values(timetable.stations)); by=station -> station.name)
 
-    all_journeys = @sync @distributed (vcat) for origin in stations
-        departure_time_min = date + Time(0)
-        departure_time_max = date + Time(23, 59)
+    all_journeys = @sync @distributed (merge!) for origin in stations
+        departure_time_min = date + Time(8)
+        departure_time_max = date + Time(8, 59)
 
         range_query = RangeMcRaptorQuery(
             origin, departure_time_min, departure_time_max, maximum_transfers
         )
-        run_mc_raptor_and_construct_journeys2(timetable, range_query)
+        Dict(
+            origin.abbreviation =>
+                run_mc_raptor_and_construct_journeys(timetable, range_query),
+        )
     end
-    df_journeys = journey_leg_dataframe(all_journeys)
-    return df_journeys
+    return all_journeys
 end
