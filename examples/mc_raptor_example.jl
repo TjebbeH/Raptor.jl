@@ -10,8 +10,7 @@ save_timetable(timetable)
 # date = Date(2024, 7, 1)
 # timetable = load_timetable();
 
-origin = "VS"
-destination = "GN"
+origin = "Vlissingen"
 departure_time = date + Time(13);
 
 query = McRaptorQuery(origin, departure_time, timetable);
@@ -21,5 +20,5 @@ journeys = reconstruct_journeys_to_all_destinations(
     query.origin, timetable, bag_round_stop, last_round
 );
 
-destination_station = get_station(destination, timetable)
-println(journeys[destination_station])
+destination = "GN"
+println(journeys[destination])

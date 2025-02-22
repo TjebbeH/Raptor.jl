@@ -84,17 +84,17 @@ end
 function reconstruct_journeys_to_all_destinations(
     origin::Station, timetable::TimeTable, bag_round_stop, last_round
 )
-    destination_stops = Iterators.filter(!isequal(origin), values(timetable.stations))
+    destination_stations = Iterators.filter(!isequal(origin), values(timetable.stations))
     return Dict(
-        destination =>
+        destination.abbreviation =>
             reconstruct_journeys(origin, destination, bag_round_stop, last_round) for
-        destination in destination_stops
+            destination in destination_stations
     )
 end
 
 """Reconstruct journeys to all destinations and append to journeys_to_destination dict"""
 function reconstruct_journeys_to_all_destinations!(
-    journeys_to_destination::Dict{Station,Vector{Journey}},
+    journeys_to_destination::Dict{String,Vector{Journey}},
     origin::Station,
     timetable::TimeTable,
     bag_round_stop,
@@ -102,13 +102,13 @@ function reconstruct_journeys_to_all_destinations!(
 )
     destination_stations = Iterators.filter(!isequal(origin), values(timetable.stations))
     for destination in destination_stations
-        if destination in keys(journeys_to_destination)
+        if destination.abbreviation in keys(journeys_to_destination)
             append!(
-                journeys_to_destination[destination],
+                journeys_to_destination[destination.abbreviation],
                 reconstruct_journeys(origin, destination, bag_round_stop, last_round),
             )
         else
-            journeys_to_destination[destination] = reconstruct_journeys(
+            journeys_to_destination[destination.abbreviation] = reconstruct_journeys(
                 origin, destination, bag_round_stop, last_round
             )
         end
@@ -116,14 +116,14 @@ function reconstruct_journeys_to_all_destinations!(
 end
 
 """Remove duplicate journeys"""
-function remove_duplicate_journeys!(journeys_to_destination::Dict{Station,Vector{Journey}})
+function remove_duplicate_journeys!(journeys_to_destination::Dict{String,Vector{Journey}})
     for destination in keys(journeys_to_destination)
         journeys_to_destination[destination] = unique(journeys_to_destination[destination])
     end
 end
 
 """Sort journeys"""
-function sort_journeys!(journeys_to_destination::Dict{Station,Vector{Journey}})
+function sort_journeys!(journeys_to_destination::Dict{String,Vector{Journey}})
     for destination in keys(journeys_to_destination)
         sort!(journeys_to_destination[destination]; by=x -> x.legs[1].departure_time)
     end
