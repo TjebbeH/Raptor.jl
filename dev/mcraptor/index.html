@@ -9,27 +9,36 @@ journeys = reconstruct_journeys_to_all_destinations(
     query.origin, timetable, bag_round_stop, last_round
 );
 
+# Search for station with name Groningen
 destination_station = get_station(destination, timetable)
-println(journeys[destination_station])</code></pre><p>The first line is runs the round based algorithm and returns the resulting so called round bags. The second line reconstructs journeys from these round bags. The resulting object <code>journeys</code> is a dictionary with destination <code>Station</code>s as keys and the <code>Journey</code>s as values.  The second to last lines looks for a station with the name &#39;Groningen&#39; in the timetable.  The last line prints the journeys to the destination station Groningen.</p><h2 id="Journey-options-for-a-range-of-departure-times"><a class="docs-heading-anchor" href="#Journey-options-for-a-range-of-departure-times">Journey options for a range of departure times</a><a id="Journey-options-for-a-range-of-departure-times-1"></a><a class="docs-heading-anchor-permalink" href="#Journey-options-for-a-range-of-departure-times" title="Permalink"></a></h2><p>Let us now calculate all journey options from Vlissingen to Groningen between 9h and 15h on 2024-07-01. This works almost the same as above, only now we create a <code>RangeMcRaptorQuery</code>. </p><pre><code class="language-julia hljs">timetable = load_timetable();
+destination_abbreviation = destination_station.abbreviation # GN
+println(journeys[destination_abbreviation])</code></pre><p>The first line is runs the round based algorithm and returns the resulting so called round bags. The second line reconstructs journeys from these round bags. The resulting object <code>journeys</code> is a dictionary with destination Station abbreviations as keys and a vector of <code>Journey</code>s as values.  The second to last lines looks for a station with the name &#39;Groningen&#39; in the timetable.  The last line prints the journeys to the destination station Groningen.</p><h2 id="Journey-options-for-a-range-of-departure-times"><a class="docs-heading-anchor" href="#Journey-options-for-a-range-of-departure-times">Journey options for a range of departure times</a><a id="Journey-options-for-a-range-of-departure-times-1"></a><a class="docs-heading-anchor-permalink" href="#Journey-options-for-a-range-of-departure-times" title="Permalink"></a></h2><p>Let us now calculate all journey options from Vlissingen between 9h and 15h on 2024-07-01 and print those to Groningen (abbreviation &#39;GN&#39;). This works almost the same as above, only now we create a <code>RangeMcRaptorQuery</code>. </p><pre><code class="language-julia hljs">timetable = load_timetable();
 
 date = Date(2024,7,1)
 origin = &quot;Vlissingen&quot;
-destination = &quot;Groningen&quot;
 departure_time_min = date + Time(9);
 departure_time_max = date + Time(15);
 
 range_query = RangeMcRaptorQuery(origin, departure_time_min, departure_time_max, timetable);
 journeys = run_mc_raptor_and_construct_journeys(timetable, range_query);
 
-destination_station = get_station(destination, timetable)
-println(journeys[destination_station])</code></pre><h2 id="Calculate-all-journey-options-at-a-given-date."><a class="docs-heading-anchor" href="#Calculate-all-journey-options-at-a-given-date.">Calculate all journey options at a given date.</a><a id="Calculate-all-journey-options-at-a-given-date.-1"></a><a class="docs-heading-anchor-permalink" href="#Calculate-all-journey-options-at-a-given-date." title="Permalink"></a></h2><p>Let us calculate all (non dominated) journey options between any two stations on 2024-07-01. We can fix the maximum number of transfers passengers take.  This sets a bound on the number of rounds the algorithm. Below we assume passengers do not take journeys with more than 5 transfers. We use 8 parallel processes for the calculation.</p><pre><code class="language-julia hljs">using Distributed
-addprocs(8)
+# Print journeys to Groningen
+println(journeys[&quot;GN&quot;])</code></pre><h2 id="Calculate-all-journey-options-at-a-given-date."><a class="docs-heading-anchor" href="#Calculate-all-journey-options-at-a-given-date.">Calculate all journey options at a given date.</a><a id="Calculate-all-journey-options-at-a-given-date.-1"></a><a class="docs-heading-anchor-permalink" href="#Calculate-all-journey-options-at-a-given-date." title="Permalink"></a></h2><p>Let us calculate all (non dominated) journey options between any two stations on 2024-07-01. We can fix the maximum number of transfers passengers take.  This sets a bound on the number of rounds the algorithm. Below we assume passengers do not take journeys with more than 5 transfers. We use 4 parallel processes for the calculation.</p><pre><code class="language-julia hljs">using Distributed
+addprocs(4)
 
-@everywhere using Raptor
+# Broadcast the package and timetable to all workers
+@everywhere begin
+    using Raptor
+
+    timetable = load_timetable();
+end
+
 using Dates
+date = Date(2024, 7, 1);
+maximum_transfers = 5;
+journeys = calculate_all_journeys(timetable, date, maximum_transfers);
 
-date = Date(2024,7,1)
-timetable = load_timetable();
-maximum_transfers = 5
-
-journeys = calculate_all_journeys(timetable, date, maximum_transfers);</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../timetable/">« Create Timetable</a><a class="docs-footer-nextpage" href="../toy_example/">Toy example »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.8.1 on <span class="colophon-date" title="Friday 21 February 2025 19:08">Friday 21 February 2025</span>. Using Julia version 1.10.8.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+# Print the journey options from Eindhoven to Groningen
+origin = &quot;EHV&quot;;
+destination = &quot;GN&quot;;
+println(journeys[origin][destination]) </code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../timetable/">« Create Timetable</a><a class="docs-footer-nextpage" href="../toy_example/">Toy example »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.8.1 on <span class="colophon-date" title="Saturday 22 February 2025 10:46">Saturday 22 February 2025</span>. Using Julia version 1.10.8.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
