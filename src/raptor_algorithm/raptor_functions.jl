@@ -52,7 +52,11 @@ function get_routes_to_travers(timetable::TimeTable, marked_stops::Set{Stop})
     return Q
 end
 
-"""Check if label1 is worse or equal at all criteria then label2"""
+"""
+Check if label1 is worse or equal at all criteria then label2
+
+Using: (∀i: l₁[i] ≥ l₂[i]) = (̸∃i: l₁[i] < l₂[i])
+"""
 function is_geq_at_everything(label1::Label, label2::Label)
     if label1.arrival_time < label2.arrival_time
         return false
@@ -66,7 +70,7 @@ function is_geq_at_everything(label1::Label, label2::Label)
     return true
 end
 
-"""Check if label2 is more than thresholds later than label2"""
+"""Check if label1 is more than thresholds later than label2"""
 function is_much_slower(label1::Label, label2::Label, threshold::Minute=Minute(60))
     return Minute(label1.arrival_time - label2.arrival_time) > threshold
 end
@@ -75,9 +79,9 @@ end
 function isdominated(label::Label, labels::Vector{Label})
     for other_label in labels
         is_different = other_label != label
-        is_worse_at_everything = is_geq_at_everything(label, other_label)
-        is_very_slow = is_much_slower(label, other_label)
-        if is_different && (is_worse_at_everything || is_very_slow)
+        label_is_worse_at_everything = is_geq_at_everything(label, other_label)
+        label_is_very_slow = is_much_slower(label, other_label)
+        if is_different && (label_is_worse_at_everything || label_is_very_slow)
             return true
         end
     end
@@ -100,11 +104,62 @@ end
 Calculate pareto set of labels of options.
 That is, remove all labels that are dominated by an other.
 """
-function pareto_set(options::Vector{Option})
+function pareto_set_slow!(options::Vector{Option})
     labels = [o.label for o in options]
     unique_label_idx = unique(i -> labels[i], 1:length(labels))
     to_keep = pareto_set_idx(unique_label_idx, labels)
-    return options[to_keep]
+    return keepat!(options, to_keep)
+end
+
+"""Check if one of the options has a positive fare"""
+function positive_fare(options::Vector{Option})
+    for o in options
+        if !iszero(o.label.fare)
+            return true
+        end
+    end
+    return false
+end
+
+"""
+Calculate pareto set of 2d labels of options.
+
+Only arrival time and transfers are considerd.
+That is, remove all labels that are dominated by an other.
+Options that are much slower than the fastest options are also removed.
+"""
+function pareto_2d!(options::Vector{Option})
+    # First we sort by arrival time in increasing order
+    sort!(options; by=o -> o.label.arrival_time)
+
+    # When we then loop through this sorted list
+    # the options with the till-now-minimal-transfers will
+    # be part of the pareto set
+    minimal_transfers_till_now = Inf
+    to_keep = Int[]
+    sizehint!(to_keep, length(options))
+    for (i, o) in enumerate(options)
+        not_to_slow = !is_much_slower(o.label, options[1].label)
+        if not_to_slow && (o.label.number_of_trips < minimal_transfers_till_now)
+            minimal_transfers_till_now = o.label.number_of_trips
+            append!(to_keep, i)
+        end
+    end
+    return keepat!(options, to_keep)
+end
+
+"""
+Calculate pareto set of labels of options.
+That is, remove all labels that are dominated by an other.
+"""
+function pareto_set!(options::Vector{Option})
+    # If no options contain an trip with additional fare the
+    # problem reduces to a 2d problem which can be solved faster
+    if positive_fare(options)
+        pareto_set_slow!(options)
+    else
+        pareto_2d!(options)
+    end
 end
 
 """
@@ -113,8 +168,8 @@ That is, return bag with pareto set of combined labels.
 """
 function merge_bags(bag1::Bag, bag2::Bag)
     combined_options = [bag1.options; bag2.options]
-    pareto_options = pareto_set(combined_options)
-    return Bag(pareto_options)
+    pareto_set!(combined_options)
+    return Bag(combined_options)
 end
 
 merge_bags(bags::Vector{Bag}) = reduce(merge_bags, bags)
