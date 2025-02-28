@@ -73,7 +73,31 @@ println(journeys["GN"])
 Let us calculate all (non dominated) journey options between any two stations on 2024-07-01.
 We can fix the maximum number of transfers passengers take. 
 This sets a bound on the number of rounds the algorithm.
-Below we assume passengers do not take journeys with more than 5 transfers.
+Below we assume passengers do not take journeys with more than 3 transfers.
+
+The first option is to do this multi-threaded.
+See https://docs.julialang.org/en/v1/manual/multi-threading/ for more information on how to use multiple threads.
+
+```julia
+using Raptor
+using Dates
+
+# Check number of treads
+Threads.nthreads()
+
+timetable = load_timetable();
+
+date = Date(2024, 7, 1);
+maximum_transfers = 3;
+journeys = calculate_all_journeys_mt(timetable, date, maximum_transfers);
+
+# Check the journey options from Eindhoven to Groningen
+origin = "EHV";
+destination = "GN";
+println(journeys[origin][destination])
+```
+
+The other option is to calculate this distributedly.
 We use 4 parallel processes for the calculation.
 
 ```julia

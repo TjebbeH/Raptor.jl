@@ -26,5 +26,8 @@ import Logging: Warn, ConsoleLogger, with_logger
         @testset "Range McRaptor toy problem" verbose = true begin
             include("./raptor_algorithm/test_run_range_mcraptor.jl")
         end
+        @testset "All journeys McRaptor toy problem" verbose = true begin
+            include("./raptor_algorithm/test_all_journeys.jl")
+        end
     end
 end

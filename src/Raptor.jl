@@ -8,7 +8,7 @@ export run_mc_raptor
 export get_station
 export reconstruct_journeys, reconstruct_journeys_to_all_destinations
 export run_mc_raptor_and_construct_journeys
-export calculate_all_journeys
+export calculate_all_journeys_distributed, calculate_all_journeys_mt
 
 using Dates
 using Logging
