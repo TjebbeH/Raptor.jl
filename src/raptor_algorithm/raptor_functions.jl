@@ -8,7 +8,7 @@ Initialize empty bags for every stop at every round.
 Use result of previous round if available
 """
 function initialize_bag_round_stop(
-    maximum_rounds::Integer,
+    maximum_rounds::Int,
     stops::Base.ValueIterator{Dict{String,Stop}},
     result_previous_run::Union{Dict{Stop,Bag},Nothing},
 )
@@ -178,7 +178,7 @@ different_options(b1::Bag, b2::Bag) = b1.options != b2.options
 
 function traverse_routes!(
     bag_round_stop::Vector{Dict{Stop,Bag}},
-    k::Integer,
+    k::Int,
     timetable::TimeTable,
     marked_stops::Set{Stop},
 )
@@ -201,7 +201,7 @@ It updates (inplace) bag_round_stop and returns newly marked stops
 """
 function traverse_route!(
     bag_round_stop::Vector{Dict{Stop,Bag}},
-    k::Integer,
+    k::Int,
     timetable::TimeTable,
     route::Route,
     stop::Stop,
@@ -325,10 +325,7 @@ Adds walking times in round k, from stops to other stops at the same station.
 It updates (inplace) bag_round_stop and returns newly marked stops
 """
 function add_walking!(
-    bag_round_stop::Vector{Dict{Stop,Bag}},
-    k::Integer,
-    timetable::TimeTable,
-    stops::Set{Stop},
+    bag_round_stop::Vector{Dict{Stop,Bag}}, k::Int, timetable::TimeTable, stops::Set{Stop}
 )
     new_marked_stops = Set{Stop}()
     for stop in stops
@@ -448,7 +445,7 @@ Returns a dictionary with
     value: Dict with keys: destination and values: vector of journeys
 """
 function calculate_all_journeys_distributed(
-    timetable::TimeTable, date::Date, maximum_transfers::Integer=5
+    timetable::TimeTable, date::Date, maximum_transfers::Int=5
 )
     stations = sort(collect(values(timetable.stations)); by=station -> station.name)
 
@@ -475,28 +472,29 @@ Returns a dictionary with
     value: Dict with keys: destination and values: vector of journeys
 """
 function calculate_all_journeys_mt(
-    timetable::TimeTable, date::Date, maximum_transfers::Integer=5
+    timetable::TimeTable, date::Date, maximum_transfers::Int=5
 )
-    stations = values(timetable.stations)
-    nchucks = Threads.nthreads()
-    chuncksize = cld(length(stations), nchucks)
-
+    nchuncks = Threads.nthreads()
     departure_time_min = date + Time(0)
     departure_time_max = date + Time(23, 59)
 
+    chuncks = calculate_chuncks(timetable, departure_time_min, departure_time_max, nchuncks)
+
     @info "calculating all journeys between $(departure_time_min) and $(departure_time_max)"
-    @info "   number of stations = $(length(stations))"
-    @info "   number of threads = $(nchucks)"
-    @info "   number of origins per thread = $(chuncksize)"
+    @info "   maximum transfers = $(maximum_transfers)"
+    @info "   number of stations = $(length(timetable.stations))"
+    @info "   number of threads = $(nchuncks)"
 
     result = Dict{String,Dict{String,Vector{Journey}}}()
     lck = ReentrantLock()
-    @sync for chunck in Iterators.partition(stations, chuncksize)
+    @sync for chunck in chuncks
+        chuncksize = length(chunck)
         Threads.@spawn begin
             for (j, origin) in enumerate(chunck)
                 thread_id = lpad(Threads.threadid(), 2, " ")
-                station_j = lpad(j, 2, " ")
-                @info "(thread $(thread_id): $(station_j)/$(chuncksize)) calculating journeys from $(origin.name) ($(origin.abbreviation))"
+                progress_of_thread = lpad(Int(round(100 * j / chuncksize)), 3, " ")
+                chuncksize_padded = lpad(chuncksize, 3, " ")
+                @info "(thread $(thread_id): $(progress_of_thread)% of $(chuncksize_padded) stations) calculating journeys from $(origin.name) ($(origin.abbreviation))"
 
                 range_query = RangeMcRaptorQuery(
                     origin, departure_time_min, departure_time_max, maximum_transfers

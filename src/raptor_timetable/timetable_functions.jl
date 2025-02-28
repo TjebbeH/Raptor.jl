@@ -102,10 +102,53 @@ end
 
 """Collect all departure moments between t0 and t1 (inclusive) and sort in descending order"""
 function descending_departure_times(
-    timetable::TimeTable, station::Station, t0::DateTime, t1::DateTime
+    timetable::TimeTable, station::Station, t0::DateTime, t1::DateTime; sort_desc::Bool=true
 )
     departures = timetable.station_departures_lookup[station.abbreviation]
     filter!(t -> t0 <= t <= t1, departures)
-    sort!(departures; rev=true)
+    if sort_desc
+        sort!(departures; rev=true)
+    end
     return departures
+end
+
+""" Order stations in chuncks such that number of departures is balanced"""
+function calculate_chuncks(
+    timetable::TimeTable,
+    departure_time_min::DateTime,
+    departure_time_max::DateTime,
+    nchuncks::Int,
+)
+    stations = values(timetable.stations)
+
+    x = [
+        (
+            length(
+                descending_departure_times(
+                    timetable,
+                    station,
+                    departure_time_min,
+                    departure_time_max;
+                    sort_desc=false,
+                ),
+            ),
+            station,
+        ) for station in stations
+    ]
+
+    aim_n_departures = sum(x[1] for x in x) / nchuncks
+
+    chuncks = [Station[] for _ in 1:nchuncks]
+    i = 1
+    departures_in_chunck = 0
+    for (n_deps, station) in x
+        # If chunck has enough departures move to next chunck
+        if departures_in_chunck > aim_n_departures
+            i += 1
+            departures_in_chunck = 0
+        end
+        push!(chuncks[i], station)
+        departures_in_chunck += n_deps
+    end
+    return chuncks
 end
