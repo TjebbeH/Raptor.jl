@@ -11,7 +11,7 @@ function main()
     date = Date(2024, 7, 1)
     timetable = load_timetable()
 
-    origin = "VS" # Vlissingen
+    origin = "BD" # Vlissingen
     departure_time_min = date + Time(0)
     departure_time_max = date + Time(23, 59)
 
@@ -26,3 +26,5 @@ journeys = @time main();
 
 println(journeys["AKM"]) # Akkrum
 println(journeys["GN"]) # Groningen
+println(journeys["ASDZ"]) # Amsterdam Zuid
+
