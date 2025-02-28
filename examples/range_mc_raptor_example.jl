@@ -27,4 +27,3 @@ journeys = @time main();
 println(journeys["AKM"]) # Akkrum
 println(journeys["GN"]) # Groningen
 println(journeys["ASDZ"]) # Amsterdam Zuid
-
