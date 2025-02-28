@@ -4,19 +4,33 @@ import Raptor: is_geq_at_everything, isdominated, pareto_set_idx, pareto_set, me
 using Dates
 using Test
 
-l1 = Label(DateTime(2024, 1, 1, 12), 0, 2)
+l1 = Label(DateTime(2024, 1, 1, 12, 30), 0, 2)
 l2 = Label(DateTime(2024, 1, 1, 13), 0, 2)
 l3 = Label(DateTime(2024, 1, 1, 13), 0, 1)
+l4 = Label(DateTime(2024, 1, 1, 20), 0, 1)
 
-ls = [l1, l2, l3, l3]
+
+ls = [l1, l2, l3, l3, l4]
 ls_pareto_expected = [l1, l3]
 
 stop = Stop("id", "UT", "3")
 options_input = [Option(l, nothing, stop, nothing) for l in ls]
 options_expected = [Option(l, nothing, stop, nothing) for l in ls_pareto_expected]
 
+import Raptor: pareto_set2, merge_bags_slow
+
+@time pareto_set(options_input)
+@time pareto_set(options_input)
+
+@time pareto_set2(options_input)
+@time pareto_set2(options_input)
+
 b_all1 = Bag(options_input)
 b_all2 = Bag(options_input)
+
+
+
+
 bag_expected = Bag(options_expected)
 b12 = Bag([Option(l1), Option(l2)])
 b3 = Bag([Option(l3)])

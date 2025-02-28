@@ -100,12 +100,65 @@ end
 Calculate pareto set of labels of options.
 That is, remove all labels that are dominated by an other.
 """
-function pareto_set(options::Vector{Option})
+function pareto_set_slow!(options::Vector{Option})
+    labels = [o.label for o in options]
+    unique_label_idx = unique(i -> labels[i], 1:length(labels))
+    to_keep = pareto_set_idx(unique_label_idx, labels)
+    keepat!(options, to_keep)
+end
+
+function pareto_set_slow(options::Vector{Option})
     labels = [o.label for o in options]
     unique_label_idx = unique(i -> labels[i], 1:length(labels))
     to_keep = pareto_set_idx(unique_label_idx, labels)
     return options[to_keep]
 end
+
+
+"""Check if one of the options has a fare"""
+function no_fare(options::Vector{Option})
+    for o in options
+        if !iszero(o.label.fare)
+            return false
+        end
+    end
+    return true
+end
+
+"""Calculate pareto set only considering arrival time and transfers"""
+function pareto_2d!(options::Vector{Option})
+    # First we sort by arrival time
+    sort!(options, by=o -> o.label.arrival_time)
+
+    # When we then loop through this sorted list
+    # the options with the till now minimal transfers will
+    # be part of the pareto set
+    minimal_transfers_till_now = Inf
+    to_keep = Int[]
+    sizehint!(to_keep, length(options))
+    for (i,o) in enumerate(options)
+        if o.label.number_of_trips < minimal_transfers_till_now
+            minimal_transfers_till_now = o.label.number_of_trips
+            append!(to_keep, i)
+        end
+    end
+    keepat!(options, to_keep)
+end
+
+"""
+Calculate pareto set of labels of options.
+That is, remove all labels that are dominated by an other.
+"""
+function pareto_set!(options::Vector{Option})
+    # If no options contain an trip with additional fare the
+    # problem reduces to a 2d problem which can be solved faster
+    if no_fare(options)
+        pareto_2d!(options)
+    else
+        pareto_set_slow!(options)
+    end
+end
+
 
 """
 Merge bag1 and bag2.
@@ -113,7 +166,13 @@ That is, return bag with pareto set of combined labels.
 """
 function merge_bags(bag1::Bag, bag2::Bag)
     combined_options = [bag1.options; bag2.options]
-    pareto_options = pareto_set(combined_options)
+    pareto_set!(combined_options)
+    return Bag(combined_options)
+end
+
+function merge_bags_slow(bag1::Bag, bag2::Bag)
+    combined_options = [bag1.options; bag2.options]
+    pareto_options = pareto_set_slow(combined_options)
     return Bag(pareto_options)
 end
 
