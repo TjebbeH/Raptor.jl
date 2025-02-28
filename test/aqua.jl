@@ -6,7 +6,7 @@ using Raptor
 Aqua.test_all(
     Raptor;
     ambiguities=false,
-    stale_deps=(ignore=[:Revise, :JuliaFormatter, :BenchmarkTools, :PProf, :JET],),
+    stale_deps=(ignore=[:JuliaFormatter, :BenchmarkTools, :PProf],),
     deps_compat=(
         check_extras=false,
         ignore=[

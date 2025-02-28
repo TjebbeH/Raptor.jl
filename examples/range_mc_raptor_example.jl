@@ -6,7 +6,6 @@ using Dates
 # date = Date(2024, 7, 1)
 # timetable = create_raptor_timetable(gtfs_dir, date);
 # save_timetable(timetable)
-
 function main()
     date = Date(2024, 7, 1)
     timetable = load_timetable()
@@ -18,11 +17,11 @@ function main()
     range_query = RangeMcRaptorQuery(
         origin, departure_time_min, departure_time_max, timetable
     )
-    journeys = run_mc_raptor_and_construct_journeys(timetable, range_query)
+    journeys = @time run_mc_raptor_and_construct_journeys(timetable, range_query)
     return journeys
 end
 
-journeys = @time main();
+journeys = main();
 
 println(journeys["AKM"]) # Akkrum
 println(journeys["GN"]) # Groningen

@@ -47,13 +47,21 @@ function create_trip(
     trip_name = triprow.trip_short_name
     trip_formula = triprow.trip_long_name
 
+    # Simplification of the fare calculation
+    # ICD fare of 3 euro.
+    if trip_formula == "Intercity direct"
+        fare = 3.0
+    else
+        fare = 0.0
+    end
+
     stops_in_trip_df = stop_times_with_trip_id(trip_id, gtfs_stop_times)
     sort!(stops_in_trip_df, [:arrival_time])
 
     stop_times = OrderedDict{String,StopTime}()
     for row in eachrow(stops_in_trip_df)
         stop = stops[row.stop_id]
-        stop_times[stop.id] = StopTime(stop, row.arrival_time, row.departure_time, 0.0)
+        stop_times[stop.id] = StopTime(stop, row.arrival_time, row.departure_time, fare)
     end
     route = Route([st.stop for st in values(stop_times)])
 

@@ -7,6 +7,7 @@ import Raptor: get_stop_time, StopTime
 import Raptor: get_fare
 import Raptor: get_earliest_trip
 import Raptor: descending_departure_times
+import Raptor: calculate_chuncks
 
 using Test
 using Dates
@@ -63,3 +64,29 @@ t0 = today + Time(14)
 t1 = today + Time(18)
 expected_departures = [today + Time(16, 1), today + Time(14, 1)]
 @test descending_departure_times(tt, tt.stations["S2"], t0, t1) == expected_departures
+
+# Test chuncks
+start_day = today + Time(0)
+end_day = today + Time(23, 59)
+nchuncks = 2
+chuncks = calculate_chuncks(tt, start_day, end_day, nchuncks)
+
+# Test if all stations are in a chunck
+@test sum(length(c) for c in chuncks) == length(tt.stations)
+
+# Test if chunks have a balanced number of departures
+total_departures = sum(
+    length(descending_departure_times(tt, station, start_day, end_day)) for
+    station in values(tt.stations)
+)
+aim = total_departures / nchuncks
+departures_chunck1 = sum(
+    length(descending_departure_times(tt, station, start_day, end_day)) for
+    station in chuncks[1]
+)
+departures_chunck2 = sum(
+    length(descending_departure_times(tt, station, start_day, end_day)) for
+    station in chuncks[2]
+)
+@test abs(departures_chunck1 - aim) <= 1
+@test abs(departures_chunck2 - aim) <= 1
