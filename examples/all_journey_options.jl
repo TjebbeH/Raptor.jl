@@ -15,9 +15,14 @@ addprocs(4)
 end
 
 using Dates
-date = Date(2024, 7, 1);
-maximum_transfers = 1;
-journeys = calculate_all_journeys(timetable, date, maximum_transfers);
+
+function main()
+    date = Date(2024, 7, 1)
+    maximum_transfers = 1
+    return calculate_all_journeys(timetable, date, maximum_transfers)
+end
+
+journeys = @time main();
 
 # Check the journey options from Eindhoven to Groningen
 origin = "EHV";
