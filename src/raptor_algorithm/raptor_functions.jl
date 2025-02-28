@@ -1,3 +1,180 @@
+#-------------------------------------------
+"""Check if label2 is worse or equal at all criteria then label1
+
+using: (∀i: l₁[i] ≤ l₂[i]) = (̸∃i: l₁[i] > l₂[i])
+"""
+function is_geq_at_everything2(label1, label2)
+    for i in 1:3
+        if label1[i] > label2[i]
+            return false
+        end
+    end
+    return true
+end
+
+
+"""Check if label1 is better at a criteria then label2
+
+∃i: l₁[i] < l₂[i]
+"""
+function is_l_at_something2(label1, label2)
+    for i in 1:3
+        if label1[i] < label2[i]
+            return true
+        end
+    end
+    return false
+end
+
+"""Check if label2 is more than thresholds later than label1"""
+function is_much_slower2(label1, label2, threshold_sec::Float64 = 3600.0)
+    return label2[1] - label1[1] > threshold_sec
+end
+
+
+"""Check if label1 dominates label2"""
+function dominates2(label1, label2)
+    # l1_is_better_at_something = is_l_at_something2(label1, label2)
+    l2_is_worse_at_everything = is_geq_at_everything2(label1, label2)
+    l2_is_much_slower = is_much_slower2(label1, label2)
+    # return l2_is_much_slower || (l1_is_better_at_something && l2_is_worse_at_everything)    
+    return l2_is_much_slower || l2_is_worse_at_everything
+end
+
+
+function isdominated2(label, label_idx, labels, to_keep::BitVector)
+    # compare with all other labels that are kept
+    for (j, other_label) in enumerate(labels)
+        if to_keep[j] && j != label_idx
+            same_label = label == other_label
+            if same_label || dominates2(other_label, label)
+                return true
+            end
+        end
+    end
+    return false
+end
+
+using StaticArrays
+
+function sa_label(label::Label)
+    arrival_time = datetime2unix(label.arrival_time)
+    fare = Float64(label.fare)
+    number_of_trips = Float64(label.number_of_trips)
+    return SA[arrival_time, fare, number_of_trips]
+end
+
+
+"""
+Calculate pareto set of labels of options.
+That is, remove all labels that are dominated by an other.
+"""
+function pareto_set2(options::Vector{Option})
+    labels = [sa_label(o.label) for o in options]
+    to_keep = trues(length(labels))
+
+    # Check if label i should be kept
+    for (i, label) in enumerate(labels)
+        if isdominated2(label, i, labels, to_keep)
+            to_keep[i] = false
+        end
+    end
+    return options[to_keep]
+end
+
+# function merge_bags(bag1::Bag, bag2::Bag)
+#     options = Iterators.flatten((bag1.options,bag2.options))
+#     labels = (sa_label(o.label) for o in options)
+#     # to_keep = falses(length(labels))
+#     # unique_label_idx = unique(i -> labels[i], eachindex(labels))
+#     # to_keep[unique_label_idx] .= true
+#     to_keep = trues(length(labels))
+
+#     # Check if label i should be kept
+#     for (i, label) in enumerate(labels)
+#         if isdominated2(label, i, labels, to_keep)
+#             to_keep[i] = false
+#         end
+#     end
+#     return Bag(options[to_keep])
+# end
+
+# """Check if label2 is worse or equal at all criteria then label1
+
+# using: (∀i: l₁[i] ≤ l₂[i]) = (̸∃i: l₁[i] > l₂[i])
+# """
+# function is_geq_at_everything(label1::Label, label2::Label)
+#     if label1.arrival_time > label2.arrival_time
+#         return false
+#     end
+#     if label1.number_of_trips > label2.number_of_trips
+#         return false
+#     end
+#     if label1.fare > label2.fare
+#         return false
+#     end
+#     return true
+# end
+
+
+# """Check if label1 is better at a criteria then label2
+
+# ∃i: l₁[i] < l₂[i]
+# """
+# function is_l_at_something(label1::Label, label2::Label)
+#     if label1.arrival_time < label2.arrival_time
+#         return true
+#     end
+#     if label1.number_of_trips > label2.number_of_trips
+#         return true
+#     end
+#     if label1.fare > label2.fare
+#         return true
+#     end
+#     return false
+# end
+
+# """Check if label2 is more than thresholds later than label1"""
+# function is_much_slower(label1::Label, label2::Label, threshold::Minute=Minute(60))
+#     return Minute(label2.arrival_time - label1.arrival_time) > threshold
+# end
+
+
+
+# """
+# Calculate pareto set of labels of options.
+# That is, remove all labels that are dominated by an other.
+# """
+# function pareto_set(options::Vector{Option})
+#     to_keep = trues(size(options))
+#     for (i, option_i) in enumerate(options)
+#         # Check if option_i is part of pareto set
+#         label_i = option_i.label
+        
+#         # Compare label_i with all other labels
+#         for (j, option_j) in enumerate(options)
+#             # First check if option_j is still relevant to compare agains
+#             if to_keep[j]
+#                 label_j = option_j.label
+                
+#                 # # Check if option_i is option_j is a duplicate
+#                 # i_is_duplicate_of_j = (i != j) && (option_i == option_j)
+    
+#                 # # Check if label_j dominates label_i
+#                 # j_dominates_i = dominates(label_j, label_i)
+
+#                 # if so, label_i is not part of the pareto set
+#                 if dominates(label_j, label_i)
+#                     to_keep[i] = false
+#                 end
+#             end
+#         end
+#     end
+#     return options[to_keep]
+# end
+#-------------------------------------------
+
+
 
 labels(bag::Bag) = [option.label for option in bag.options]
 
@@ -52,6 +229,7 @@ function get_routes_to_travers(timetable::TimeTable, marked_stops::Set{Stop})
     return Q
 end
 
+#-------------------------------------------
 """Check if label1 is worse or equal at all criteria then label2"""
 function is_geq_at_everything(label1::Label, label2::Label)
     if label1.arrival_time < label2.arrival_time
@@ -106,6 +284,8 @@ function pareto_set(options::Vector{Option})
     to_keep = pareto_set_idx(unique_label_idx, labels)
     return options[to_keep]
 end
+#-------------------------------------------
+
 
 """
 Merge bag1 and bag2.
@@ -116,6 +296,12 @@ function merge_bags(bag1::Bag, bag2::Bag)
     pareto_options = pareto_set(combined_options)
     return Bag(pareto_options)
 end
+
+# function merge_bags2(bag1::Bag, bag2::Bag)
+#     combined_options = [bag1.options; bag2.options]
+#     pareto_options = pareto_set2(combined_options)
+#     return Bag(pareto_options)
+# end
 
 merge_bags(bags::Vector{Bag}) = reduce(merge_bags, bags)
 
