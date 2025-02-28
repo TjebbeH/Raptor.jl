@@ -366,7 +366,7 @@ end
 function run_mc_raptor(
     timetable::TimeTable,
     query::McRaptorQuery,
-    result_previous_run::Union{Dict{Stop,Bag},Nothing},
+    result_previous_run::Union{Dict{Stop,Bag},Nothing}=nothing,
 )
     maximum_rounds = query.maximum_transfers + 2
     @debug "round 1: initialization"
@@ -403,13 +403,15 @@ function run_mc_raptor(
     @debug "finished raptor algorithm to create bag with best options"
     return bag_round_stop, last_round
 end
-function run_mc_raptor(timetable::TimeTable, query::McRaptorQuery)
-    return run_mc_raptor(timetable, query, nothing)
-end
 
-"""Run McRaptor for range query"""
+"""Run McRaptor for range query
+
+Returns a dictionary with 
+    key: destination abbreviation
+    value: vector with journeys
+"""
 function run_mc_raptor_and_construct_journeys(
-    timetable::TimeTable, range_query::RangeMcRaptorQuery
+    timetable::TimeTable, range_query::RangeMcRaptorQuery; log_info=true
 )
     origin = range_query.origin
     departure_time_min = range_query.departure_time_min
@@ -420,7 +422,10 @@ function run_mc_raptor_and_construct_journeys(
     departure_times_from_origin = descending_departure_times(
         timetable, origin, departure_time_min, departure_time_max
     )
-    @info "calculating journey options for $(length(departure_times_from_origin)) departures from $(origin.name) ($(origin.abbreviation))"
+
+    if log_info
+        @info "calculating journey options for $(length(departure_times_from_origin)) departures from $(origin.name) ($(origin.abbreviation))"
+    end
 
     last_round_bag = nothing
     for departure in departure_times_from_origin
@@ -435,8 +440,14 @@ function run_mc_raptor_and_construct_journeys(
     return journeys
 end
 
-"""Run McRaptor and construct all journeys on a date"""
-function calculate_all_journeys(
+"""
+Run McRaptor and construct all journeys on a date (distributed)
+
+Returns a dictionary with 
+    key: origin abbreviation
+    value: Dict with keys: destination and values: vector of journeys
+"""
+function calculate_all_journeys_distributed(
     timetable::TimeTable, date::Date, maximum_transfers::Integer=5
 )
     stations = sort(collect(values(timetable.stations)); by=station -> station.name)
@@ -454,4 +465,50 @@ function calculate_all_journeys(
         )
     end
     return all_journeys
+end
+
+"""
+Run McRaptor and construct all journeys on a date (multi-threaded)
+
+Returns a dictionary with 
+    key: origin abbreviation
+    value: Dict with keys: destination and values: vector of journeys
+"""
+function calculate_all_journeys_mt(
+    timetable::TimeTable, date::Date, maximum_transfers::Integer=5
+)
+    stations = values(timetable.stations)
+    nchucks = Threads.nthreads()
+    chuncksize = cld(length(stations), nchucks)
+
+    departure_time_min = date + Time(0)
+    departure_time_max = date + Time(23, 59)
+
+    @info "calculating all journeys between $(departure_time_min) and $(departure_time_max)"
+    @info "   number of stations = $(length(stations))"
+    @info "   number of threads = $(nchucks)"
+    @info "   number of origins per thread = $(chuncksize)"
+
+    result = Dict{String,Dict{String,Vector{Journey}}}()
+    lck = ReentrantLock()
+    @sync for chunck in Iterators.partition(stations, chuncksize)
+        Threads.@spawn begin
+            for (j, origin) in enumerate(chunck)
+                thread_id = lpad(Threads.threadid(), 2, " ")
+                station_j = lpad(j, 2, " ")
+                @info "(thread $(thread_id): $(station_j)/$(chuncksize)) calculating journeys from $(origin.name) ($(origin.abbreviation))"
+
+                range_query = RangeMcRaptorQuery(
+                    origin, departure_time_min, departure_time_max, maximum_transfers
+                )
+                journeys_from_origin = run_mc_raptor_and_construct_journeys(
+                    timetable, range_query; log_info=false
+                )
+                Threads.lock(lck) do
+                    result[origin.abbreviation] = journeys_from_origin
+                end
+            end
+        end
+    end
+    return result
 end
