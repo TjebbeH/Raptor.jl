@@ -310,7 +310,8 @@ end
 """Update option with new arrival time and fare addition"""
 function update_option(option::Option, arrival_time::DateTime, fare_addition::Number)
     old_label = option.label
-    new_fare = minimum(3, old_label.fare + fare_addition) # only pay fare once
+    MAX_FARE = 3.0
+    new_fare = minimum(MAX_FARE, old_label.fare + fare_addition) # only pay fare once
     new_label = Label(
         arrival_time, new_fare, old_label.number_of_trips
     )
