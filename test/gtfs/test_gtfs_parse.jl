@@ -68,3 +68,6 @@ gtfs_timetable = parse_gtfs(path, date)
 @test nrow(gtfs_timetable.trips) == 2
 @test nrow(gtfs_timetable.stop_times) == 4
 @test nrow(gtfs_timetable.stops) == 2
+
+wrong_date = Date(2021, 10, 22)
+@test_throws ArgumentError parse_gtfs(path, wrong_date)

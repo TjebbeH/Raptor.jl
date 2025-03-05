@@ -41,9 +41,14 @@ function parse_gtfs_trips(gtfs_data::GtfsData, route_ids_in_scope::Vector)
 
     # Add date to trips and filter on the selected day
     calendar_dates = read_gtfs_csv(gtfs_data, "calendar_dates.txt")
-    trips = leftjoin(trips, calendar_dates; on=:service_id)
-    trips.date = Date.(string.(trips.date), dateformat"yyyymmdd")
-    filter!(:date => ==(gtfs_data.date), trips)
+    calendar_dates.date = Date.(string.(calendar_dates.date), dateformat"yyyymmdd")
+    filter!(:date => ==(gtfs_data.date), calendar_dates)
+    if isempty(calendar_dates)
+        msg = "no trips on date $(gtfs_data.date) in gtfs data"
+        throw(ArgumentError(msg))
+    end
+
+    trips = innerjoin(trips, calendar_dates; on=:service_id)
 
     select!(trips, :route_id, :trip_id, :trip_short_name, :trip_long_name, :date)
     return trips
