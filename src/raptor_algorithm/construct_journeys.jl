@@ -50,8 +50,11 @@ function last_legs(destination::Station, bag_last_round)
     journeys = Journey[]
     for option in station_bag.options
         # find the stop of the station at which the option arrives   
-        # sometimes the data contained a drive trough as stoptime
-        # in that case the filter wil return two stops we take the first
+        # If there is a drive through stopstop in the timetable:
+        # from one stop at the station to an other stop at the same station. 
+        # For example from ASD5b to ASD 5. Then an 'only' check failed. 
+        # Since arrival and departure time in the drive through are equal it
+        # doesnt matter which one you take, so we take first.
         to_stop = first(filter(s -> option in bag_last_round[s].options, to_stops))
         clear_how_to_get_there =
             !isnothing(option.from_stop) &&
