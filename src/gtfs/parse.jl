@@ -83,8 +83,8 @@ function parse_gtfs_stop_times(gtfs_data::GtfsData, trips::DataFrame)
     return stop_times
 end
 
-get_platform_code(stop_code::String) = split(stop_code, "_")[end]
-get_station_name(stop_name::String) = split(stop_name, "_")[1]
+get_platform_code(stop_code::String) = String(split(stop_code, "_")[end])
+get_station_name(stop_name::String) = String(split(stop_name, "_")[1])
 
 function parse_gtfs_stops(gtfs_data::GtfsData, stop_ids_in_scope::Vector)
     stops_full = read_gtfs_csv(gtfs_data, "stops.txt")
