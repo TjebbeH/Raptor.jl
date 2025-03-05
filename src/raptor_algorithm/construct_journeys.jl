@@ -49,8 +49,10 @@ function last_legs(destination::Station, bag_last_round)
 
     journeys = Journey[]
     for option in station_bag.options
-        # find the stop of the station at which the option arrives
-        to_stop = only(filter(s -> option in bag_last_round[s].options, to_stops))
+        # find the stop of the station at which the option arrives   
+        # sometimes the data contained a drive trough as stoptime
+        # in that case the filter wil return two stops we take the first
+        to_stop = first(filter(s -> option in bag_last_round[s].options, to_stops))
         clear_how_to_get_there =
             !isnothing(option.from_stop) &&
             !isnothing(option.from_departure_time) &&
