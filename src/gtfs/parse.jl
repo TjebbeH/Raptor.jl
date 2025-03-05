@@ -43,6 +43,17 @@ function parse_gtfs_trips(gtfs_data::GtfsData, route_ids_in_scope::Vector)
     calendar_dates = read_gtfs_csv(gtfs_data, "calendar_dates.txt")
     calendar_dates.date = Date.(string.(calendar_dates.date), dateformat"yyyymmdd")
     filter!(:date => ==(gtfs_data.date), calendar_dates)
+    select!(calendar_dates, :service_id, :date)
+
+    if isempty(calendar_dates)
+        #TODO expand range of dates this only works for 1 day visum files
+        calendar = read_gtfs_csv(gtfs_data, "calendar.txt")
+        calendar.date = Date.(string.(calendar.start_date), dateformat"yyyymmdd")
+        select!(calendar, :service_id, :date)
+        filter!(:date => ==(gtfs_data.date), calendar)
+        calendar_dates = calendar
+    end
+
     if isempty(calendar_dates)
         msg = "no trips on date $(gtfs_data.date) in gtfs data"
         throw(ArgumentError(msg))
@@ -50,7 +61,7 @@ function parse_gtfs_trips(gtfs_data::GtfsData, route_ids_in_scope::Vector)
 
     trips = innerjoin(trips, calendar_dates; on=:service_id)
 
-    select!(trips, :route_id, :trip_id, :trip_short_name, :trip_long_name, :date)
+    select!(trips, :route_id, :trip_id, :trip_short_name, :date)
     return trips
 end
 
@@ -72,9 +83,14 @@ function parse_gtfs_stop_times(gtfs_data::GtfsData, trips::DataFrame)
     return stop_times
 end
 
+get_platform_code(stop_code::String) = split(stop_code, "_")[end]
+get_station_name(stop_name::String) = split(stop_name, "_")[1]
+
 function parse_gtfs_stops(gtfs_data::GtfsData, stop_ids_in_scope::Vector)
     stops_full = read_gtfs_csv(gtfs_data, "stops.txt")
     stops = filter(:stop_id => in(stop_ids_in_scope), stops_full)
+    stops.platform_code = get_platform_code.(stops.stop_code)
+    stops.stop_name = get_station_name.(stops.stop_name)
 
     # add station codes
     parent_stations = unique(stops.parent_station)

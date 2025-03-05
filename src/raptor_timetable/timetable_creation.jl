@@ -45,15 +45,16 @@ function create_trip(
 )
     trip_id = triprow.trip_id
     trip_name = triprow.trip_short_name
-    trip_formula = triprow.trip_long_name
+    # trip_formula = triprow.trip_long_name
 
     # Simplification of the fare calculation
     # ICD fare of 3 euro.
-    if trip_formula == "Intercity direct"
-        fare = 3.0
-    else
-        fare = 0.0
-    end
+    # if trip_formula == "Intercity direct"
+    #     fare = 3.0
+    # else
+    #     fare = 0.0
+    # end
+    fare = 0.0
 
     stops_in_trip_df = stop_times_with_trip_id(trip_id, gtfs_stop_times)
     sort!(stops_in_trip_df, [:arrival_time])
@@ -65,7 +66,8 @@ function create_trip(
     end
     route = Route([st.stop for st in values(stop_times)])
 
-    return Trip(string(trip_id), trip_name, trip_formula, route, stop_times)
+    # return Trip(string(trip_id), trip_name, trip_formula, route, stop_times)
+    return Trip(string(trip_id), trip_name, route, stop_times)
 end
 
 """Create trips from gtfs trips, stoptimes and a dict of already parsed stops"""

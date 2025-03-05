@@ -7,11 +7,16 @@ using Dates
 # timetable = create_raptor_timetable(gtfs_dir, date);
 # save_timetable(timetable)
 
-function main()
-    date = Date(2024, 7, 1)
-    timetable = load_timetable()
+gtfs_dir = joinpath([@__DIR__, "..", "data", "gtfs", "visum_2025_01_21"])
+date = Date(2025, 1, 21)
+timetable = create_raptor_timetable(gtfs_dir, date, ["NS-Reizigers"]);
+save_timetable(timetable,"raptor_timetable_visum_2025_01_21")
 
-    origin = "VS" # Vlissingen
+function main()
+    date = Date(2025, 1, 21)
+    timetable = load_timetable("raptor_timetable_visum_2025_01_21")
+
+    origin = "LW" # Groningen
     departure_time = date + Time(13)
 
     query = McRaptorQuery(origin, departure_time, timetable)

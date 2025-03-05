@@ -30,7 +30,7 @@ end
 struct Trip <: Comparable
     id::String
     name::String # trainnumber
-    formula::String # eg. sprinter
+    # formula::String # eg. sprinter
     route::Route
     stop_times::Dict{String,StopTime} # stop.id => StopTime
 end
