@@ -10,6 +10,8 @@ export reconstruct_journeys, reconstruct_journeys_to_all_destinations
 export run_mc_raptor_and_construct_journeys
 export calculate_all_journeys_distributed, calculate_all_journeys_mt
 
+export journeys_to_dataframe
+
 using Dates
 using Logging
 using DataFrames, CSV

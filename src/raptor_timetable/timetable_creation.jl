@@ -39,6 +39,28 @@ function stop_times_with_trip_id(trip_id::String, gtfs_stop_times::DataFrame)
     return filter(:trip_id => ==(trip_id), gtfs_stop_times)
 end
 
+
+function calculate_fare(trip_name::String, stop::Stop)
+    FARE = 3.0
+    treinserie = fld(parse(Int, trip_name),100)*100
+
+    stop_rtd_shl = stop.station_abbreviation in ["RTD", "SHL"]
+    stop_asdz_hvs = stop.station_abbreviation in ["ASDZ", "DVD", "HVS"]
+    stop_asdz_almb = stop.station_abbreviation in ["ASDZ", "ALM", "ALMB"]
+
+    should_pay_fare = (
+        (stop_rtd_shl && (treinserie in (1800,2400,9500) )) ||
+        (stop_asdz_hvs && treinserie == 1800) ||
+        (stop_asdz_almb && treinserie in (2400,9500))
+    )
+    if should_pay_fare
+        return FARE
+    end
+    return 0.0    
+end
+
+
+
 """Create a trip from a gtfs dataframes and a dict of stops"""
 function create_trip(
     triprow::DataFrameRow, gtfs_stop_times::DataFrame, stops::Dict{String,Stop}
@@ -47,26 +69,17 @@ function create_trip(
     trip_name = triprow.trip_short_name
     # trip_formula = triprow.trip_long_name
 
-    # Simplification of the fare calculation
-    # ICD fare of 3 euro.
-    # if trip_formula == "Intercity direct"
-    #     fare = 3.0
-    # else
-    #     fare = 0.0
-    # end
-    fare = 0.0
-
     stops_in_trip_df = stop_times_with_trip_id(trip_id, gtfs_stop_times)
     sort!(stops_in_trip_df, [:arrival_time])
 
     stop_times = OrderedDict{String,StopTime}()
     for row in eachrow(stops_in_trip_df)
         stop = stops[row.stop_id]
+        fare = calculate_fare(trip_name, stop)
         stop_times[stop.id] = StopTime(stop, row.arrival_time, row.departure_time, fare)
     end
     route = Route([st.stop for st in values(stop_times)])
 
-    # return Trip(string(trip_id), trip_name, trip_formula, route, stop_times)
     return Trip(string(trip_id), trip_name, route, stop_times)
 end
 

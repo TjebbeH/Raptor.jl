@@ -172,3 +172,44 @@ function Base.show(io::IO, journeys::Vector{Journey})
         end
     end
 end
+
+"""Convert vector of journeys to a dataframe"""
+function od_journeys_to_dataframe(journeys::Vector{Journey})
+    first_legs = [journey.legs[1] for journey in journeys]
+    last_legs = [journey.legs[end] for journey in journeys]
+    
+    transfer_stations_journeys = []
+    trainnumbers_journeys = []
+    for journey in journeys
+        transfer_stations_journey = [leg.from_stop.station_abbreviation for leg in journey.legs[2:end] if !is_transfer(leg)]
+        if isempty(transfer_stations_journey)
+            transfer_stations_journey = missing
+        end
+        trainnumbers_journey = [leg.trip.name for leg in journey.legs if !is_transfer(leg)]
+        push!(transfer_stations_journeys, transfer_stations_journey)
+        push!(trainnumbers_journeys, trainnumbers_journey)
+    end
+    
+    return DataFrame(
+        "herkomst" => [leg.from_stop.station_abbreviation for leg in first_legs],
+        "bestemming" => [leg.to_stop.station_abbreviation for leg in last_legs],
+        "vertrekmoment" => [leg.departure_time for leg in first_legs],
+        "aankomstmoment" => [leg.arrival_time for leg in last_legs],
+        "aantal_overstappen" => [leg.to_label.number_of_trips - 1 for leg in last_legs],
+        "toeslag" => [leg.to_label.fare for leg in last_legs],
+        "overstapstations" => transfer_stations_journeys,
+        "treinnummers" => trainnumbers_journeys
+    )
+
+end
+
+"""Convert the journeys to a dataframe"""
+function journeys_to_dataframe(journeys)
+    df = DataFrame()
+    for (origin, journeys_from_origin) in journeys
+        for (destination, journeys) in journeys_from_origin
+            append!(df, od_journeys_to_dataframe(journeys))
+        end
+    end
+    return df
+end
