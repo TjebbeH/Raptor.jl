@@ -21,8 +21,9 @@ See [Documentation](https://tjebbeh.github.io/Raptor.jl/) for instructions on ho
 
 
 ## TODO:
-- Write output
-- Optimize
+- fix reconstruction of journeys without creating many duplicates
+- fix bug with number of transfers in label > number of transfers in journey
+- Optimize (memory use)
 - More functional tests
 - Consider threshold, fares and default footpaths as input
 - Improve Documentation (o.a., more doc strings api, general timetable)
