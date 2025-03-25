@@ -173,43 +173,123 @@ function Base.show(io::IO, journeys::Vector{Journey})
     end
 end
 
-"""Convert vector of journeys to a dataframe"""
-function od_journeys_to_dataframe(journeys::Vector{Journey})
-    first_legs = [journey.legs[1] for journey in journeys]
-    last_legs = [journey.legs[end] for journey in journeys]
-    
-    transfer_stations_journeys = []
-    trainnumbers_journeys = []
-    for journey in journeys
-        transfer_stations_journey = [leg.from_stop.station_abbreviation for leg in journey.legs[2:end] if !is_transfer(leg)]
-        if isempty(transfer_stations_journey)
-            transfer_stations_journey = missing
-        end
-        trainnumbers_journey = [leg.trip.name for leg in journey.legs if !is_transfer(leg)]
-        push!(transfer_stations_journeys, transfer_stations_journey)
-        push!(trainnumbers_journeys, trainnumbers_journey)
+"""Convert a journey to a row of a dataframe"""
+function journey_to_df_row(journey::Journey)
+    first_leg = journey.legs[1]
+    last_leg = journey.legs[end]
+    transfer_stations = [leg.from_stop.station_abbreviation for leg in journey.legs[2:end] if !is_transfer(leg)]
+    if isempty(transfer_stations)
+        transfer_stations = missing
+        transfers = 0
+    else
+        transfers = length(transfer_stations)
     end
-    
-    return DataFrame(
-        "herkomst" => [leg.from_stop.station_abbreviation for leg in first_legs],
-        "bestemming" => [leg.to_stop.station_abbreviation for leg in last_legs],
-        "vertrekmoment" => [leg.departure_time for leg in first_legs],
-        "aankomstmoment" => [leg.arrival_time for leg in last_legs],
-        "aantal_overstappen" => [leg.to_label.number_of_trips - 1 for leg in last_legs],
-        "toeslag" => [leg.to_label.fare for leg in last_legs],
-        "overstapstations" => transfer_stations_journeys,
-        "treinnummers" => trainnumbers_journeys
-    )
+    trainnumbers = [leg.trip.name for leg in journey.legs if !is_transfer(leg)]
 
+    return (
+        first_leg.from_stop.station_abbreviation,
+        last_leg.to_stop.station_abbreviation,
+        first_leg.departure_time,
+        last_leg.arrival_time,
+        transfers,
+        last_leg.to_label.fare,
+        transfer_stations,
+        trainnumbers,
+    )
 end
+
+function journeys_to_df(journeys::Vector{Journey})
+    df = DataFrame(
+        herkomst = String[],
+        bestemming = String[],
+        vertrekmoment = DateTime[],
+        aankomstmoment = DateTime[],
+        aantal_overstappen = Int[],
+        toeslag = Float64[],
+        overstapstations = Vector{String}[],
+        treinnummers = Vector{String}[]
+    )
+    for journey in journeys
+        push!(df, journey_to_df_row(journey), promote=true)
+    end
+    return df
+end
+
+# """Convert vector of journeys to a dataframe"""
+# function od_journeys_to_dataframe(journeys::Vector{Journey})
+#     first_legs = [journey.legs[1] for journey in journeys]
+#     last_legs = [journey.legs[end] for journey in journeys]
+    
+#     transfer_stations_journeys = []
+#     trainnumbers_journeys = []
+#     for journey in journeys
+#         transfer_stations_journey = [leg.from_stop.station_abbreviation for leg in journey.legs[2:end] if !is_transfer(leg)]
+#         # transfer_stations_journey = [leg.from_stop.station_abbreviation for leg in journey.legs[2:end]]
+#         if isempty(transfer_stations_journey)
+#             transfer_stations_journey = missing
+#         end
+#         trainnumbers_journey = [leg.trip.name for leg in journey.legs if !is_transfer(leg)]
+#         # trainnumbers_journey = [leg.trip.name for leg in journey.legs]
+#         push!(transfer_stations_journeys, transfer_stations_journey)
+#         push!(trainnumbers_journeys, trainnumbers_journey)
+#     end
+    
+#     return DataFrame(
+#         "herkomst" => [leg.from_stop.station_abbreviation for leg in first_legs],
+#         "bestemming" => [leg.to_stop.station_abbreviation for leg in last_legs],
+#         "vertrekmoment" => [leg.departure_time for leg in first_legs],
+#         "aankomstmoment" => [leg.arrival_time for leg in last_legs],
+#         "aantal_overstappen" => [leg.to_label.number_of_trips - 1 for leg in last_legs],
+#         "toeslag" => [leg.to_label.fare for leg in last_legs],
+#         "overstapstations" => transfer_stations_journeys,
+#         "treinnummers" => trainnumbers_journeys
+#     )
+# end
 
 """Convert the journeys to a dataframe"""
 function journeys_to_dataframe(journeys)
-    df = DataFrame()
+    df = DataFrame(
+        herkomst = String[],
+        bestemming = String[],
+        vertrekmoment = DateTime[],
+        aankomstmoment = DateTime[],
+        aantal_overstappen = Int[],
+        toeslag = Float64[],
+        overstapstations = Vector{String}[],
+        treinnummers = Vector{String}[]
+    )
     for (origin, journeys_from_origin) in journeys
-        for (destination, journeys) in journeys_from_origin
-            append!(df, od_journeys_to_dataframe(journeys))
+        for (destination, _) in journeys_from_origin
+            append!(df, journeys_to_df(journeys[origin][destination]), promote=true)
         end
     end
-    return df
+    return unique(df)
+end
+
+"""Tmp function to split csv in four parts"""
+function write_in_four_parts(df::DataFrame, date::Date, name::String)
+    start_time = [Time(0), Time(10), Time(15), Time(20), Time(23,59,59)]
+    for i in eachindex(start_time[1:end-1])
+        @info "    part $i"
+        lower_bound = date + start_time[i]
+        upper_bound = date + start_time[i+1]
+        if i == 1
+            selection = :vertrekmoment => x -> x <= upper_bound
+        elseif i == length(start_time)-1
+            selection = :vertrekmoment => x -> lower_bound < x
+        else
+            selection = :vertrekmoment => x -> lower_bound < x <= upper_bound
+        end 
+        dfi = filter(selection, df)
+        upper_bound = date + start_time[i+1]
+        # output_file = joinpath([@__DIR__, "..", "..", "..", "output", "$(name)_part$(i).csv"])
+        output_file = joinpath([@__DIR__, "..", "..", "output", "$(name)_part$(i).csv"])
+        CSV.write(
+            output_file, dfi; 
+            delim=';',
+            dateformat="yyyy-mm-ddTHH:MM:SS",
+            quotechar=''' 
+        )
+    end
+    return nothing
 end

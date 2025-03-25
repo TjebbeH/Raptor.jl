@@ -9,37 +9,8 @@ Threads.nthreads()
 # timetable = create_raptor_timetable(gtfs_dir, date);
 # save_timetable(timetable)
 
-function write_in_three_parts(df, name)
-    @info "    part 1"
-    
-    df1 = filter(:vertrekmoment => x -> x <= DateTime(2025, 1, 21,10,0,0), df)
-    CSV.write(
-        "output/$(name)_part1.csv", df1;
-        delim=';',
-        dateformat="yyyy-mm-ddTHH:MM:SS",
-        quotechar=''' 
-        )
-    @info "    part 2"
-    df2 = filter(:vertrekmoment => x -> DateTime(2025, 1, 21,10,0,0) < x <= DateTime(2025, 1, 21,15,0,0), df)
-    CSV.write(
-            "output/$(name)_part2.csv", df2; 
-            delim=';',
-            dateformat="yyyy-mm-ddTHH:MM:SS",
-            quotechar=''' 
-        )
-    @info "    part 3"
-    df3 = filter(:vertrekmoment => x -> DateTime(2025, 1, 21,15,0,0) < x, df)
-    CSV.write(
-            "output/$(name)_part3.csv", df3; 
-            delim=';',
-            dateformat="yyyy-mm-ddTHH:MM:SS",
-            quotechar=''' 
-        )
-    return nothing
-end
-
-function main()
-    date = Date(2025, 1, 21)
+function main(date::Date)
+    # date = Date(2025, 1, 21)
     # date = Date(2025, 2, 1)
     version = "visum_$(year(date))_$(lpad(month(date), 2, '0'))_$(lpad(day(date), 2, '0'))"
 
@@ -52,12 +23,20 @@ function main()
     df.algoritme_naam .= "raptor.jl"
 
     @info "splitting df in three parts and saving them"
-    write_in_three_parts(df, "journeys_$(version)")
+    write_in_four_parts(df, date, "journeys_$(version)")
     return df
 end
-df = main()
+for d in [Date(2025, 1, 21), Date(2025, 2, 1)]
+    main(d);
+end
+# df = main();
 
 
+df_ZL_VH = filter(:bestemming => ==("VH"), df)
+sort!(df_ZL_VH, [:treinnummers, :vertrekmoment])
+unique(df_ZL_VH)
+
+first(df,10)
 # # Check the journey options from Eindhoven to Groningen
 # origin = "EHV";   
 # destination = "GN";

@@ -296,7 +296,7 @@ end
 """Update option if trip is different from the trip in option"""
 function update_option(
     option::Option, from_stop::Stop, trip::Trip, departure_time::DateTime
-)
+)   
     if option.trip_to_station != trip
         old_label = option.label
         new_label = Label(
@@ -479,6 +479,7 @@ function calculate_all_journeys_mt(
     departure_time_max = date + Time(23, 59)
 
     chuncks = calculate_chuncks(timetable, departure_time_min, departure_time_max, nchuncks)
+    # chuncks = [[v] for (k,v) in timetable.stations if k in ["ZL","GN"]]
 
     @info "calculating all journeys between $(departure_time_min) and $(departure_time_max)"
     @info "   maximum transfers = $(maximum_transfers)"

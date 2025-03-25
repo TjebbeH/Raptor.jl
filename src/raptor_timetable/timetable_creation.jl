@@ -42,18 +42,21 @@ end
 
 function calculate_fare(trip_name::String, stop::Stop)
     FARE = 3.0
-    treinserie = fld(parse(Int, trip_name),100)*100
+    treinnumber = parse(Int, trip_name)
+    treinserie = fld(treinnumber,100)*100
 
-    stop_rtd_shl = stop.station_abbreviation in ["RTD", "SHL"]
-    stop_asdz_hvs = stop.station_abbreviation in ["ASDZ", "DVD", "HVS"]
-    stop_asdz_almb = stop.station_abbreviation in ["ASDZ", "ALM", "ALMB"]
+    icd_ec = treinserie in (1800,2400,9500)
 
-    should_pay_fare = (
-        (stop_rtd_shl && (treinserie in (1800,2400,9500) )) ||
-        (stop_asdz_hvs && treinserie == 1800) ||
-        (stop_asdz_almb && treinserie in (2400,9500))
-    )
-    if should_pay_fare
+    even_treinnumber = treinnumber % 2 == 0
+    odd_treinnumber = treinnumber % 2 == 1
+
+    from_shl = stop.station_abbreviation == "SHL"
+    from_rtd = stop.station_abbreviation == "RTD"
+
+    hsl_shl_to_rtd = icd_ec && from_shl && even_treinnumber
+    hsl_rtd_to_shl = icd_ec && from_rtd && odd_treinnumber
+
+    if hsl_shl_to_rtd || hsl_rtd_to_shl
         return FARE
     end
     return 0.0    
