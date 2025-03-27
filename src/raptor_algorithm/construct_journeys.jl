@@ -10,7 +10,7 @@ function is_compatible_before(leg1::JourneyLeg, leg2::JourneyLeg)
             leg1.to_label.number_of_trips <= leg2.to_label.number_of_trips
     else
         number_of_trips_compatible =
-            leg1.to_label.number_of_trips < leg2.to_label.number_of_trips
+            leg1.to_label.number_of_trips + 1 == leg2.to_label.number_of_trips
     end
     only_one_is_transfer = !(is_transfer(leg1) & is_transfer(leg2))
     return time_compatible & number_of_trips_compatible & only_one_is_transfer

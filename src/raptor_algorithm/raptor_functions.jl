@@ -297,7 +297,7 @@ end
 function update_option(
     option::Option, from_stop::Stop, trip::Trip, departure_time::DateTime
 )
-    if option.trip_to_station != trip
+    if isnothing(option.trip_to_station) || option.trip_to_station.id != trip.id
         old_label = option.label
         new_label = Label(
             old_label.arrival_time, old_label.fare, old_label.number_of_trips + 1
