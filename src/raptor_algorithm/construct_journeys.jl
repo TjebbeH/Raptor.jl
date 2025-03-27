@@ -91,31 +91,34 @@ function reconstruct_journeys_to_all_destinations(
 )
     destination_stations = Iterators.filter(!isequal(origin), values(timetable.stations))
     return Dict(
-        destination.abbreviation =>
-            reconstruct_journeys(origin, destination, bag_round_stop, last_round, max_nr_of_rounds) for
-        destination in destination_stations
+        destination.abbreviation => reconstruct_journeys(
+            origin, destination, bag_round_stop, last_round, max_nr_of_rounds
+        ) for destination in destination_stations
     )
 end
 
 """Reconstruct journeys to all destinations and append to journeys_to_destination dict"""
 function reconstruct_journeys_to_all_destinations!(
     journeys_to_destination::Dict{String,Vector{Journey}},
-    origin::Station,
+    query::McRaptorQuery,
     timetable::TimeTable,
     bag_round_stop,
     last_round,
-    max_nr_of_rounds
 )
+    origin = query.origin
+    maximum_rounds = query.maximum_transfers + 2
     destination_stations = Iterators.filter(!isequal(origin), values(timetable.stations))
     for destination in destination_stations
         if destination.abbreviation in keys(journeys_to_destination)
             append!(
                 journeys_to_destination[destination.abbreviation],
-                reconstruct_journeys(origin, destination, bag_round_stop, last_round, max_nr_of_rounds),
+                reconstruct_journeys(
+                    origin, destination, bag_round_stop, last_round, maximum_rounds
+                ),
             )
         else
             journeys_to_destination[destination.abbreviation] = reconstruct_journeys(
-                origin, destination, bag_round_stop, last_round, max_nr_of_rounds
+                origin, destination, bag_round_stop, last_round, maximum_rounds
             )
         end
     end

@@ -431,7 +431,7 @@ function run_mc_raptor_and_construct_journeys(
         bag_round_stop, last_round = run_mc_raptor(timetable, query, last_round_bag)
         last_round_bag = deepcopy(bag_round_stop[last_round])
         reconstruct_journeys_to_all_destinations!(
-            journeys, query.origin, timetable, bag_round_stop, last_round, query.maximum_transfers+1
+            journeys, query, timetable, bag_round_stop, last_round
         )
     end
     remove_duplicate_journeys!(journeys)
