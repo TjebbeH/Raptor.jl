@@ -18,7 +18,7 @@ end
 
 """One step in the journey reconstruction"""
 function one_step_journey_reconstruction(
-    journeys::Vector{Journey}, origin_stops::Vector{Stop}, bag_last_round
+    journeys::Vector{Journey}, origin_stops::Vector{Stop}, bag_last_round::Dict{Stop,Bag}
 )
     new_journeys = Journey[]
     for journey in journeys
@@ -43,7 +43,7 @@ function one_step_journey_reconstruction(
 end
 
 """Constructs last legs of journey assuming arrive at any platform of the station is ok"""
-function last_legs(destination::Station, bag_last_round)
+function last_legs(destination::Station, bag_last_round::Dict{Stop,Bag})
     to_stops = destination.stops
     station_bag = merge_bags([bag_last_round[s] for s in to_stops])
 
@@ -70,8 +70,12 @@ end
 
 """Reconstruct journeys to destionation station"""
 function reconstruct_journeys(
-    origin::Station, destination::Station, bag_round_stop, last_round, max_nr_of_rounds
+    query::McRaptorQuery,
+    destination::Station,
+    bag_round_stop::Vector{Dict{Stop,Bag}},
+    last_round::Int,
 )
+    origin = query.origin
     bag_last_round = bag_round_stop[last_round]
 
     journeys = last_legs(destination, bag_last_round)
@@ -79,7 +83,8 @@ function reconstruct_journeys(
     # if isempty(journeys)
     #     @warn "destination $(destination.name) unreachable"
     # end
-    for _ in 1:(max_nr_of_rounds * 2) #times two because for every round we have train trips and footpaths
+    maximum_reconstruction_steps = (query.maximum_transfers + 2) * 2 #times two because for every round we have train trips and footpaths
+    for _ in 1:maximum_reconstruction_steps
         journeys = one_step_journey_reconstruction(journeys, origin.stops, bag_last_round)
     end
     return journeys
@@ -87,13 +92,18 @@ end
 
 """Reconstruct journeys to all destinations"""
 function reconstruct_journeys_to_all_destinations(
-    origin::Station, timetable::TimeTable, bag_round_stop, last_round, max_nr_of_rounds
+    query::McRaptorQuery,
+    timetable::TimeTable,
+    bag_round_stop::Vector{Dict{Stop,Bag}},
+    last_round::Int,
 )
+    origin = query.origin
+
     destination_stations = Iterators.filter(!isequal(origin), values(timetable.stations))
     return Dict(
-        destination.abbreviation => reconstruct_journeys(
-            origin, destination, bag_round_stop, last_round, max_nr_of_rounds
-        ) for destination in destination_stations
+        destination.abbreviation =>
+            reconstruct_journeys(query, destination, bag_round_stop, last_round) for
+        destination in destination_stations
     )
 end
 
@@ -102,23 +112,20 @@ function reconstruct_journeys_to_all_destinations!(
     journeys_to_destination::Dict{String,Vector{Journey}},
     query::McRaptorQuery,
     timetable::TimeTable,
-    bag_round_stop,
-    last_round,
+    bag_round_stop::Vector{Dict{Stop,Bag}},
+    last_round::Int,
 )
     origin = query.origin
-    maximum_rounds = query.maximum_transfers + 2
     destination_stations = Iterators.filter(!isequal(origin), values(timetable.stations))
     for destination in destination_stations
         if destination.abbreviation in keys(journeys_to_destination)
             append!(
                 journeys_to_destination[destination.abbreviation],
-                reconstruct_journeys(
-                    origin, destination, bag_round_stop, last_round, maximum_rounds
-                ),
+                reconstruct_journeys(query, destination, bag_round_stop, last_round),
             )
         else
             journeys_to_destination[destination.abbreviation] = reconstruct_journeys(
-                origin, destination, bag_round_stop, last_round, maximum_rounds
+                query, destination, bag_round_stop, last_round
             )
         end
     end
