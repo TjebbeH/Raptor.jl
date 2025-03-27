@@ -70,7 +70,7 @@ end
 
 """Reconstruct journeys to destionation station"""
 function reconstruct_journeys(
-    origin::Station, destination::Station, bag_round_stop, last_round, max_nr_of_rounds
+    origin::Station, destination::Station, bag_round_stop::Vector{Dict{Stop, Bag}}, last_round::Int, maximum_rounds::Int
 )
     bag_last_round = bag_round_stop[last_round]
 
