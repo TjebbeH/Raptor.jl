@@ -7,7 +7,7 @@ function is_compatible_before(leg1::JourneyLeg, leg2::JourneyLeg)
     time_compatible = (leg1.arrival_time <= leg2.departure_time)
     if is_transfer(leg2)
         number_of_trips_compatible =
-            leg1.to_label.number_of_trips <= leg2.to_label.number_of_trips
+            leg1.to_label.number_of_trips == leg2.to_label.number_of_trips
     else
         number_of_trips_compatible =
             leg1.to_label.number_of_trips + 1 == leg2.to_label.number_of_trips
@@ -70,7 +70,7 @@ end
 
 """Reconstruct journeys to destionation station"""
 function reconstruct_journeys(
-    origin::Station, destination::Station, bag_round_stop, last_round
+    origin::Station, destination::Station, bag_round_stop, last_round, max_nr_of_rounds
 )
     bag_last_round = bag_round_stop[last_round]
 
@@ -79,7 +79,7 @@ function reconstruct_journeys(
     # if isempty(journeys)
     #     @warn "destination $(destination.name) unreachable"
     # end
-    for _ in 1:(last_round * 2) #times two because for every round we have train trips and footpaths
+    for _ in 1:(max_nr_of_rounds * 2) #times two because for every round we have train trips and footpaths
         journeys = one_step_journey_reconstruction(journeys, origin.stops, bag_last_round)
     end
     return journeys
@@ -87,12 +87,12 @@ end
 
 """Reconstruct journeys to all destinations"""
 function reconstruct_journeys_to_all_destinations(
-    origin::Station, timetable::TimeTable, bag_round_stop, last_round
+    origin::Station, timetable::TimeTable, bag_round_stop, last_round, max_nr_of_rounds
 )
     destination_stations = Iterators.filter(!isequal(origin), values(timetable.stations))
     return Dict(
         destination.abbreviation =>
-            reconstruct_journeys(origin, destination, bag_round_stop, last_round) for
+            reconstruct_journeys(origin, destination, bag_round_stop, last_round, max_nr_of_rounds) for
         destination in destination_stations
     )
 end
@@ -104,17 +104,18 @@ function reconstruct_journeys_to_all_destinations!(
     timetable::TimeTable,
     bag_round_stop,
     last_round,
+    max_nr_of_rounds
 )
     destination_stations = Iterators.filter(!isequal(origin), values(timetable.stations))
     for destination in destination_stations
         if destination.abbreviation in keys(journeys_to_destination)
             append!(
                 journeys_to_destination[destination.abbreviation],
-                reconstruct_journeys(origin, destination, bag_round_stop, last_round),
+                reconstruct_journeys(origin, destination, bag_round_stop, last_round, max_nr_of_rounds),
             )
         else
             journeys_to_destination[destination.abbreviation] = reconstruct_journeys(
-                origin, destination, bag_round_stop, last_round
+                origin, destination, bag_round_stop, last_round, max_nr_of_rounds
             )
         end
     end

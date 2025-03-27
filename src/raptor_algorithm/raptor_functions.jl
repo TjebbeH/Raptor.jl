@@ -371,7 +371,6 @@ function run_mc_raptor(
         maximum_rounds, values(timetable.stops), result_previous_run
     )
     initialize_round1!(bag_round_stop, query)
-
     marked_stops = Set{Stop}(query.origin.stops)
 
     last_round = 1
@@ -388,11 +387,13 @@ function run_mc_raptor(
 
         # Traverse routes serving marked stops from previous round
         marked_stops_by_train = traverse_routes!(bag_round_stop, k, timetable, marked_stops)
+        @debug "round $k: mark $(length(marked_stops_by_train)) train-stops"
 
         # Walk to other stops at stations of marked_stops
         marked_stops_by_walking = add_walking!(
             bag_round_stop, k, timetable, marked_stops_by_train
         )
+        @debug "round $k: mark $(length(marked_stops_by_walking)) walking-stops"
 
         # Combine marked stops
         marked_stops = union(marked_stops_by_train, marked_stops_by_walking)
@@ -430,7 +431,7 @@ function run_mc_raptor_and_construct_journeys(
         bag_round_stop, last_round = run_mc_raptor(timetable, query, last_round_bag)
         last_round_bag = deepcopy(bag_round_stop[last_round])
         reconstruct_journeys_to_all_destinations!(
-            journeys, query.origin, timetable, bag_round_stop, last_round
+            journeys, query.origin, timetable, bag_round_stop, last_round, query.maximum_transfers+1
         )
     end
     remove_duplicate_journeys!(journeys)
