@@ -1,19 +1,22 @@
 """
 Check if it is ok that leg1 is before leg 2:
 - It is possible to go from current leg to other leg concerning arrival and departure time
-- Number of trips of leg1 < number of trips of leg2, or <= when leg2 is transfer leg
+- Number of trips of leg1 +1 = number of trips of leg2, or equal when leg2 is transfer leg
+- fare is compatible (can only go up when not a transfer)
 """
 function is_compatible_before(leg1::JourneyLeg, leg2::JourneyLeg)
     time_compatible = (leg1.arrival_time <= leg2.departure_time)
     if is_transfer(leg2)
         number_of_trips_compatible =
             leg1.to_label.number_of_trips == leg2.to_label.number_of_trips
+        fare_compatible = (leg1.to_label.fare == leg2.to_label.fare)
     else
         number_of_trips_compatible =
             leg1.to_label.number_of_trips + 1 == leg2.to_label.number_of_trips
+        fare_compatible = (leg1.to_label.fare <= leg2.to_label.fare)
     end
     only_one_is_transfer = !(is_transfer(leg1) & is_transfer(leg2))
-    return time_compatible & number_of_trips_compatible & only_one_is_transfer
+    return time_compatible & number_of_trips_compatible & only_one_is_transfer & fare_compatible
 end
 
 """One step in the journey reconstruction"""
