@@ -36,7 +36,7 @@ To calculate the journey options we run the following code.
 ```julia
 bag_round_stop, last_round = run_mc_raptor(timetable, query);
 journeys = reconstruct_journeys_to_all_destinations(
-    query.origin, timetable, bag_round_stop, last_round
+    query, timetable, bag_round_stop, last_round
 );
 
 # Search for station with name Groningen
