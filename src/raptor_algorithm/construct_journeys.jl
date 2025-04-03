@@ -7,13 +7,15 @@ function is_compatible_before(leg1::JourneyLeg, leg2::JourneyLeg)
     time_compatible = (leg1.arrival_time <= leg2.departure_time)
     if is_transfer(leg2)
         number_of_trips_compatible =
-            leg1.to_label.number_of_trips <= leg2.to_label.number_of_trips
+            leg1.to_label.number_of_trips == leg2.to_label.number_of_trips
+        fare_compatible = (leg1.to_label.fare == leg2.to_label.fare)
     else
         number_of_trips_compatible =
-            leg1.to_label.number_of_trips < leg2.to_label.number_of_trips
+            leg1.to_label.number_of_trips + 1 == leg2.to_label.number_of_trips
+        fare_compatible = (leg1.to_label.fare <= leg2.to_label.fare)
     end
     only_one_is_transfer = !(is_transfer(leg1) & is_transfer(leg2))
-    return time_compatible & number_of_trips_compatible & only_one_is_transfer
+    return time_compatible & number_of_trips_compatible & only_one_is_transfer & fare_compatible
 end
 
 """One step in the journey reconstruction"""
@@ -79,7 +81,7 @@ function reconstruct_journeys(
     # if isempty(journeys)
     #     @warn "destination $(destination.name) unreachable"
     # end
-    for _ in 1:(last_round * 2) #times two because for every round we have train trips and footpaths
+    for _ in 1:(10 * 2) #times two because for every round we have train trips and footpaths
         journeys = one_step_journey_reconstruction(journeys, origin.stops, bag_last_round)
     end
     return journeys
