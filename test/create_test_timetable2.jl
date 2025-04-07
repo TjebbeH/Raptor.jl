@@ -8,9 +8,12 @@ using Dates
 function create_test_timetable2()
     list_of_stops = [
         Stop("HT_1", "HT", "1"),
+        Stop("HT_2", "HT", "2"),
         
         Stop("UT_1", "UT", "1"),
         Stop("UT_2", "UT", "2"),
+        Stop("UT_3", "UT", "3"),
+
         
         Stop("ASA_1", "ASA", "1"),
         Stop("ASA_2", "ASA", "2"),
@@ -23,8 +26,8 @@ function create_test_timetable2()
     stops = Dict(s.id => s for s in list_of_stops)
 
     list_of_stations = [
-        Station("HT", "Den Bosch", [Stop("HT_1", "HT", "1")]),
-        Station("UT", "Utrecht", [Stop("UT_1", "UT", "1"), Stop("UT_2", "UT", "2")]),
+        Station("HT", "Den Bosch", [Stop("HT_1", "HT", "1"), Stop("HT_2", "HT", "2")]),
+        Station("UT", "Utrecht", [Stop("UT_1", "UT", "1"), Stop("UT_2", "UT", "2"), Stop("UT_3", "UT", "3")]),
         Station("ASA", "Amsterdam Sloterdijk", [Stop("ASA_1", "ASA", "1"), Stop("ASA_2", "ASA", "2")]),
         Station("ASB", "Amsterdam Bijlmer Arena", [Stop("ASB_1", "ASB", "1"), Stop("ASB_2", "ASB", "2")]),
         Station("AC", "Amsterdam Centraal", [Stop("AC_1", "AC", "1")])
@@ -35,6 +38,8 @@ function create_test_timetable2()
         Route("r1", [stops[id] for id in ["HT_1", "UT_1", "ASA_1"]]),
         Route("r2", [stops[id] for id in ["ASA_2", "ASB_1", "AC_1"]]),
         Route("r3", [stops[id] for id in ["UT_2", "ASB_2"]]),
+        Route("r4", [stops[id] for id in ["HT_2", "UT_3"]]),
+
     ]
     routes = Dict(r.id => r for r in list_of_routes)
 
@@ -42,7 +47,7 @@ function create_test_timetable2()
     trip101 = Trip(
         "t101",
         "101",
-        "IC",
+        "Sprinter",
         routes["r1"],
         Dict(
             "HT_1" => StopTime(stops["HT_1"], today + Time(9), today + Time(9, 1), 0.0),
@@ -53,7 +58,7 @@ function create_test_timetable2()
     trip201 = Trip(
         "t201",
         "201",
-        "IC",
+        "Sprinter",
         routes["r2"],
         Dict(
             "ASA_2" =>
@@ -70,8 +75,18 @@ function create_test_timetable2()
         "Sprinter",
         routes["r3"],
         Dict(
-            "UT_2" => StopTime(stops["UT_2"], today + Time(10), today + Time(10,5), 0.0),
+            "UT_2" => StopTime(stops["UT_2"], today + Time(10), today + Time(10,10), 0.0),
             "ASB_2" => StopTime(stops["ASB_2"], today + Time(11), today + Time(11, 1), 0.0),
+        ),
+    )
+    trip401 = Trip(
+        "t401",
+        "401",
+        "Sprinter",
+        routes["r3"],
+        Dict(
+            "HT_2" => StopTime(stops["HT_2"], today + Time(9), today + Time(9,30), 0.0),
+            "UT_3" => StopTime(stops["UT_3"], today + Time(10,5), today + Time(10,6), 0.0),
         ),
     )
     list_of_trips = [trip101, trip201, trip301]
@@ -84,8 +99,8 @@ function create_test_timetable2()
     route_trip_lookup = create_route_trip_lookup(list_of_trips, list_of_routes)
 
     station_departures_lookup = Dict(
-        "HT" => [today + Time(9,1)],
-        "UT" => [today + Time(10, 1), today + Time(10, 5)],
+        "HT" => [today + Time(9,1), today + Time(9,30)],
+        "UT" => [today + Time(10, 1), today + Time(10, 6), today + Time(10, 10)],
         "ASA" => [today + Time(11, 1), today + Time(11, 16)],
         "ASB" => [today + Time(11, 1), today + Time(12, 1)],
         "AC" => [today + Time(13, 1)],
