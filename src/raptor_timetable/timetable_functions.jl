@@ -105,11 +105,11 @@ function descending_departure_times(
     timetable::TimeTable, station::Station, t0::DateTime, t1::DateTime; sort_desc::Bool=true
 )
     departures = timetable.station_departures_lookup[station.abbreviation]
-    filter!(t -> t0 <= t <= t1, departures)
+    departures_within_range = filter(t -> t0 <= t <= t1, departures)
     if sort_desc
-        sort!(departures; rev=true)
+        sort!(departures_within_range; rev=true)
     end
-    return departures
+    return departures_within_range
 end
 
 """ Order stations in chuncks such that number of departures is balanced"""

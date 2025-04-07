@@ -83,13 +83,13 @@ function create_test_timetable2()
         "t401",
         "401",
         "Sprinter",
-        routes["r3"],
+        routes["r4"],
         Dict(
             "HT_2" => StopTime(stops["HT_2"], today + Time(9), today + Time(9,30), 0.0),
             "UT_3" => StopTime(stops["UT_3"], today + Time(10,5), today + Time(10,6), 0.0),
         ),
     )
-    list_of_trips = [trip101, trip201, trip301]
+    list_of_trips = [trip101, trip201, trip301, trip401]
     trips = Dict(t.id => t for t in list_of_trips)
 
     # create_footpaths is tested so we use it here assuming it works
