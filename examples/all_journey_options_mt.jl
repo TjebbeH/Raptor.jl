@@ -26,10 +26,11 @@ function main(date::Date)
     write_in_four_parts(df, date, "journeys_$(version)")
     return df
 end
+dfs = Dict()
 for d in [Date(2025, 1, 21), Date(2025, 2, 1)]
-    main(d);
+    dfs[d] = main(d)
 end
-# df = main();
+df = dfs[Date(2025, 2, 1)];
 
 
 df_ZL_VH = filter(:bestemming => ==("VH"), df)

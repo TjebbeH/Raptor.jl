@@ -360,6 +360,23 @@ function add_walking!(
     return new_marked_stops
 end
 
+"""
+Merge bag for this round from previous run if available
+"""
+function merge_bags_previous_result!(bag_round_stop::Vector{Dict{Stop,Bag}}, 
+    result_previous_run::Union{Vector{Dict{Stop,Bag}},Nothing}, k::Int)
+    for stop in keys(bag_round_stop[k])
+        if !isnothing(result_previous_run) && (stop in keys(result_previous_run[k]))
+            bag_round_stop[k][stop] = merge_bags(
+                bag_round_stop[k][stop], result_previous_run[k][stop]
+            )
+        end
+    end
+    return bag_round_stop
+end
+
+
+
 function run_mc_raptor(
     timetable::TimeTable,
     query::McRaptorQuery,
@@ -380,13 +397,9 @@ function run_mc_raptor(
         # Copy bag from previous round
         bag_round_stop[k] = copy(bag_round_stop[k - 1])
         # Merge bag for this round from previous run if available
-        for stop in keys(bag_round_stop[k])
-            if !isnothing(result_previous_run) && (stop in keys(result_previous_run[k]))
-                bag_round_stop[k][stop] = merge_bags(
-                    bag_round_stop[k][stop], result_previous_run[k][stop]
-                )
-            end
-        end
+        bag_round_stop = merge_bags_previous_result!(
+            bag_round_stop, result_previous_run, k
+        )
 
         if length(marked_stops) == 0
             @debug "no marked stops"
