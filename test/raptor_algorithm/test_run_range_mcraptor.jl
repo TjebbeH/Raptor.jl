@@ -30,7 +30,7 @@ end
     )
 end
 
-include("../create_test_timetable2.jl")
+# include("../create_test_timetable2.jl")
 timetable = create_test_timetable2();
 today = Date(2021, 10, 21)
 

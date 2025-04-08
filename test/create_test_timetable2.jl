@@ -4,7 +4,19 @@ import Raptor: create_stop_routes_lookup, create_route_trip_lookup
 
 using Dates
 
-"""Create timetable for testing"""
+"""Create timetable for testing.
+This is based on a real world example where we have serveral lines serving the 
+stops HT, UT, ASA, ASB and AC. In, summary, we have:
+* line r1: HT_1 -> UT_1 -> ASA_1
+* line r2: ASA_2 -> ASB_1 -> AC_1
+* line r3: UT_2 -> ASB_2
+* line r4: HT_2 -> UT_3
+The timetable is as follows:    
+* trip t101: departs HT_1 at 09:01, arrives UT_1 at 10:01, arrives ASA_1 at 11:01
+* trip t201: departs ASA_2 at 11:15, arrives ASB_1 at 12:01, arrives AC_1 at 13:01
+* trip t301: departs UT_2 at 10:10, arrives ASB_2 at 11:01
+* trip t401: departs HT_2 at 09:30, arrives UT_3 at 10:06
+"""
 function create_test_timetable2()
     list_of_stops = [
         Stop("HT_1", "HT", "1"),

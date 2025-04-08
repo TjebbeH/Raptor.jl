@@ -4,6 +4,7 @@ import Logging: Warn, ConsoleLogger, with_logger
 @testset "Tests" verbose = true begin
     with_logger(ConsoleLogger(stderr, Warn)) do
         include("./create_test_timetable.jl")
+        include("./create_test_timetable2.jl")
 
         @testset "Aqua quality assurance test" verbose = true begin
             include("./aqua.jl")
