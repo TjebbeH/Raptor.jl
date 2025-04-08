@@ -10,11 +10,11 @@ Use result of previous round if available
 function initialize_bag_round_stop(
     maximum_rounds::Int,
     stops::Base.ValueIterator{Dict{String,Stop}},
-    result_previous_run::Union{Dict{Stop,Bag},Nothing},
+    result_previous_run::Union{Vector{Dict{Stop,Bag}},Nothing},
 )
     bag_round_stop = [create_stop_to_empty_bags(stops) for _ in 1:maximum_rounds]
     if !isnothing(result_previous_run)
-        bag_round_stop[1] = result_previous_run
+        bag_round_stop[1] = result_previous_run[1]
     end
     return bag_round_stop
 end
@@ -43,16 +43,6 @@ function get_routes_to_travers(timetable::TimeTable, marked_stops::Set{Stop})
         )
         for route in keys(routes_serving_marked_stop)
             stop_in_Q = get(Q, route, missing)
-            if ((marked_stop.station_abbreviation=="ASA") & (marked_stop.platform_code=="4")) | (!ismissing(stop_in_Q) && (stop_in_Q.station_abbreviation=="ASA") & (stop_in_Q.platform_code=="4"))
-                all_stops = [s.station_abbreviation*s.platform_code for s in route.stops]
-                if "AC3" in all_stops
-                    println("For marked stop $(marked_stop.station_abbreviation)$(marked_stop.platform_code) we find route $all_stops",
-                    )
-                    if !ismissing(stop_in_Q)
-                        println("We already had stop $(stop_in_Q.station_abbreviation)$(stop_in_Q.platform_code)")
-                    end
-                end
-            end
             if marked_stop == first_in_route(timetable, route, stop_in_Q, marked_stop)
                 Q[route] = marked_stop
             end
@@ -193,18 +183,15 @@ function traverse_routes!(
     marked_stops::Set{Stop},
 )
     routes_to_travers = get_routes_to_travers(timetable, marked_stops)
-    @info "$(length(routes_to_travers)) routes to travers"
-    @info "$(length(unique([r.id for r in keys(routes_to_travers)]))) unique route ids"
+    @debug "$(length(routes_to_travers)) routes to travers"
 
     new_marked_stops = Set{Stop}()
     for (marked_route, marked_stop) in routes_to_travers
-        
         marked_stops_in_route = traverse_route!(
             bag_round_stop, k, timetable, marked_route, marked_stop
         )
         union!(new_marked_stops, marked_stops_in_route)
     end
-
     return new_marked_stops
 end
 
@@ -226,24 +213,9 @@ function traverse_route!(
     stop_index = get_stop_idx_in_route(timetable, stop, route)
     remaining_stops_in_route = route.stops[stop_index:end]
 
-    remaining_stops_strings =  [s.station_abbreviation*s.platform_code for s in remaining_stops_in_route]
-    if "AC3" in remaining_stops_strings
-        println("Round $k, Traversing route from $(stop.station_abbreviation)$(stop.platform_code) to $remaining_stops_strings")
-        println("Route id: $(route.id)")
-    end
-
     route_bag = Bag()
     new_marked_stops = Set{Stop}()
-    
     for (stop_idx, current_stop) in enumerate(remaining_stops_in_route)
-        if route.id == "379-938-934-929-925-830-247-6-1023-836-481-375-1029-1032-1037-1042-1049-446-1053-1057-521-1061-213"
-            println("Current stop: $current_stop")
-            if (k==4)
-                for option in route_bag.options
-                    println("Option $(option.from_stop)-$(option.label)")
-                end
-            end
-        end
         @debug "stop_idx = $stop_idx, current_stop = $current_stop"
 
         # Step 1: update earliest arrival times and criteria for each label L in route-bag
@@ -268,31 +240,12 @@ function traverse_route!(
         end
 
         route_bag = Bag(updated_options)
+
         # Step 2: merge bag_route into bag_round_stop and remove dominated labels
         # The label contains the trip with which one arrives at current stop with k legs
         # and we boarded the trip at from_stop.
         new_bag = merge_bags(bag_round_stop[k][current_stop], route_bag)
         bag_updated = different_options(bag_round_stop[k][current_stop], new_bag)
-
-        
-        if ((k==4) &(route.id == "379-938-934-929-925-830-247-6-1023-836-481-375-1029-1032-1037-1042-1049-446-1053-1057-521-1061-213"))
-            for option in bag_round_stop[k][current_stop].options
-                println("Round $k, Existing options for ", current_stop.station_abbreviation, current_stop.platform_code,": ", 
-                            option.label, " ", option.trip_to_station.name, 
-                            " from ", option.from_stop.station_abbreviation,  option.from_stop.platform_code)
-            end
-            for option in route_bag.options
-                println("Round $k, New options for ", current_stop.station_abbreviation, current_stop.platform_code,": ", 
-                            option.label, " ", option.trip_to_station.name, 
-                            " from ", option.from_stop.station_abbreviation,  option.from_stop.platform_code)
-            end
-            for option in new_bag.options
-                println("Round $k, merged options for ", current_stop.station_abbreviation, current_stop.platform_code,": ", 
-                            option.label, " ", option.trip_to_station.name, 
-                            " from ", option.from_stop.station_abbreviation,  option.from_stop.platform_code)
-            end
-        end
-
         bag_round_stop[k][current_stop] = new_bag
 
         # Mark stop if bag is updated
@@ -303,14 +256,6 @@ function traverse_route!(
         # Step 3: merge B_{k-1}(p) into B_r
         route_bag = merge_bags(route_bag, bag_round_stop[k - 1][current_stop])
 
-        # if current_stop.station_abbreviation in ["AC", "HT", "ASA", "ASB"]
-        #     println("Round $k, merged bag for $(current_stop.station_abbreviation)$(current_stop.platform_code) from $(stop.station_abbreviation)$(stop.platform_code):")
-        #     for option in route_bag.options
-        #         println(                            option.label, " ", option.trip_to_station.name, 
-        #                     " from ", option.from_stop.station_abbreviation,  option.from_stop.platform_code)
-        #     end
-        # end
-
         # Assign trips to all newly added labels in route_bag
         # This is the trip on which we board
         updated_options = Option[]
@@ -320,14 +265,7 @@ function traverse_route!(
             earliest_trip, departure_time = get_earliest_trip(
                 timetable, route, current_stop, label.arrival_time
             )
-            
             if !isnothing(earliest_trip) && !isnothing(departure_time)
-                if (current_stop.station_abbreviation in ["ASA", "ASB"]) & (k==4)
-                    println("earliest trip for option $(option.from_stop)-$(option.label)  is $(earliest_trip.name)")
-                    println("Trip id same: $(earliest_trip.id == option.trip_to_station.id)")
-                    @show earliest_trip.name
-                    @show option.trip_to_station.name
-                end
                 @debug "earliest trip is $(earliest_trip.name) with stop_times = $(earliest_trip.stop_times)"
                 # Update label with earliest trip in route leaving from this station
                 # If trip is different we board the trip at current_stop
@@ -335,9 +273,6 @@ function traverse_route!(
                 push!(updated_options, option)
             else
                 @debug "no earliest trip found"
-                if (current_stop.station_abbreviation in ["ASA", "ASB"]) & (k==4)
-                    println("no earliest trip found for option $(option.from_stop)-$(option.label)")
-                end
             end
         end
 
@@ -361,7 +296,7 @@ end
 """Update option if trip is different from the trip in option"""
 function update_option(
     option::Option, from_stop::Stop, trip::Trip, departure_time::DateTime
-)   
+)
     if isnothing(option.trip_to_station) || option.trip_to_station.id != trip.id
         old_label = option.label
         new_label = Label(
@@ -428,7 +363,7 @@ end
 function run_mc_raptor(
     timetable::TimeTable,
     query::McRaptorQuery,
-    result_previous_run::Union{Dict{Stop,Bag},Nothing}=nothing,
+    result_previous_run::Union{Vector{Dict{Stop,Bag}},Nothing}=nothing,
 )
     maximum_rounds = query.maximum_transfers + 2
     @debug "round 1: initialization"
@@ -436,7 +371,6 @@ function run_mc_raptor(
         maximum_rounds, values(timetable.stops), result_previous_run
     )
     initialize_round1!(bag_round_stop, query)
-
     marked_stops = Set{Stop}(query.origin.stops)
 
     last_round = 1
@@ -445,6 +379,15 @@ function run_mc_raptor(
 
         # Copy bag from previous round
         bag_round_stop[k] = copy(bag_round_stop[k - 1])
+        # Merge bag for this round from previous run if available
+        for stop in keys(bag_round_stop[k])
+            if !isnothing(result_previous_run) && (stop in keys(result_previous_run[k]))
+                bag_round_stop[k][stop] = merge_bags(
+                    bag_round_stop[k][stop], result_previous_run[k][stop]
+                )
+            end
+        end
+
         if length(marked_stops) == 0
             @debug "no marked stops"
             break
@@ -453,29 +396,16 @@ function run_mc_raptor(
 
         # Traverse routes serving marked stops from previous round
         marked_stops_by_train = traverse_routes!(bag_round_stop, k, timetable, marked_stops)
+        @debug "round $k: mark $(length(marked_stops_by_train)) train-stops"
 
         # Walk to other stops at stations of marked_stops
         marked_stops_by_walking = add_walking!(
             bag_round_stop, k, timetable, marked_stops_by_train
         )
+        @debug "round $k: mark $(length(marked_stops_by_walking)) walking-stops"
 
         # Combine marked stops
         marked_stops = union(marked_stops_by_train, marked_stops_by_walking)
-
-        for station_name in ["AC", "HT", "ASA", "ASB"]
-            println(
-                 "Round $k, station $station_name"
-            )
-            for current_stop in timetable.stations[station_name].stops
-                for option in bag_round_stop[k][current_stop].options
-                    if current_stop in marked_stops
-                        print("(marked) ")
-                    end
-                    println("$(current_stop.station_abbreviation)$(current_stop.platform_code) ",                            option.label, " ", option.trip_to_station.name, 
-                                " from ", option.from_stop.station_abbreviation,  option.from_stop.platform_code)
-                end
-            end
-        end
     end
     @debug "finished raptor algorithm to create bag with best options"
     return bag_round_stop, last_round
@@ -504,13 +434,15 @@ function run_mc_raptor_and_construct_journeys(
         @info "calculating journey options for $(length(departure_times_from_origin)) departures from $(origin.name) ($(origin.abbreviation))"
     end
 
-    last_round_bag = nothing
+    previous_bag_round_stop = nothing
     for departure in departure_times_from_origin
         query = McRaptorQuery(origin, departure, maximum_transfers)
-        bag_round_stop, last_round = run_mc_raptor(timetable, query, last_round_bag)
-        last_round_bag = deepcopy(bag_round_stop[last_round])
+        bag_round_stop, last_round = run_mc_raptor(
+            timetable, query, previous_bag_round_stop
+        )
+        previous_bag_round_stop = bag_round_stop
         reconstruct_journeys_to_all_destinations!(
-            journeys, query.origin, timetable, bag_round_stop, last_round
+            journeys, query, timetable, bag_round_stop, last_round
         )
     end
     remove_duplicate_journeys!(journeys)
@@ -559,7 +491,6 @@ function calculate_all_journeys_mt(
     departure_time_max = date + Time(23, 59)
 
     chuncks = calculate_chuncks(timetable, departure_time_min, departure_time_max, nchuncks)
-    # chuncks = [[v] for (k,v) in timetable.stations if k in ["ZL","GN"]]
 
     @info "calculating all journeys between $(departure_time_min) and $(departure_time_max)"
     @info "   maximum transfers = $(maximum_transfers)"
@@ -591,4 +522,3 @@ function calculate_all_journeys_mt(
     end
     return result
 end
- 
