@@ -379,9 +379,12 @@ function run_mc_raptor(
 
         # Copy bag from previous round
         bag_round_stop[k] = copy(bag_round_stop[k - 1])
+        # Merge bag for this round from previous run if available
         for stop in keys(bag_round_stop[k])
             if !isnothing(result_previous_run) && (stop in keys(result_previous_run[k]))
-                bag_round_stop[k][stop] = merge_bags(bag_round_stop[k][stop], result_previous_run[k][stop])
+                bag_round_stop[k][stop] = merge_bags(
+                    bag_round_stop[k][stop], result_previous_run[k][stop]
+                )
             end
         end
 
@@ -434,7 +437,9 @@ function run_mc_raptor_and_construct_journeys(
     previous_bag_round_stop = nothing
     for departure in departure_times_from_origin
         query = McRaptorQuery(origin, departure, maximum_transfers)
-        bag_round_stop, last_round = run_mc_raptor(timetable, query, previous_bag_round_stop)
+        bag_round_stop, last_round = run_mc_raptor(
+            timetable, query, previous_bag_round_stop
+        )
         previous_bag_round_stop = bag_round_stop
         reconstruct_journeys_to_all_destinations!(
             journeys, query, timetable, bag_round_stop, last_round
