@@ -1,8 +1,11 @@
 """Create dict of stops from gtfs stops dataframe"""
 function create_stops(gtfs_stops::DataFrame)
-    stops = Stop.(
-        String.(gtfs_stops.stop_id), gtfs_stops.stop_code, String.(gtfs_stops.platform_code)
-    )
+    stops =
+        Stop.(
+            String.(gtfs_stops.stop_id),
+            gtfs_stops.stop_code,
+            String.(gtfs_stops.platform_code),
+        )
     return Dict(stop.id => stop for stop in stops)
 end
 
