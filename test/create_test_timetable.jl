@@ -36,8 +36,8 @@ function create_test_timetable()
     stations = Dict(s.abbreviation => s for s in list_of_stations)
 
     list_of_routes = [
-        Route("r1", [stops[id] for id in ["s11", "s22", "s31", "s43", "s51"]]),
-        Route("r2", [stops[id] for id in ["s71", "s42", "s61"]]),
+        Route("r1", [stops[id] for id in ["s11", "s22", "s31", "s43", "s61"]]),
+        Route("r2", [stops[id] for id in ["s71", "s42", "s51"]]),
         Route("r3", [stops[id] for id in ["s22", "s72"]]),
         Route("r4", [stops[id] for id in ["s21", "s81", "s41"]]),
     ]

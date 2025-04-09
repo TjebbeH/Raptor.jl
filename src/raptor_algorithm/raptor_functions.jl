@@ -10,11 +10,11 @@ Use result of previous round if available
 function initialize_bag_round_stop(
     maximum_rounds::Int,
     stops::Base.ValueIterator{Dict{String,Stop}},
-    result_previous_run::Union{Dict{Stop,Bag},Nothing},
+    result_previous_run::Union{Vector{Dict{Stop,Bag}},Nothing},
 )
     bag_round_stop = [create_stop_to_empty_bags(stops) for _ in 1:maximum_rounds]
     if !isnothing(result_previous_run)
-        bag_round_stop[1] = result_previous_run
+        bag_round_stop[1] = result_previous_run[1]
     end
     return bag_round_stop
 end
@@ -175,6 +175,23 @@ end
 merge_bags(bags::Vector{Bag}) = reduce(merge_bags, bags)
 
 different_options(b1::Bag, b2::Bag) = b1.options != b2.options
+
+"""
+Merge bag for this round from previous run if available
+"""
+function merge_bags_previous_result!(
+    bag_round_stop::Vector{Dict{Stop,Bag}},
+    result_previous_run::Vector{Dict{Stop,Bag}},
+    k::Int,
+)
+    for stop in keys(bag_round_stop[k])
+        if stop in keys(result_previous_run[k])
+            bag_round_stop[k][stop] = merge_bags(
+                bag_round_stop[k][stop], result_previous_run[k][stop]
+            )
+        end
+    end
+end
 
 function traverse_routes!(
     bag_round_stop::Vector{Dict{Stop,Bag}},
@@ -363,7 +380,7 @@ end
 function run_mc_raptor(
     timetable::TimeTable,
     query::McRaptorQuery,
-    result_previous_run::Union{Dict{Stop,Bag},Nothing}=nothing,
+    result_previous_run::Union{Vector{Dict{Stop,Bag}},Nothing}=nothing,
 )
     maximum_rounds = query.maximum_transfers + 2
     @debug "round 1: initialization"
@@ -379,6 +396,13 @@ function run_mc_raptor(
 
         # Copy bag from previous round
         bag_round_stop[k] = copy(bag_round_stop[k - 1])
+        if !isnothing(result_previous_run)
+            # Merge bag for this round from previous run if available.
+            # Otherwise we have labels with more than k - 2 trips from previous rounds,
+            # which would leed to wrong results (see create_test_timetable2 for example)
+            merge_bags_previous_result!(bag_round_stop, result_previous_run, k)
+        end
+
         if length(marked_stops) == 0
             @debug "no marked stops"
             break
@@ -425,11 +449,13 @@ function run_mc_raptor_and_construct_journeys(
         @info "calculating journey options for $(length(departure_times_from_origin)) departures from $(origin.name) ($(origin.abbreviation))"
     end
 
-    last_round_bag = nothing
+    previous_bag_round_stop = nothing
     for departure in departure_times_from_origin
         query = McRaptorQuery(origin, departure, maximum_transfers)
-        bag_round_stop, last_round = run_mc_raptor(timetable, query, last_round_bag)
-        last_round_bag = deepcopy(bag_round_stop[last_round])
+        bag_round_stop, last_round = run_mc_raptor(
+            timetable, query, previous_bag_round_stop
+        )
+        previous_bag_round_stop = bag_round_stop
         reconstruct_journeys_to_all_destinations!(
             journeys, query, timetable, bag_round_stop, last_round
         )
