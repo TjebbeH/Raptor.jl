@@ -181,17 +181,16 @@ Merge bag for this round from previous run if available
 """
 function merge_bags_previous_result!(
     bag_round_stop::Vector{Dict{Stop,Bag}},
-    result_previous_run::Union{Vector{Dict{Stop,Bag}},Nothing},
+    result_previous_run::Vector{Dict{Stop,Bag}},
     k::Int,
 )
     for stop in keys(bag_round_stop[k])
-        if !isnothing(result_previous_run) && (stop in keys(result_previous_run[k]))
+        if stop in keys(result_previous_run[k])
             bag_round_stop[k][stop] = merge_bags(
                 bag_round_stop[k][stop], result_previous_run[k][stop]
             )
         end
     end
-    return bag_round_stop
 end
 
 function traverse_routes!(
@@ -397,8 +396,12 @@ function run_mc_raptor(
 
         # Copy bag from previous round
         bag_round_stop[k] = copy(bag_round_stop[k - 1])
-        # Merge bag for this round from previous run if available
-        bag_round_stop = merge_bags_previous_result!(bag_round_stop, result_previous_run, k)
+        if !isnothing(result_previous_run)
+            # Merge bag for this round from previous run if available.
+            # Otherwise we have labels with more than k - 2 trips from previous rounds,
+            # which would leed to wrong results (see create_test_timetable2 for example)
+            merge_bags_previous_result!(bag_round_stop, result_previous_run, k)
+        end
 
         if length(marked_stops) == 0
             @debug "no marked stops"
