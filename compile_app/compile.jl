@@ -1,6 +1,3 @@
-using Pkg
-Pkg.activate("RaptorApp")
-
 using PackageCompiler
 
-create_app("RaptorApp", "RaptorAppCompiled", filter_stdlibs=true, force=true)
+create_app("compile_app/RaptorApp", "compile_RaptorAppCompiled", filter_stdlibs=true, force=true)
