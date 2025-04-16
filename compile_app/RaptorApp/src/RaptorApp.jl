@@ -24,13 +24,10 @@ function real_main()
 
     @info "timetable loaded with period = $(timetable.period)"
 
-    maximum_transfers = 1
-    journeys = @time calculate_all_journeys_mt(timetable, date, maximum_transfers)
-    df = journeys_to_dataframe(journeys)
-    df.algoritme_naam .= "raptor.jl"
+    journeys = @time calculate_all_journeys_mt(timetable, date)
     @info "calculated all journeys! but your not getting them."
     
-    return nothing 
+    return journeys 
 end
 
 end # module
