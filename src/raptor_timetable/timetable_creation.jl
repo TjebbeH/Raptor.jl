@@ -215,9 +215,8 @@ function save_timetable(timetable::TimeTable)
     return save_timetable(timetable, "raptor_timetable")
 end
 
-function load_timetable(filename::String)
-    path = joinpath([@__DIR__, "data", filename])
-    return deserialize(path)
+function load_timetable(path_to_file::String)
+    return deserialize(path_to_file)
 end
 
 function load_timetable()
